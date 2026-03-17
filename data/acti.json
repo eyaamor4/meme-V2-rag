@@ -1,0 +1,253 @@
+{
+  "scan_id": "0bd9c187-abaa-454c-b2ea-bf0b3dbed49c",
+  "cms": "wordpress",
+  "mode": "light",
+  "risk_level": "medium",
+  "severity_counts": {
+    "low": 3,
+    "medium": 1,
+    "high": 0,
+    "critical": 0
+  },
+  "total_vulnerabilities": 4,
+  "scan": {
+    "_id": "69b0242d1f44014fe0e13b27",
+    "scan_id": "0bd9c187-abaa-454c-b2ea-bf0b3dbed49c",
+    "cms_scan": {
+      "detected": true,
+      "cms": "wordpress",
+      "cves": [
+        {
+          "source": "wpprobe",
+          "plugin": "wordpress-seo",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        }
+      ],
+      "plugins": [],
+      "themes": [],
+      "scanned_at": null,
+      "wpprobe_report": null
+    },
+    "cms_type": "wordpress",
+    "created_at": "2026-03-10 14:01:17.187000",
+    "mode": "light",
+    "nuclei_scan": {
+      "target_url": "http://www.acti.fr/",
+      "cms": "wordpress",
+      "nuclei_stdout": "",
+      "nuclei_stderr": "",
+      "returncode": 0,
+      "source": "nuclei",
+      "parsed_results": []
+    },
+    "preview_only": false,
+    "recon": {
+      "webanalyze": {
+        "hostname": "http://www.acti.fr/",
+        "technologies": [
+          {
+            "name": "Yoast SEO",
+            "version": ""
+          },
+          {
+            "name": "WordPress",
+            "version": ""
+          },
+          {
+            "name": "WP-Optimize",
+            "version": ""
+          },
+          {
+            "name": "WordPress",
+            "version": "6.4.3"
+          },
+          {
+            "name": "PHP",
+            "version": ""
+          },
+          {
+            "name": "MySQL",
+            "version": ""
+          },
+          {
+            "name": "Apache HTTP Server",
+            "version": ""
+          },
+          {
+            "name": "Google Tag Manager",
+            "version": ""
+          },
+          {
+            "name": "HSTS",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "risk_level": "medium",
+    "scan_time": 88.72,
+    "severity_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "low": 3
+    },
+    "source": "scanner_api",
+    "target_url": "http://www.acti.fr/",
+    "updated_at": "2026-03-10 14:01:17.187000",
+    "zap_scan": {
+      "target_url": "http://www.acti.fr/",
+      "source": "zap-light",
+      "baseurl": "http://www.acti.fr",
+      "alerts": [
+        {
+          "nodeName": "http://www.acti.fr/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "",
+          "pluginId": "10038",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "http://www.acti.fr/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+          "alert": "Content Security Policy (CSP) Header Not Set",
+          "param": "",
+          "attack": "",
+          "name": "Content Security Policy (CSP) Header Not Set",
+          "risk": "Medium",
+          "id": "0",
+          "alertRef": "10038-1"
+        },
+        {
+          "nodeName": "http://www.acti.fr/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "set-cookie: WEBSRVID",
+          "pluginId": "10010",
+          "cweid": "1004",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "13",
+          "description": "A cookie has been set without the HttpOnly flag, which means that the cookie can be accessed by JavaScript. If a malicious script can be run on this page then the cookie will be accessible and can be transmitted to another site. If this is a session cookie then session hijacking may be possible.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "http://www.acti.fr/",
+          "tags": {
+            "CWE-1004": "https://cwe.mitre.org/data/definitions/1004.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "WSTG-v42-SESS-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/02-Testing_for_Cookies_Attributes",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://owasp.org/www-community/HttpOnly",
+          "solution": "Ensure that the HttpOnly flag is set for all cookies.",
+          "alert": "Cookie No HttpOnly Flag",
+          "param": "WEBSRVID",
+          "attack": "",
+          "name": "Cookie No HttpOnly Flag",
+          "risk": "Low",
+          "id": "1",
+          "alertRef": "10010"
+        },
+        {
+          "nodeName": "http://www.acti.fr/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "set-cookie: WEBSRVID",
+          "pluginId": "10054",
+          "cweid": "1275",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "13",
+          "description": "A cookie has been set without the SameSite attribute, which means that the cookie can be sent as a result of a 'cross-site' request. The SameSite attribute is an effective counter measure to cross-site request forgery, cross-site script inclusion, and timing attacks.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "http://www.acti.fr/",
+          "tags": {
+            "OWASP_2021_A01": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+            "POLICY_QA_STD": "",
+            "WSTG-v42-SESS-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/02-Testing_for_Cookies_Attributes",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-1275": "https://cwe.mitre.org/data/definitions/1275.html",
+            "OWASP_2017_A05": "https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://datatracker.ietf.org/doc/html/draft-ietf-httpbis-cookie-same-site",
+          "solution": "Ensure that the SameSite attribute is set to either 'lax' or ideally 'strict' for all cookies.",
+          "alert": "Cookie without SameSite Attribute",
+          "param": "WEBSRVID",
+          "attack": "",
+          "name": "Cookie without SameSite Attribute",
+          "risk": "Low",
+          "id": "2",
+          "alertRef": "10054-1"
+        }
+      ],
+      "total_alerts": 3
+    },
+    "zap_status": "completed"
+  },
+  "cms_scan": {
+    "detected": true,
+    "cms": "wordpress",
+    "cves": [
+      {
+        "source": "wpprobe",
+        "plugin": "wordpress-seo",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      }
+    ],
+    "plugins": [],
+    "themes": [],
+    "scanned_at": null,
+    "wpprobe_report": null
+  },
+  "nuclei_scan": {
+    "target_url": "http://www.acti.fr/",
+    "cms": "wordpress",
+    "nuclei_stdout": "",
+    "nuclei_stderr": "",
+    "returncode": 0,
+    "source": "nuclei",
+    "parsed_results": []
+  },
+  "zap_scan": null
+}

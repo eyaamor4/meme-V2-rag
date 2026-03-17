@@ -1,0 +1,223 @@
+{
+  "_id": {
+    "$oid": "694a766ed835ee84c8aa695a"
+  },
+  "scan_id": "5ec2ec03-3d81-4111-b866-995b028af9af",
+  "target_url": "https://mandrillapp.com/",
+  "cms_type": "prestashop",
+  "preview_only": false,
+  "cms_scan": {
+    "site": "https://mandrillapp.com/",
+    "scanned_at": "2025-12-23T11:00:06.906735",
+    "scanner_version": "2.2",
+    "version_detected": "unknown",
+    "modules_detected": [],
+    "findings": [
+      "[!] Missing security header: X-Frame-Options",
+      "[+] Forbidden but exists: https://mandrillapp.com/admin/",
+      "[+] Forbidden but exists: https://mandrillapp.com/admin-dev/",
+      "[+] Forbidden but exists: https://mandrillapp.com/admin123/",
+      "[+] Forbidden but exists: https://mandrillapp.com/phpinfo.php"
+    ],
+    "cves": [],
+    "target": "mandrillapp.com",
+    "date": "2025-12-23",
+    "scan_id": "61705c71-5079-4c0e-a11a-d02340b29d8d",
+    "score": 78,
+    "is_vulnerable": true
+  },
+  "nuclei_scan": {
+    "target_url": "https://mandrillapp.com/",
+    "cms": "prestashop",
+    "nuclei_stdout": "[tls-version] [ssl] [info] mandrillapp.com:443 [\"tls12\"]\n[tls-version] [ssl] [info] mandrillapp.com:443 [\"tls13\"]\n[http-missing-security-headers:cross-origin-embedder-policy] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:cross-origin-opener-policy] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:cross-origin-resource-policy] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:permissions-policy] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:x-frame-options] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:x-permitted-cross-domain-policies] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:referrer-policy] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[http-missing-security-headers:clear-site-data] [http] [info] https://mandrillapp.com/login/?referrer=%2F\n[missing-cookie-samesite-strict] [http] [info] https://mandrillapp.com/ [\"MDSESSID=marh4041aucrsphie1c5ulid83; expires=Tue, 23 Dec 2025 21:00:37 GMT; Max-Age=36000; path=/; domain=mandrillapp.com; secure; HttpOnly; SameSite=Lax\"]\n[spf-record-detect] [dns] [info] mandrillapp.com [\"v=spf1 include:spf.mandrillapp.com ~all\"\"]\n[txt-fingerprint] [dns] [info] mandrillapp.com [\"\"google-site-verification=2dux36j2swb0zcDthVB4cvIakenujxPx2S1DGvOvhpo\"\",\"\"v=spf1 include:spf.mandrillapp.com ~all\"\",\"\"yahoo-verification-key=J0O8RUMRbvSyIUKQS6MEPRheM44S/KBgM/v+/5AK23o=\"\"]\n[caa-fingerprint] [dns] [info] mandrillapp.com\n[nameserver-fingerprint] [dns] [info] mandrillapp.com [\"ns-1127.awsdns-12.org.\",\"ns-1934.awsdns-49.co.uk.\",\"ns-289.awsdns-36.com.\",\"ns-720.awsdns-26.net.\"]\n[dmarc-detect] [dns] [info] _dmarc.mandrillapp.com [\"\"v=DMARC1; p=reject; rua=mailto:19ezfriw@ag.dmarcian.com;\"\"]\n[mx-fingerprint] [dns] [info] mandrillapp.com [\"10 9656353.in1.mandrillapp.com.\",\"20 9656353.in2.mandrillapp.com.\"]\n[ssl-issuer] [ssl] [info] mandrillapp.com:443 [\"DigiCert Inc\"]\n[ssl-dns-names] [ssl] [info] mandrillapp.com:443 [\"mandrillapp.com\",\"www.mandrillapp.com\",\"*.in1.mandrillapp.com\",\"*.in2.mandrillapp.com\",\"*.mandrillapp.com\",\"*.us-west-2.tx-prod.prod.mandrillapp.com\"]\n[wildcard-tls] [ssl] [info] mandrillapp.com:443 [\"SAN: [mandrillapp.com www.mandrillapp.com *.in1.mandrillapp.com *.in2.mandrillapp.com *.mandrillapp.com *.us-west-2.tx-prod.prod.mandrillapp.com]\",\"CN: mandrillapp.com\"]\n",
+    "nuclei_stderr": "",
+    "returncode": 0,
+    "source": "nuclei",
+    "parsed_results": [
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "mandrillapp.com:443",
+        "details": "tls12"
+      },
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "mandrillapp.com:443",
+        "details": "tls13"
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-embedder-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-opener-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-resource-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:permissions-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-frame-options",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-permitted-cross-domain-policies",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:referrer-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:clear-site-data",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/login/?referrer=%2F",
+        "details": []
+      },
+      {
+        "name": "missing-cookie-samesite-strict",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://mandrillapp.com/",
+        "details": "MDSESSID=marh4041aucrsphie1c5ulid83; expires=Tue, 23 Dec 2025 21:00:37 GMT; Max-Age=36000; path=/; domain=mandrillapp.com; secure; HttpOnly; SameSite=Lax"
+      },
+      {
+        "name": "spf-record-detect",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "mandrillapp.com",
+        "details": [
+          "\"v=spf1 include:spf.mandrillapp.com ~all\"\""
+        ]
+      },
+      {
+        "name": "txt-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "mandrillapp.com",
+        "details": [
+          "\"\"google-site-verification=2dux36j2swb0zcDthVB4cvIakenujxPx2S1DGvOvhpo\"\",\"\"v=spf1 include:spf.mandrillapp.com ~all\"\",\"\"yahoo-verification-key=J0O8RUMRbvSyIUKQS6MEPRheM44S/KBgM/v+/5AK23o=\"\""
+        ]
+      },
+      {
+        "name": "caa-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "mandrillapp.com",
+        "details": []
+      },
+      {
+        "name": "nameserver-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "mandrillapp.com",
+        "details": [
+          "ns-1127.awsdns-12.org.",
+          "ns-1934.awsdns-49.co.uk.",
+          "ns-289.awsdns-36.com.",
+          "ns-720.awsdns-26.net."
+        ]
+      },
+      {
+        "name": "dmarc-detect",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "_dmarc.mandrillapp.com",
+        "details": [
+          "\"\"v=DMARC1; p=reject; rua=mailto:19ezfriw@ag.dmarcian.com;\"\""
+        ]
+      },
+      {
+        "name": "mx-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "mandrillapp.com",
+        "details": [
+          "10 9656353.in1.mandrillapp.com.",
+          "20 9656353.in2.mandrillapp.com."
+        ]
+      },
+      {
+        "name": "ssl-issuer",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "mandrillapp.com:443",
+        "details": "DigiCert Inc"
+      },
+      {
+        "name": "ssl-dns-names",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "mandrillapp.com:443",
+        "details": [
+          "mandrillapp.com",
+          "www.mandrillapp.com",
+          "*.in1.mandrillapp.com",
+          "*.in2.mandrillapp.com",
+          "*.mandrillapp.com",
+          "*.us-west-2.tx-prod.prod.mandrillapp.com"
+        ]
+      },
+      {
+        "name": "wildcard-tls",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "mandrillapp.com:443",
+        "details": [
+          "SAN: [mandrillapp.com www.mandrillapp.com *.in1.mandrillapp.com *.in2.mandrillapp.com *.mandrillapp.com *.us-west-2.tx-prod.prod.mandrillapp.com]",
+          "CN: mandrillapp.com"
+        ]
+      }
+    ]
+  },
+  "recon": {
+    "webanalyze": {
+      "error": "/bin/sh: 1: webanalyze: not found"
+    },
+    "httpx": {
+      "error": "Expecting value: line 1 column 1 (char 0)"
+    }
+  },
+  "scan_time": 56.42,
+  "mode": "light",
+  "source": "scanner_api",
+  "zap_scan": {
+    "alerts": [],
+    "total_alerts": 0,
+    "scan_time": 0,
+    "source": "zap-light"
+  },
+  "created_at": {
+    "$date": "2025-12-23T11:01:02.243Z"
+  }
+}

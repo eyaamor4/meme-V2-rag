@@ -1,0 +1,866 @@
+{
+  "scan_id": "d911b607-65f6-4cad-b88e-48bdacbbbd1c",
+  "cms": "inconnu",
+  "mode": "light",
+  "risk_level": "medium",
+  "severity_counts": {
+    "low": 6,
+    "medium": 5,
+    "high": 0,
+    "critical": 0
+  },
+  "total_vulnerabilities": 11,
+  "scan": {
+    "_id": "6985a4debbea05d8dfa37e45",
+    "scan_id": "d911b607-65f6-4cad-b88e-48bdacbbbd1c",
+    "target_url": "https://owasp.org/",
+    "cms_type": "inconnu",
+    "preview_only": false,
+    "cms_scan": null,
+    "nuclei_scan": {
+      "target_url": "https://owasp.org/",
+      "cms": "inconnu",
+      "nuclei_stdout": "[dns-waf-detect:cloudflare] [dns] [info] owasp.org\n[missing-sri] [http] [info] https://owasp.org/ [\"https://www.google-analytics.com/analytics.js\",\"https://owasp.org/www--site-theme/assets/js/jquery-3.7.1.min.js\",\"https://owasp.org/www--site-theme/assets/js/util.js\",\"https://owasp.org/www--site-theme/assets/js/yaml.min.js\",\"https://owasp.org/www--site-theme/assets/js/kjua.min.js\",\"https://owasp.org/www--site-theme/assets/js/js.cookie.min.js\",\"https://owasp.org/www--site-theme/assets/css/styles.css\"]\n[tls-version] [ssl] [info] owasp.org:443 [\"tls12\"]\n[tls-version] [ssl] [info] owasp.org:443 [\"tls13\"]\n[http-missing-security-headers:clear-site-data] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-embedder-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-opener-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-resource-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:x-permitted-cross-domain-policies] [http] [info] https://owasp.org/\n[google-calendar-exposure:calendar-url] [http] [low] https://owasp.org/ [\"https://calendar.google.com/calendar/embed?src=hl6cjgs6ep1h7oniqgueu2bhbo%40group.calendar.google.com&amp;ctz=America%2FChicago\"]\n[csp-script-src-wildcard] [http] [info] https://owasp.org/\n[weak-csp-detect:script-src-directive] [http] [info] https://owasp.org/ [\"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com\"]\n[weak-csp-detect:default-src-directive] [http] [info] https://owasp.org/ [\"default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net\"]\n[fastly-debug-headers:fastly-debug-path] [http] [info] https://owasp.org/\n[fastly-debug-headers:fastly-debug-ttl] [http] [info] https://owasp.org/\n[fastly-debug-headers:fastly-debug-digest] [http] [info] https://owasp.org/\n[spf-record-detect] [dns] [info] owasp.org [\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\"]\n[txt-fingerprint] [dns] [info] owasp.org [\"\"google-site-verification=I9qx_X9EKlR_rfceG25-iXHBXJvLrmeNbkEdy182iI\"\",\"\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\",\"\"google-site-verification=_slXlbOCopK1Ss9VQEoxdsNxpScVKvXVB_JtPpyL3eQ\"\",\"\"google-site-verification=hJ9eCIFoexfh1sb-WVBkVB5PEND3JiaojOVyaNpyWK8\"\",\"\"google-site-verification=kmxuuCvLW4gII8YaV-3ilTOLUvjZa3uaipm0tmpVGpU\"\",\"\"google-site-verification=ubHJGF1N2ylOhYxQnIzEIIFaqUodqsIdTLXF-rCX9ps\"\",\"\"MS=ms73859685\"\",\"\"RrGYbfHtHhF55ld5k5Rw87iuBu7wAWOX4GR9zffrTh4=\"\",\"\"atlassian-domain-verification=BhaFKFKoRcW20xvi6UJ3U0CKocKOCgLH6LSuiBYPQ5A53cSCUN6gcbzcKSOmlVGs\"\",\"\"google-site-verification=1zT9Of9pBuTj1rgeGCxMbya3iQQMxFE9-DzUBhftUVQ\"\"]\n[mx-fingerprint] [dns] [info] owasp.org [\"1 aspmx.l.google.com.\",\"5 alt1.aspmx.l.google.com.\",\"10 alt3.aspmx.l.google.com.\",\"5 alt2.aspmx.l.google.com.\",\"10 alt4.aspmx.l.google.com.\"]\n[mx-service-detector:Google Apps] [dns] [info] owasp.org\n[caa-fingerprint] [dns] [info] owasp.org\n[dmarc-detect] [dns] [info] _dmarc.owasp.org [\"\"v=DMARC1; p=quarantine; rua=mailto:88b4c392605549efbbfedf60d5b5ba94@dmarc-reports.cloudflare.net,mailto:owasp-dmarc-reports@owasp.com\"\"]\n[dkim-record-detect] [dns] [info] google._domainkey.owasp.org [\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5isI707a9CxKrh9pFfCqdXsY15Ig8oaPkg4NhsNJskXdJ0zpM5Hes3WH2WxyjzAQfJMh03R8NeY4k5uBN8Vp1vZ6rwB6f34NiGEK6uyDKMEP/ak7CdjmCWK8gnmznDrfK0OJCu+sngzLqQJ1gaXSBbj+XUmazvtoDph6g/Qql+Gj5osAZDLj8ZjQot8/7W1GX\" \"QHL7J8gSKDyAUMJaagGUglootlWq0IHMjwFHccJp2GyVbgMMOllmVoDTov1kX50cXuoy2nsgDneZISSV7KSOt9bef5AdbfhNeqKHc7B/Z9VleLAP8Ikyn7wun+NjA5eLR1m5GI7a/L484HAaTKxcQIDAQAB\"\"]\n[nameserver-fingerprint] [dns] [info] owasp.org [\"fay.ns.cloudflare.com.\",\"west.ns.cloudflare.com.\"]\n[ssl-issuer] [ssl] [info] owasp.org:443 [\"Google Trust Services\"]\n[ssl-dns-names] [ssl] [info] owasp.org:443 [\"*.owasp.org\",\"owasp.org\"]\n[wildcard-tls] [ssl] [info] owasp.org:443 [\"CN: owasp.org\",\"SAN: [owasp.org *.owasp.org]\"]\n",
+      "nuclei_stderr": "",
+      "returncode": 0,
+      "source": "nuclei",
+      "parsed_results": [
+        {
+          "name": "dns-waf-detect:cloudflare",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": []
+        },
+        {
+          "name": "missing-sri",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": [
+            "https://www.google-analytics.com/analytics.js",
+            "https://owasp.org/www--site-theme/assets/js/jquery-3.7.1.min.js",
+            "https://owasp.org/www--site-theme/assets/js/util.js",
+            "https://owasp.org/www--site-theme/assets/js/yaml.min.js",
+            "https://owasp.org/www--site-theme/assets/js/kjua.min.js",
+            "https://owasp.org/www--site-theme/assets/js/js.cookie.min.js",
+            "https://owasp.org/www--site-theme/assets/css/styles.css"
+          ]
+        },
+        {
+          "name": "tls-version",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "owasp.org:443",
+          "details": "tls12"
+        },
+        {
+          "name": "tls-version",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "owasp.org:443",
+          "details": "tls13"
+        },
+        {
+          "name": "http-missing-security-headers:clear-site-data",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-embedder-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-opener-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-resource-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:x-permitted-cross-domain-policies",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "google-calendar-exposure:calendar-url",
+          "protocol": "http",
+          "severity": "low",
+          "host": "https://owasp.org/",
+          "details": "https://calendar.google.com/calendar/embed?src=hl6cjgs6ep1h7oniqgueu2bhbo%40group.calendar.google.com&amp;ctz=America%2FChicago"
+        },
+        {
+          "name": "csp-script-src-wildcard",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "weak-csp-detect:script-src-directive",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com"
+        },
+        {
+          "name": "weak-csp-detect:default-src-directive",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net"
+        },
+        {
+          "name": "fastly-debug-headers:fastly-debug-path",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "fastly-debug-headers:fastly-debug-ttl",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "fastly-debug-headers:fastly-debug-digest",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://owasp.org/",
+          "details": []
+        },
+        {
+          "name": "spf-record-detect",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": [
+            "\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\""
+          ]
+        },
+        {
+          "name": "txt-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": [
+            "\"\"google-site-verification=I9qx_X9EKlR_rfceG25-iXHBXJvLrmeNbkEdy182iI\"\",\"\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\",\"\"google-site-verification=_slXlbOCopK1Ss9VQEoxdsNxpScVKvXVB_JtPpyL3eQ\"\",\"\"google-site-verification=hJ9eCIFoexfh1sb-WVBkVB5PEND3JiaojOVyaNpyWK8\"\",\"\"google-site-verification=kmxuuCvLW4gII8YaV-3ilTOLUvjZa3uaipm0tmpVGpU\"\",\"\"google-site-verification=ubHJGF1N2ylOhYxQnIzEIIFaqUodqsIdTLXF-rCX9ps\"\",\"\"MS=ms73859685\"\",\"\"RrGYbfHtHhF55ld5k5Rw87iuBu7wAWOX4GR9zffrTh4=\"\",\"\"atlassian-domain-verification=BhaFKFKoRcW20xvi6UJ3U0CKocKOCgLH6LSuiBYPQ5A53cSCUN6gcbzcKSOmlVGs\"\",\"\"google-site-verification=1zT9Of9pBuTj1rgeGCxMbya3iQQMxFE9-DzUBhftUVQ\"\""
+          ]
+        },
+        {
+          "name": "mx-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": [
+            "1 aspmx.l.google.com.",
+            "5 alt1.aspmx.l.google.com.",
+            "10 alt3.aspmx.l.google.com.",
+            "5 alt2.aspmx.l.google.com.",
+            "10 alt4.aspmx.l.google.com."
+          ]
+        },
+        {
+          "name": "mx-service-detector:Google Apps",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": []
+        },
+        {
+          "name": "caa-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": []
+        },
+        {
+          "name": "dmarc-detect",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "_dmarc.owasp.org",
+          "details": [
+            "\"\"v=DMARC1; p=quarantine; rua=mailto:88b4c392605549efbbfedf60d5b5ba94@dmarc-reports.cloudflare.net,mailto:owasp-dmarc-reports@owasp.com\"\""
+          ]
+        },
+        {
+          "name": "dkim-record-detect",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "google._domainkey.owasp.org",
+          "details": [
+            "\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5isI707a9CxKrh9pFfCqdXsY15Ig8oaPkg4NhsNJskXdJ0zpM5Hes3WH2WxyjzAQfJMh03R8NeY4k5uBN8Vp1vZ6rwB6f34NiGEK6uyDKMEP/ak7CdjmCWK8gnmznDrfK0OJCu+sngzLqQJ1gaXSBbj+XUmazvtoDph6g/Qql+Gj5osAZDLj8ZjQot8/7W1GX\" \"QHL7J8gSKDyAUMJaagGUglootlWq0IHMjwFHccJp2GyVbgMMOllmVoDTov1kX50cXuoy2nsgDneZISSV7KSOt9bef5AdbfhNeqKHc7B/Z9VleLAP8Ikyn7wun+NjA5eLR1m5GI7a/L484HAaTKxcQIDAQAB\"\""
+          ]
+        },
+        {
+          "name": "nameserver-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "owasp.org",
+          "details": [
+            "fay.ns.cloudflare.com.",
+            "west.ns.cloudflare.com."
+          ]
+        },
+        {
+          "name": "ssl-issuer",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "owasp.org:443",
+          "details": "Google Trust Services"
+        },
+        {
+          "name": "ssl-dns-names",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "owasp.org:443",
+          "details": [
+            "*.owasp.org",
+            "owasp.org"
+          ]
+        },
+        {
+          "name": "wildcard-tls",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "owasp.org:443",
+          "details": [
+            "CN: owasp.org",
+            "SAN: [owasp.org *.owasp.org]"
+          ]
+        }
+      ]
+    },
+    "recon": {
+      "webanalyze": {
+        "hostname": "https://owasp.org/",
+        "technologies": [
+          {
+            "name": "HSTS",
+            "version": ""
+          },
+          {
+            "name": "Fastly",
+            "version": ""
+          },
+          {
+            "name": "Cloudflare",
+            "version": ""
+          },
+          {
+            "name": "Varnish",
+            "version": ""
+          },
+          {
+            "name": "GitHub Pages",
+            "version": ""
+          },
+          {
+            "name": "Amazon S3",
+            "version": ""
+          },
+          {
+            "name": "Amazon Web Services",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "scan_time": 38.78,
+    "mode": "light",
+    "source": "scanner_api",
+    "zap_scan": {
+      "alerts": [
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "max-age=600",
+          "pluginId": "10015",
+          "cweid": "525",
+          "confidence": "Low",
+          "sourceMessageId": 804,
+          "wascid": "13",
+          "description": "The cache-control header has not been set properly or is missing, allowing the browser and proxies to cache content. For static assets like css, js, or image files this might be intended, however, the resources should be reviewed to ensure that no sensitive content will be cached.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "CWE-525": "https://cwe.mitre.org/data/definitions/525.html",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "WSTG-v42-ATHN-06": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses"
+          },
+          "reference": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control\nhttps://grayduck.mn/2021/09/13/cache-control-recommendations/",
+          "solution": "For secure content, ensure the cache-control HTTP header is set with \"no-cache, no-store, must-revalidate\". If an asset should be cached consider setting the directives \"public, max-age, immutable\".",
+          "alert": "Re-examine Cache-control Directives",
+          "param": "cache-control",
+          "attack": "",
+          "name": "Re-examine Cache-control Directives",
+          "risk": "Informational",
+          "id": "7273",
+          "alertRef": "10015"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "The directive(s): form-action is/are among the directives that do not fallback to default-src.",
+          "method": "GET",
+          "evidence": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net; frame-ancestors 'self'; frame-src https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.sched.com https://*.google.com https://*.twitter.com https://www.youtube.com https://w.soundcloud.com https://buttons.github.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://fonts.googleapis.com https://platform.twitter.com https://*.twimg.com data:; font-src 'self' https://*.fontawesome.com fonts.gstatic.com; manifest-src 'self' https://pay.google.com; img-src 'self' https://*.globalappsec.org https://render.com https://*.render.com https://okteto.com https://*.okteto.com data: www.w3.org https://*.bestpractices.dev https://licensebuttons.net https://img.shields.io https://*.twitter.com https://github.githubassets.com https://*.twimg.com https://platform.twitter.com https://*.githubusercontent.com https://*.vercel.app https://*.cloudfront.net https://*.coreinfrastructure.org https://*.securityknowledgeframework.org https://badges.gitter.im https://travis-ci.org https://api.travis-ci.org https://s3.amazonaws.com https://snyk.io https://coveralls.io https://requires.io https://github.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://static.scarf.sh",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 804,
+          "wascid": "15",
+          "description": "The Content Security Policy fails to define one of the directives that has no fallback. Missing/excluding them is the same as allowing anything.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: Failure to Define Directive with No Fallback",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: Failure to Define Directive with No Fallback",
+          "risk": "Medium",
+          "id": "7274",
+          "alertRef": "10055-13"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "script-src includes unsafe-inline.",
+          "method": "GET",
+          "evidence": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net; frame-ancestors 'self'; frame-src https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.sched.com https://*.google.com https://*.twitter.com https://www.youtube.com https://w.soundcloud.com https://buttons.github.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://fonts.googleapis.com https://platform.twitter.com https://*.twimg.com data:; font-src 'self' https://*.fontawesome.com fonts.gstatic.com; manifest-src 'self' https://pay.google.com; img-src 'self' https://*.globalappsec.org https://render.com https://*.render.com https://okteto.com https://*.okteto.com data: www.w3.org https://*.bestpractices.dev https://licensebuttons.net https://img.shields.io https://*.twitter.com https://github.githubassets.com https://*.twimg.com https://platform.twitter.com https://*.githubusercontent.com https://*.vercel.app https://*.cloudfront.net https://*.coreinfrastructure.org https://*.securityknowledgeframework.org https://badges.gitter.im https://travis-ci.org https://api.travis-ci.org https://s3.amazonaws.com https://snyk.io https://coveralls.io https://requires.io https://github.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://static.scarf.sh",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 804,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: script-src unsafe-inline",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: script-src unsafe-inline",
+          "risk": "Medium",
+          "id": "7275",
+          "alertRef": "10055-5"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "style-src includes unsafe-inline.",
+          "method": "GET",
+          "evidence": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net; frame-ancestors 'self'; frame-src https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.sched.com https://*.google.com https://*.twitter.com https://www.youtube.com https://w.soundcloud.com https://buttons.github.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://fonts.googleapis.com https://platform.twitter.com https://*.twimg.com data:; font-src 'self' https://*.fontawesome.com fonts.gstatic.com; manifest-src 'self' https://pay.google.com; img-src 'self' https://*.globalappsec.org https://render.com https://*.render.com https://okteto.com https://*.okteto.com data: www.w3.org https://*.bestpractices.dev https://licensebuttons.net https://img.shields.io https://*.twitter.com https://github.githubassets.com https://*.twimg.com https://platform.twitter.com https://*.githubusercontent.com https://*.vercel.app https://*.cloudfront.net https://*.coreinfrastructure.org https://*.securityknowledgeframework.org https://badges.gitter.im https://travis-ci.org https://api.travis-ci.org https://s3.amazonaws.com https://snyk.io https://coveralls.io https://requires.io https://github.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://static.scarf.sh",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 804,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: style-src unsafe-inline",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: style-src unsafe-inline",
+          "risk": "Medium",
+          "id": "7276",
+          "alertRef": "10055-6"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "script-src includes unsafe-eval.",
+          "method": "GET",
+          "evidence": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net; frame-ancestors 'self'; frame-src https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.sched.com https://*.google.com https://*.twitter.com https://www.youtube.com https://w.soundcloud.com https://buttons.github.io; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://*.gstatic.com https://cdnjs.cloudflare.com https://www.google.com https://fonts.googleapis.com https://platform.twitter.com https://*.twimg.com data:; font-src 'self' https://*.fontawesome.com fonts.gstatic.com; manifest-src 'self' https://pay.google.com; img-src 'self' https://*.globalappsec.org https://render.com https://*.render.com https://okteto.com https://*.okteto.com data: www.w3.org https://*.bestpractices.dev https://licensebuttons.net https://img.shields.io https://*.twitter.com https://github.githubassets.com https://*.twimg.com https://platform.twitter.com https://*.githubusercontent.com https://*.vercel.app https://*.cloudfront.net https://*.coreinfrastructure.org https://*.securityknowledgeframework.org https://badges.gitter.im https://travis-ci.org https://api.travis-ci.org https://s3.amazonaws.com https://snyk.io https://coveralls.io https://requires.io https://github.com https://*.googleapis.com https://*.google.com https://*.gstatic.com https://static.scarf.sh",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 804,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: script-src unsafe-eval",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: script-src unsafe-eval",
+          "risk": "Medium",
+          "id": "7277",
+          "alertRef": "10055-10"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing.",
+          "method": "GET",
+          "evidence": "Access-Control-Allow-Origin: *",
+          "pluginId": "10098",
+          "cweid": "264",
+          "confidence": "Medium",
+          "sourceMessageId": 804,
+          "wascid": "14",
+          "description": "Web browser data loading may be possible, due to a Cross Origin Resource Sharing (CORS) misconfiguration on the web server.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A01": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A05": "https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html",
+            "CWE-264": "https://cwe.mitre.org/data/definitions/264.html"
+          },
+          "reference": "https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy",
+          "solution": "Ensure that sensitive data is not available in an unauthenticated manner (using IP address white-listing, for instance).\nConfigure the \"Access-Control-Allow-Origin\" HTTP header to a more restrictive set of domains, or remove all CORS headers entirely, to allow the web browser to enforce the Same Origin Policy (SOP) in a more restrictive manner.",
+          "alert": "Cross-Domain Misconfiguration",
+          "param": "",
+          "attack": "",
+          "name": "Cross-Domain Misconfiguration",
+          "risk": "Medium",
+          "id": "7278",
+          "alertRef": "10098"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script async src='https://www.google-analytics.com/analytics.js'></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 804,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://www.google-analytics.com/analytics.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "7279",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "The following pattern was used: \\bFROM\\b and was detected 2 times, the first in likely comment: \"// this works to get data from a json file NOT in data\", see evidence field for the suspicious comment/snippet.",
+          "method": "GET",
+          "evidence": "from",
+          "pluginId": "10027",
+          "cweid": "615",
+          "confidence": "Low",
+          "sourceMessageId": 804,
+          "wascid": "13",
+          "description": "The response appears to contain suspicious comments which may help an attacker.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "OWASP_2021_A01": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+            "POLICY_PENTEST": "",
+            "CWE-615": "https://cwe.mitre.org/data/definitions/615.html",
+            "WSTG-v42-INFO-05": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/05-Review_Webpage_Content_for_Information_Leakage",
+            "OWASP_2017_A03": "https://owasp.org/www-project-top-ten/2017/A3_2017-Sensitive_Data_Exposure.html"
+          },
+          "reference": "",
+          "solution": "Remove all comments that return information that may help an attacker and fix any underlying problems they refer to.",
+          "alert": "Information Disclosure - Suspicious Comments",
+          "param": "",
+          "attack": "",
+          "name": "Information Disclosure - Suspicious Comments",
+          "risk": "Informational",
+          "id": "7280",
+          "alertRef": "10027"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "Links have been found that do not have traditional href attributes, which is an indication that this is a modern web application.",
+          "method": "GET",
+          "evidence": "<a href=\"#\" class=\"menu-toggler\" aria-hidden=\"true\">\r\n        <i class=\"fa fa-bars\"></i>\r\n      </a>",
+          "pluginId": "10109",
+          "cweid": "-1",
+          "confidence": "Medium",
+          "sourceMessageId": 804,
+          "wascid": "-1",
+          "description": "The application appears to be a modern web application. If you need to explore it automatically then the Ajax Spider may well be more effective than the standard one.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "This is an informational alert and so no changes are required.",
+          "alert": "Modern Web Application",
+          "param": "",
+          "attack": "",
+          "name": "Modern Web Application",
+          "risk": "Informational",
+          "id": "7281",
+          "alertRef": "10109"
+        },
+        {
+          "nodeName": "https://owasp.org/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "HIT",
+          "pluginId": "10050",
+          "cweid": "525",
+          "confidence": "Medium",
+          "sourceMessageId": 804,
+          "wascid": "-1",
+          "description": "The content was retrieved from a shared cache. If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where caching servers such as \"proxy\" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.",
+          "messageId": "804",
+          "inputVector": "",
+          "url": "https://owasp.org/",
+          "tags": {
+            "CWE-525": "https://cwe.mitre.org/data/definitions/525.html",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "WSTG-v42-ATHN-06": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses"
+          },
+          "reference": "https://datatracker.ietf.org/doc/html/rfc7234\nhttps://datatracker.ietf.org/doc/html/rfc7231\nhttps://www.rfc-editor.org/rfc/rfc9110.html",
+          "solution": "Validate that the response does not contain sensitive, personal or user-specific information. If it does, consider the use of the following HTTP response headers, to limit, or prevent the content being stored and retrieved from the cache by another user:\nCache-Control: no-cache, no-store, must-revalidate, private\nPragma: no-cache\nExpires: 0\nThis configuration directs both HTTP 1.0 and HTTP 1.1 compliant caching servers to not store the response, and to not retrieve the response (without validation) from the cache, in response to a similar request.",
+          "alert": "Retrieved from Cache",
+          "param": "",
+          "attack": "",
+          "name": "Retrieved from Cache",
+          "risk": "Informational",
+          "id": "7282",
+          "alertRef": "10050-1"
+        }
+      ],
+      "total_alerts": 10,
+      "scan_time": 0,
+      "source": "zap-light"
+    },
+    "severity_counts": {
+      "low": 6,
+      "medium": 5,
+      "high": 0,
+      "critical": 0
+    },
+    "risk_level": "medium",
+    "created_at": "2026-02-06 08:22:54.933000"
+  },
+  "cms_scan": {},
+  "nuclei_scan": {
+    "target_url": "https://owasp.org/",
+    "cms": "inconnu",
+    "nuclei_stdout": "[dns-waf-detect:cloudflare] [dns] [info] owasp.org\n[missing-sri] [http] [info] https://owasp.org/ [\"https://www.google-analytics.com/analytics.js\",\"https://owasp.org/www--site-theme/assets/js/jquery-3.7.1.min.js\",\"https://owasp.org/www--site-theme/assets/js/util.js\",\"https://owasp.org/www--site-theme/assets/js/yaml.min.js\",\"https://owasp.org/www--site-theme/assets/js/kjua.min.js\",\"https://owasp.org/www--site-theme/assets/js/js.cookie.min.js\",\"https://owasp.org/www--site-theme/assets/css/styles.css\"]\n[tls-version] [ssl] [info] owasp.org:443 [\"tls12\"]\n[tls-version] [ssl] [info] owasp.org:443 [\"tls13\"]\n[http-missing-security-headers:clear-site-data] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-embedder-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-opener-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:cross-origin-resource-policy] [http] [info] https://owasp.org/\n[http-missing-security-headers:x-permitted-cross-domain-policies] [http] [info] https://owasp.org/\n[google-calendar-exposure:calendar-url] [http] [low] https://owasp.org/ [\"https://calendar.google.com/calendar/embed?src=hl6cjgs6ep1h7oniqgueu2bhbo%40group.calendar.google.com&amp;ctz=America%2FChicago\"]\n[csp-script-src-wildcard] [http] [info] https://owasp.org/\n[weak-csp-detect:script-src-directive] [http] [info] https://owasp.org/ [\"script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com\"]\n[weak-csp-detect:default-src-directive] [http] [info] https://owasp.org/ [\"default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net\"]\n[fastly-debug-headers:fastly-debug-path] [http] [info] https://owasp.org/\n[fastly-debug-headers:fastly-debug-ttl] [http] [info] https://owasp.org/\n[fastly-debug-headers:fastly-debug-digest] [http] [info] https://owasp.org/\n[spf-record-detect] [dns] [info] owasp.org [\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\"]\n[txt-fingerprint] [dns] [info] owasp.org [\"\"google-site-verification=I9qx_X9EKlR_rfceG25-iXHBXJvLrmeNbkEdy182iI\"\",\"\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\",\"\"google-site-verification=_slXlbOCopK1Ss9VQEoxdsNxpScVKvXVB_JtPpyL3eQ\"\",\"\"google-site-verification=hJ9eCIFoexfh1sb-WVBkVB5PEND3JiaojOVyaNpyWK8\"\",\"\"google-site-verification=kmxuuCvLW4gII8YaV-3ilTOLUvjZa3uaipm0tmpVGpU\"\",\"\"google-site-verification=ubHJGF1N2ylOhYxQnIzEIIFaqUodqsIdTLXF-rCX9ps\"\",\"\"MS=ms73859685\"\",\"\"RrGYbfHtHhF55ld5k5Rw87iuBu7wAWOX4GR9zffrTh4=\"\",\"\"atlassian-domain-verification=BhaFKFKoRcW20xvi6UJ3U0CKocKOCgLH6LSuiBYPQ5A53cSCUN6gcbzcKSOmlVGs\"\",\"\"google-site-verification=1zT9Of9pBuTj1rgeGCxMbya3iQQMxFE9-DzUBhftUVQ\"\"]\n[mx-fingerprint] [dns] [info] owasp.org [\"1 aspmx.l.google.com.\",\"5 alt1.aspmx.l.google.com.\",\"10 alt3.aspmx.l.google.com.\",\"5 alt2.aspmx.l.google.com.\",\"10 alt4.aspmx.l.google.com.\"]\n[mx-service-detector:Google Apps] [dns] [info] owasp.org\n[caa-fingerprint] [dns] [info] owasp.org\n[dmarc-detect] [dns] [info] _dmarc.owasp.org [\"\"v=DMARC1; p=quarantine; rua=mailto:88b4c392605549efbbfedf60d5b5ba94@dmarc-reports.cloudflare.net,mailto:owasp-dmarc-reports@owasp.com\"\"]\n[dkim-record-detect] [dns] [info] google._domainkey.owasp.org [\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5isI707a9CxKrh9pFfCqdXsY15Ig8oaPkg4NhsNJskXdJ0zpM5Hes3WH2WxyjzAQfJMh03R8NeY4k5uBN8Vp1vZ6rwB6f34NiGEK6uyDKMEP/ak7CdjmCWK8gnmznDrfK0OJCu+sngzLqQJ1gaXSBbj+XUmazvtoDph6g/Qql+Gj5osAZDLj8ZjQot8/7W1GX\" \"QHL7J8gSKDyAUMJaagGUglootlWq0IHMjwFHccJp2GyVbgMMOllmVoDTov1kX50cXuoy2nsgDneZISSV7KSOt9bef5AdbfhNeqKHc7B/Z9VleLAP8Ikyn7wun+NjA5eLR1m5GI7a/L484HAaTKxcQIDAQAB\"\"]\n[nameserver-fingerprint] [dns] [info] owasp.org [\"fay.ns.cloudflare.com.\",\"west.ns.cloudflare.com.\"]\n[ssl-issuer] [ssl] [info] owasp.org:443 [\"Google Trust Services\"]\n[ssl-dns-names] [ssl] [info] owasp.org:443 [\"*.owasp.org\",\"owasp.org\"]\n[wildcard-tls] [ssl] [info] owasp.org:443 [\"CN: owasp.org\",\"SAN: [owasp.org *.owasp.org]\"]\n",
+    "nuclei_stderr": "",
+    "returncode": 0,
+    "source": "nuclei",
+    "parsed_results": [
+      {
+        "name": "dns-waf-detect:cloudflare",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": []
+      },
+      {
+        "name": "missing-sri",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": [
+          "https://www.google-analytics.com/analytics.js",
+          "https://owasp.org/www--site-theme/assets/js/jquery-3.7.1.min.js",
+          "https://owasp.org/www--site-theme/assets/js/util.js",
+          "https://owasp.org/www--site-theme/assets/js/yaml.min.js",
+          "https://owasp.org/www--site-theme/assets/js/kjua.min.js",
+          "https://owasp.org/www--site-theme/assets/js/js.cookie.min.js",
+          "https://owasp.org/www--site-theme/assets/css/styles.css"
+        ]
+      },
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "owasp.org:443",
+        "details": "tls12"
+      },
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "owasp.org:443",
+        "details": "tls13"
+      },
+      {
+        "name": "http-missing-security-headers:clear-site-data",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-embedder-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-opener-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-resource-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-permitted-cross-domain-policies",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "google-calendar-exposure:calendar-url",
+        "protocol": "http",
+        "severity": "low",
+        "host": "https://owasp.org/",
+        "details": "https://calendar.google.com/calendar/embed?src=hl6cjgs6ep1h7oniqgueu2bhbo%40group.calendar.google.com&amp;ctz=America%2FChicago"
+      },
+      {
+        "name": "csp-script-src-wildcard",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "weak-csp-detect:script-src-directive",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://viewer.diagrams.net https://fonts.googleapis.com https://*.fontawesome.com https://app.diagrams.net https://cdnjs.cloudflare.com https://cse.google.com https://*.vuejs.org https://*.stripe.com https://*.wufoo.com https://*.youtube.com https://*.meetup.com https://*.sched.com https://*.google-analytics.com https://unpkg.com https://buttons.github.io https://www.google.com https://*.gstatic.com https://*.twitter.com https://*.twimg.com https://www.googletagmanager.com"
+      },
+      {
+        "name": "weak-csp-detect:default-src-directive",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": "default-src 'self' https://*.fontawesome.com https://api.github.com https://*.githubusercontent.com https://*.google-analytics.com https://owaspadmin.azurewebsites.net https://*.twimg.com https://platform.twitter.com https://www.youtube.com https://*.doubleclick.net"
+      },
+      {
+        "name": "fastly-debug-headers:fastly-debug-path",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "fastly-debug-headers:fastly-debug-ttl",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "fastly-debug-headers:fastly-debug-digest",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://owasp.org/",
+        "details": []
+      },
+      {
+        "name": "spf-record-detect",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": [
+          "\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\""
+        ]
+      },
+      {
+        "name": "txt-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": [
+          "\"\"google-site-verification=I9qx_X9EKlR_rfceG25-iXHBXJvLrmeNbkEdy182iI\"\",\"\"v=spf1 include:_spf.google.com include:servers.mcsv.net include:amazonses.com -all\"\",\"\"google-site-verification=_slXlbOCopK1Ss9VQEoxdsNxpScVKvXVB_JtPpyL3eQ\"\",\"\"google-site-verification=hJ9eCIFoexfh1sb-WVBkVB5PEND3JiaojOVyaNpyWK8\"\",\"\"google-site-verification=kmxuuCvLW4gII8YaV-3ilTOLUvjZa3uaipm0tmpVGpU\"\",\"\"google-site-verification=ubHJGF1N2ylOhYxQnIzEIIFaqUodqsIdTLXF-rCX9ps\"\",\"\"MS=ms73859685\"\",\"\"RrGYbfHtHhF55ld5k5Rw87iuBu7wAWOX4GR9zffrTh4=\"\",\"\"atlassian-domain-verification=BhaFKFKoRcW20xvi6UJ3U0CKocKOCgLH6LSuiBYPQ5A53cSCUN6gcbzcKSOmlVGs\"\",\"\"google-site-verification=1zT9Of9pBuTj1rgeGCxMbya3iQQMxFE9-DzUBhftUVQ\"\""
+        ]
+      },
+      {
+        "name": "mx-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": [
+          "1 aspmx.l.google.com.",
+          "5 alt1.aspmx.l.google.com.",
+          "10 alt3.aspmx.l.google.com.",
+          "5 alt2.aspmx.l.google.com.",
+          "10 alt4.aspmx.l.google.com."
+        ]
+      },
+      {
+        "name": "mx-service-detector:Google Apps",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": []
+      },
+      {
+        "name": "caa-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": []
+      },
+      {
+        "name": "dmarc-detect",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "_dmarc.owasp.org",
+        "details": [
+          "\"\"v=DMARC1; p=quarantine; rua=mailto:88b4c392605549efbbfedf60d5b5ba94@dmarc-reports.cloudflare.net,mailto:owasp-dmarc-reports@owasp.com\"\""
+        ]
+      },
+      {
+        "name": "dkim-record-detect",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "google._domainkey.owasp.org",
+        "details": [
+          "\"v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA5isI707a9CxKrh9pFfCqdXsY15Ig8oaPkg4NhsNJskXdJ0zpM5Hes3WH2WxyjzAQfJMh03R8NeY4k5uBN8Vp1vZ6rwB6f34NiGEK6uyDKMEP/ak7CdjmCWK8gnmznDrfK0OJCu+sngzLqQJ1gaXSBbj+XUmazvtoDph6g/Qql+Gj5osAZDLj8ZjQot8/7W1GX\" \"QHL7J8gSKDyAUMJaagGUglootlWq0IHMjwFHccJp2GyVbgMMOllmVoDTov1kX50cXuoy2nsgDneZISSV7KSOt9bef5AdbfhNeqKHc7B/Z9VleLAP8Ikyn7wun+NjA5eLR1m5GI7a/L484HAaTKxcQIDAQAB\"\""
+        ]
+      },
+      {
+        "name": "nameserver-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "owasp.org",
+        "details": [
+          "fay.ns.cloudflare.com.",
+          "west.ns.cloudflare.com."
+        ]
+      },
+      {
+        "name": "ssl-issuer",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "owasp.org:443",
+        "details": "Google Trust Services"
+      },
+      {
+        "name": "ssl-dns-names",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "owasp.org:443",
+        "details": [
+          "*.owasp.org",
+          "owasp.org"
+        ]
+      },
+      {
+        "name": "wildcard-tls",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "owasp.org:443",
+        "details": [
+          "CN: owasp.org",
+          "SAN: [owasp.org *.owasp.org]"
+        ]
+      }
+    ]
+  },
+  "zap_scan": null
+}

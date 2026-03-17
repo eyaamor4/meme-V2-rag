@@ -1,0 +1,1698 @@
+{
+  "scan_id": "120c6631-9f5e-45a8-b0c7-e127b4864e4c",
+  "cms": "wordpress",
+  "mode": "light",
+  "risk_level": "low",
+  "severity_counts": {
+    "low": 19,
+    "medium": 0,
+    "high": 0,
+    "critical": 0
+  },
+  "total_vulnerabilities": 19,
+  "scan": {
+    "_id": "6981c96ebbea05d8dfa37e22",
+    "scan_id": "120c6631-9f5e-45a8-b0c7-e127b4864e4c",
+    "target_url": "https://securas.fr/",
+    "cms_type": "wordpress",
+    "preview_only": false,
+    "cms_scan": {
+      "scanner": "wpprobe",
+      "target_url": "https://securas.fr/",
+      "scanned_at": "2026-02-03T10:09:50.909978Z",
+      "cves": [
+        {
+          "source": "wpprobe",
+          "plugin": "automattic-for-agencies-client",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "blaze-ads",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "code-snippets",
+          "plugin_version": "3.6.4",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "cookie-law-info",
+          "plugin_version": "3.4.0",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "duracelltomi-google-tag-manager",
+          "plugin_version": "1.20.1",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "elementor",
+          "plugin_version": "3.35.0",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "fbrfg",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "fluent-crm",
+          "plugin_version": "2.9.87",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "funnel-builder",
+          "plugin_version": "3.2.4",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "jetpack",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "jetpack-search",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "litespeed-cache",
+          "plugin_version": "7.7",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "mainichi-shopify-products-connect",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "sitepress-multilingual-cms",
+          "plugin_version": "4.8.6",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "woocommerce",
+          "plugin_version": "10.4.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "woocommerce-google-adwords-conversion-tracking-tag",
+          "plugin_version": "1.42.4",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wordpress-seo",
+          "plugin_version": "22.5",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wp-marketing-automations",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wp-store-lite",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        }
+      ],
+      "wpprobe_report": {
+        "url": "https://securas.fr/",
+        "plugins": {
+          "automattic-for-agencies-client": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "blaze-ads": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "code-snippets": [
+            {
+              "version": "3.6.4",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "cookie-law-info": [
+            {
+              "version": "3.4.0",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "duracelltomi-google-tag-manager": [
+            {
+              "version": "1.20.1",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "elementor": [
+            {
+              "version": "3.35.0",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fbrfg": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "fluent-crm": [
+            {
+              "version": "2.9.87",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "funnel-builder": [
+            {
+              "version": "3.2.4",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "jetpack": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "jetpack-search": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "litespeed-cache": [
+            {
+              "version": "7.7",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "mainichi-shopify-products-connect": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "sitepress-multilingual-cms": [
+            {
+              "version": "4.8.6",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "woocommerce": [
+            {
+              "version": "10.4.2",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "woocommerce-google-adwords-conversion-tracking-tag": [
+            {
+              "version": "1.42.4",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "wordpress-seo": [
+            {
+              "version": "22.5",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "wp-marketing-automations": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "wp-store-lite": [
+            {
+              "version": "unknown",
+              "severities": [
+                {
+                  "n/a": [
+                    {
+                      "auth_type": "Unknown",
+                      "vulnerabilities": [
+                        {
+                          "cve": "N/A",
+                          "cve_link": "N/A",
+                          "title": "N/A",
+                          "cvss_score": 0,
+                          "cvss_vector": "N/A"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "wpscan_report": null,
+      "source": "wordpress_scanner",
+      "errors": [
+        "WPScan n'a retourne aucun resultat."
+      ],
+      "stats": {
+        "total_vulnerabilities": 19,
+        "wpprobe_plugins_scanned": 19,
+        "wpscan_plugins_scanned": 0
+      },
+      "wpprobe_mode": "stealthy",
+      "wpscan_timeout": 120,
+      "wpscan_api_token_present": true,
+      "wpprobe_table": [
+        {
+          "plugin": "code-snippets",
+          "version": "3.6.4",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "cookie-law-info",
+          "version": "3.4.0",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "duracelltomi-google-tag-manager",
+          "version": "1.20.1",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "elementor",
+          "version": "3.35.0",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "fluent-crm",
+          "version": "2.9.87",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "funnel-builder",
+          "version": "3.2.4",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "litespeed-cache",
+          "version": "7.7",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "sitepress-multilingual-cms",
+          "version": "4.8.6",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "woocommerce",
+          "version": "10.4.2",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "woocommerce-google-adwords-conversion-tracking-tag",
+          "version": "1.42.4",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        },
+        {
+          "plugin": "wordpress-seo",
+          "version": "22.5",
+          "severity": "Low",
+          "severity_key": "low",
+          "severity_rank": 1,
+          "auth_map": {
+            "Unknown": []
+          }
+        }
+      ]
+    },
+    "nuclei_scan": {
+      "target_url": "https://securas.fr/",
+      "cms": "wordpress",
+      "error": "Command '['nuclei', '-u', 'https://securas.fr/', '-severity', 'info,low,medium,high,critical', '-rate-limit', '300', '-no-color', '-silent', '-tags', 'cves,misconfig,exposures,ssl,dns,headless,headers,wordpress']' timed out after 60.0 seconds",
+      "source": "nuclei",
+      "parsed_results": []
+    },
+    "recon": {
+      "webanalyze": {
+        "hostname": "https://securas.fr/",
+        "technologies": [
+          {
+            "name": "WordPress",
+            "version": ""
+          },
+          {
+            "name": "PHP",
+            "version": ""
+          },
+          {
+            "name": "MySQL",
+            "version": ""
+          },
+          {
+            "name": "HSTS",
+            "version": ""
+          },
+          {
+            "name": "WPML",
+            "version": "4.8.6"
+          },
+          {
+            "name": "Litespeed Cache",
+            "version": ""
+          },
+          {
+            "name": "Cloudflare",
+            "version": ""
+          },
+          {
+            "name": "HTTP/3",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "scan_time": 125.63,
+    "mode": "light",
+    "source": "scanner_api",
+    "zap_scan": {
+      "alerts": [],
+      "total_alerts": 0,
+      "scan_time": 0,
+      "source": "zap-light"
+    },
+    "severity_counts": {
+      "low": 19,
+      "medium": 0,
+      "high": 0,
+      "critical": 0
+    },
+    "risk_level": "low",
+    "created_at": "2026-02-03 10:09:50.911000"
+  },
+  "cms_scan": {
+    "scanner": "wpprobe",
+    "target_url": "https://securas.fr/",
+    "scanned_at": "2026-02-03T10:09:50.909978Z",
+    "cves": [
+      {
+        "source": "wpprobe",
+        "plugin": "automattic-for-agencies-client",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "blaze-ads",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "code-snippets",
+        "plugin_version": "3.6.4",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "cookie-law-info",
+        "plugin_version": "3.4.0",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "duracelltomi-google-tag-manager",
+        "plugin_version": "1.20.1",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "elementor",
+        "plugin_version": "3.35.0",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "fbrfg",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "fluent-crm",
+        "plugin_version": "2.9.87",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "funnel-builder",
+        "plugin_version": "3.2.4",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "jetpack",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "jetpack-search",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "litespeed-cache",
+        "plugin_version": "7.7",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "mainichi-shopify-products-connect",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "sitepress-multilingual-cms",
+        "plugin_version": "4.8.6",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "woocommerce",
+        "plugin_version": "10.4.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "woocommerce-google-adwords-conversion-tracking-tag",
+        "plugin_version": "1.42.4",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wordpress-seo",
+        "plugin_version": "22.5",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wp-marketing-automations",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wp-store-lite",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      }
+    ],
+    "wpprobe_report": {
+      "url": "https://securas.fr/",
+      "plugins": {
+        "automattic-for-agencies-client": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "blaze-ads": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "code-snippets": [
+          {
+            "version": "3.6.4",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "cookie-law-info": [
+          {
+            "version": "3.4.0",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "duracelltomi-google-tag-manager": [
+          {
+            "version": "1.20.1",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "elementor": [
+          {
+            "version": "3.35.0",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fbrfg": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "fluent-crm": [
+          {
+            "version": "2.9.87",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "funnel-builder": [
+          {
+            "version": "3.2.4",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "jetpack": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "jetpack-search": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "litespeed-cache": [
+          {
+            "version": "7.7",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "mainichi-shopify-products-connect": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "sitepress-multilingual-cms": [
+          {
+            "version": "4.8.6",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "woocommerce": [
+          {
+            "version": "10.4.2",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "woocommerce-google-adwords-conversion-tracking-tag": [
+          {
+            "version": "1.42.4",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "wordpress-seo": [
+          {
+            "version": "22.5",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "wp-marketing-automations": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "wp-store-lite": [
+          {
+            "version": "unknown",
+            "severities": [
+              {
+                "n/a": [
+                  {
+                    "auth_type": "Unknown",
+                    "vulnerabilities": [
+                      {
+                        "cve": "N/A",
+                        "cve_link": "N/A",
+                        "title": "N/A",
+                        "cvss_score": 0,
+                        "cvss_vector": "N/A"
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "wpscan_report": null,
+    "source": "wordpress_scanner",
+    "errors": [
+      "WPScan n'a retourne aucun resultat."
+    ],
+    "stats": {
+      "total_vulnerabilities": 19,
+      "wpprobe_plugins_scanned": 19,
+      "wpscan_plugins_scanned": 0
+    },
+    "wpprobe_mode": "stealthy",
+    "wpscan_timeout": 120,
+    "wpscan_api_token_present": true,
+    "wpprobe_table": [
+      {
+        "plugin": "code-snippets",
+        "version": "3.6.4",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "cookie-law-info",
+        "version": "3.4.0",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "duracelltomi-google-tag-manager",
+        "version": "1.20.1",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "elementor",
+        "version": "3.35.0",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "fluent-crm",
+        "version": "2.9.87",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "funnel-builder",
+        "version": "3.2.4",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "litespeed-cache",
+        "version": "7.7",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "sitepress-multilingual-cms",
+        "version": "4.8.6",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "woocommerce",
+        "version": "10.4.2",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "woocommerce-google-adwords-conversion-tracking-tag",
+        "version": "1.42.4",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      },
+      {
+        "plugin": "wordpress-seo",
+        "version": "22.5",
+        "severity": "Low",
+        "severity_key": "low",
+        "severity_rank": 1,
+        "auth_map": {
+          "Unknown": []
+        }
+      }
+    ]
+  },
+  "nuclei_scan": {
+    "target_url": "https://securas.fr/",
+    "cms": "wordpress",
+    "error": "Command '['nuclei', '-u', 'https://securas.fr/', '-severity', 'info,low,medium,high,critical', '-rate-limit', '300', '-no-color', '-silent', '-tags', 'cves,misconfig,exposures,ssl,dns,headless,headers,wordpress']' timed out after 60.0 seconds",
+    "source": "nuclei",
+    "parsed_results": []
+  },
+  "zap_scan": null
+}
