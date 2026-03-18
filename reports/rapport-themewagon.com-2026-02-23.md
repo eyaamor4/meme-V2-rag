@@ -1,33 +1,34 @@
+Voici la réponse structurée selon les règles fournies :
+
 **A - Résumé Exécutif**
 
-Aucune vulnérabilité prioritaire n'a été identifiée.
+Le système présente 23 vulnérabilités au total, dont 2 vulnérabilités prioritaires.
 
 **B - Vulnérabilités Prioritaires**
 
 1. **Content Security Policy (CSP) Header Not Set**
-	* Description : La politique de sécurité du contenu (CSP) n'est pas définie. Cela signifie que les attaques de type Cross Site Scripting (XSS) et de données injectées ne peuvent pas être détectées et mises en échec.
-	* Impact potentiel : Les attaques de type XSS et de données injectées peuvent permettre à un attaquant de compromettre la sécurité du site web et d'exécuter du code malveillant.
+	* Description : La politique de sécurité du contenu (CSP) n'est pas configurée. Cela signifie que les attaques de type Cross Site Scripting (XSS) et de données injectées ne sont pas détectées et mises en échec.
+	* Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
-	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.
-	* Score CVSS : 7.5
-
+	* Recommandation technique : Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
+	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.
 2. **Sub Resource Integrity Attribute Missing**
-	* Description : L'attribut d'intégrité des sous-ressources (SRI) est manquant sur une balise script ou link chargée par un serveur externe. Cela signifie que les attaques de type XSS et de données injectées peuvent être menées avec succès.
-	* Impact potentiel : Les attaques de type XSS et de données injectées peuvent permettre à un attaquant de compromettre la sécurité du site web et d'exécuter du code malveillant.
+	* Description : L'attribut d'intégrité des sous-ressources est manquant. Cela signifie que les attaques de type injection de contenu malveillant ne sont pas détectées et mises en échec.
+	* Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 	* Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
 	* Recommandation technique : Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
 	* Vérification : Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.
-	* Score CVSS : 6.4
 
 **C - Plan de remédiation**
 
-1. Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
+1. Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
+Vérification : Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.
 2. Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
+Vérification : Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.
 
 **D - Conclusion**
 
-Il est recommandé de mettre en œuvre les recommandations techniques mentionnées ci-dessus pour améliorer la sécurité du site web. Il est important de vérifier régulièrement les configurations et les mises à jour pour s'assurer que les vulnérabilités sont corrigées.
+Le système présente 23 vulnérabilités au total, dont 2 vulnérabilités prioritaires. Il est recommandé de mettre en œuvre les mesures de remédiation proposées pour améliorer la sécurité du système.
 
 ## Annexe - Liste complète des findings (générée par Python)
 

@@ -294,9 +294,7 @@ def _make_llm_row(f: Dict[str, Any]) -> Dict[str, Any]:
         "rag_context": rag_context,
     }
 
-    cvss = f.get("cvss")
-    if cvss not in (None, "", "Non fourni"):
-        row["cvss"] = cvss
+    
 
     return row
 
@@ -375,6 +373,37 @@ def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
 
     return "\n".join(lines)
 
+def strip_llm_cvss_lines(report_text: str) -> str:
+    cleaned_lines = []
+    for line in report_text.splitlines():
+        if re.match(r"^\s*[\*\-]?\s*Score CVSS\s*:", line, flags=re.IGNORECASE):
+            continue
+        cleaned_lines.append(line)
+    return "\n".join(cleaned_lines)
+
+
+def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]]) -> str:
+    lines = report_text.splitlines()
+    output = []
+
+    title_pattern = re.compile(r"^(\s*\d+\.\s*\*\*)(.+?)(\*\*)\s*$")
+    finding_index = 0
+
+    for line in lines:
+        output.append(line)
+
+        m = title_pattern.match(line)
+        if m and finding_index < len(top_findings):
+            f = top_findings[finding_index]
+            cvss = f.get("cvss")
+
+            if cvss not in (None, "", "Non fourni"):
+                indent = re.match(r"^(\s*)", line).group(1)
+                output.append(f"{indent}* Score CVSS : {cvss}")
+
+            finding_index += 1
+
+    return "\n".join(output)
 
 def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
     source = str(f.get("source") or "").strip().lower()
@@ -443,6 +472,8 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     print("Prompt sauvegardé dans debug_prompt.txt")
 
     narrative = ollama_run(prompt)
+    narrative = strip_llm_cvss_lines(narrative)
+    narrative = inject_cvss_in_section_b(narrative, top_findings)
 
     final_report = (
         narrative.strip()

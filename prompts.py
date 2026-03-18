@@ -6,12 +6,6 @@ Tu dois STRICTEMENT utiliser les données fournies.
 Tu ne dois JAMAIS recalculer les statistiques.
 Tu ne dois JAMAIS inventer de vulnérabilités.
 Tu ne dois JAMAIS modifier les valeurs severity ou priority.
-Si une donnée est absente, écrire exactement : "Non fourni", SAUF pour le champ "cvss".
-
-Le champ "cvss" est optionnel :
-- s’il est présent dans le finding courant, afficher "Score CVSS : <valeur>"
-- s’il est absent, vide, ou non fourni, ne pas afficher la ligne "Score CVSS"
-- ne jamais écrire "Score CVSS : Non fourni"
 
 Les statistiques ci-dessous sont la vérité absolue.
 Tu dois les reprendre EXACTEMENT telles quelles.
@@ -48,7 +42,7 @@ RÈGLES STRICTES D’UTILISATION DU RAG :
 2. Le rag_context est une aide secondaire, jamais une source principale.
 3. Ne jamais remplacer la vulnérabilité du finding par une autre vulnérabilité issue du rag_context.
 4. Ne jamais inventer une cause technique à partir du rag_context seul.
-5. Ne jamais inventer une catégorie OWASP, un CVSS, une version, un composant ou une preuve à partir du rag_context seul.
+5. Ne jamais inventer une catégorie OWASP, une version, un composant ou une preuve à partir du rag_context seul.
 6. Utiliser le rag_context seulement pour rendre la remédiation plus précise, plus technique et plus exploitable.
 7. Si le rag_context contredit le finding courant, ignorer le rag_context.
 8. Si le rag_context est absent, vide ou peu utile, travailler uniquement à partir du finding courant.
@@ -73,10 +67,7 @@ Ne jamais comparer total_vulnerabilities à 0.
 4) Le plan de remédiation doit couvrir UNIQUEMENT les findings de la section B.
 Ne jamais écrire "aucun plan requis" si des findings sont présents dans la section B.
 
-5) Annexe :
-NE PAS générer d’annexe.
-L’annexe complète est générée automatiquement par l’outil Python.
-Tu ne dois PAS écrire la section "Annexe - Liste complète".
+
 
 
 6) Validation des findings :
@@ -110,27 +101,25 @@ Conclure de manière factuelle sans affirmer que le système est parfaitement s�
 11) Niveau de détail requis pour chaque vulnérabilité :
 
 * Description : ...
-* Impact potentiel : ...
+* Référence : ...
 * Catégorie OWASP : ...
 * Recommandation technique : ...
 * Vérification : ...
 
-La ligne suivante est optionnelle :
-* Score CVSS : ... uniquement si le champ "cvss" est présent dans le finding courant.
 
 Règles :
 - Pour "Catégorie OWASP", utiliser exactement la valeur du champ "owasp_category".
 - Si "owasp_category" est absent, vide, ou vaut "Non fourni", écrire exactement : "Catégorie OWASP : Non fourni".
-- Pour "Score CVSS", utiliser exactement la valeur du champ "cvss" uniquement si ce champ est présent dans le finding courant.
-- Si le champ "cvss" est absent, vide, ou non fourni dans le finding courant, ne pas afficher la ligne "Score CVSS".
-- Ne jamais inventer un score CVSS.
 - Ne jamais omettre la ligne "Catégorie OWASP".
+- Pour "Référence", utiliser exactement la valeur du champ "reference".
+- Si "reference" est absent, vide, ou vaut "Non fourni", écrire exactement : "Référence : Non fourni".
+- Ne jamais inventer une référence.
 
 12) Fidélité stricte au finding courant :
 Chaque vulnérabilité doit être rédigée UNIQUEMENT à partir des champs du finding courant.
 Interdiction absolue d'utiliser, mélanger, résumer ou transférer :
 - la description d’un autre finding
-- l’impact d’un autre finding
+- la référence d’un autre finding
 - la remédiation d’un autre finding
 - une cause supposée non écrite dans le finding courant
 
@@ -140,12 +129,9 @@ La ligne "Description" doit être une reformulation fidèle du champ "descriptio
 - Ne jamais ajouter une cause technique absente de la description.
 - Ne jamais remplacer une vulnérabilité par une autre plus connue.
 
-14) Règle stricte pour l’Impact potentiel :
-La ligne "Impact potentiel" doit découler uniquement de la description du finding courant.
-- Ne jamais exagérer l’impact.
-- Si l’impact exact n’est pas déductible de manière certaine, rester général et factuel.
 
-15) Qualité des recommandations :
+
+14) Qualité des recommandations :
 Chaque recommandation technique doit être :
 - spécifique à la vulnérabilité concernée
 - concrète
@@ -154,7 +140,7 @@ Chaque recommandation technique doit être :
 - cohérente avec le finding courant
 - éventuellement enrichie par le rag_context si cela reste fidèle au finding
 
-16) Interdiction des recommandations vagues :
+15) Interdiction des recommandations vagues :
 Sont interdites les formulations suivantes :
 - "utiliser une valeur sécurisée"
 - "renforcer la sécurité"
@@ -163,28 +149,45 @@ Sont interdites les formulations suivantes :
 - "appliquer les bonnes pratiques"
 - "limiter les risques"
 
-17) Priorité à la configuration observée :
+16) Priorité à la configuration observée :
 Pour rédiger la remédiation, se baser d'abord sur :
 1. le titre du finding
 2. le paramètre concerné
 3. la preuve observée
 4. ensuite seulement le rag_context si utile
 
-18) Validation obligatoire :
+17) Validation obligatoire :
 Après chaque recommandation technique, ajouter une phrase courte commençant par :
 "Vérification :"
 Cette phrase doit expliquer comment confirmer la correction dans la configuration ou dans la réponse HTTP.
 
-19) Format obligatoire de la section C :
+18) Format obligatoire de la section C :
 La section C doit contenir une liste numérotée.
 Chaque ligne doit correspondre à UNE vulnérabilité de la section B, dans le même ordre.
 Chaque ligne doit commencer par le titre exact de la vulnérabilité, puis ":" puis l’action de remédiation.
 Ne jamais fusionner plusieurs vulnérabilités dans une seule ligne.
 Ne jamais ajouter de nouvelle vulnérabilité.
 
-20) Interdiction de sortie incomplète :
+19) Interdiction de sortie incomplète :
 La réponse doit être complète jusqu'à la fin de la section "D - Conclusion".
 
+20) Cohérence du résumé exécutif :
+- Le résumé exécutif doit être rédigé sous forme de phrase(s), pas en liste ou en puces.
+
+
+- Si {nb_prioritaires} > 0 :
+  Interdiction absolue d’écrire :
+  "Aucune vulnérabilité prioritaire identifiée"
+
+- Le résumé exécutif DOIT obligatoirement contenir :
+  - le nombre total de vulnérabilités ({total_vulnerabilities})
+  - le nombre de vulnérabilités prioritaires ({nb_prioritaires})
+
+- Si {nb_prioritaires} == 0 :
+  écrire uniquement :
+  "Aucune vulnérabilité prioritaire identifiée"
+
+- Le résumé doit toujours être cohérent avec la section B.
 La sortie doit commencer directement par :
 A - Résumé Exécutif
 

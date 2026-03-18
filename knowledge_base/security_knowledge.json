@@ -46,7 +46,7 @@
     "owasp": "A05:2021 - Security Misconfiguration",
     "cwe": "CWE-693",
     "tags": ["csp", "unsafe-eval", "script-src"],
-    "recommendation": "Supprimer 'unsafe-eval' de script-src et refactoriser les bibliothèques ou fonctions JavaScript qui dépendent de eval, new Function ou mécanismes similaires.",
+    "recommenda tion": "Supprimer 'unsafe-eval' de script-src et refactoriser les bibliothèques ou fonctions JavaScript qui dépendent de eval, new Function ou mécanismes similaires.",
     "verification": "Vérifier que script-src ne contient plus 'unsafe-eval' et tester le fonctionnement de l’application pour confirmer qu’aucun composant ne dépend encore de eval ou new Function."
   },
   {

@@ -1,60 +1,51 @@
 **A - Résumé Exécutif**
 
-Au total, 165 vulnérabilités ont été identifiées. Parmi celles-ci, 5 sont considérées comme prioritaires.
+Un total de 165 vulnérabilités a été identifié. Parmi celles-ci, 5 vulnérabilités sont considérées comme prioritaires.
 
 **B - Vulnérabilités Prioritaires**
 
 1. **CSP: Failure to Define Directive with No Fallback**
 	* Description : Le Content Security Policy (CSP) ne définit pas une directive qui n'a pas de fallback. Manquer ou exclure les directives est le même que permettre tout.
-	* Impact potentiel : Les attaques de type Cross Site Scripting (XSS) et les injections de données peuvent être utilisées pour voler des données, déformer le site ou distribuer du malware.
+	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
 	* Recommandation technique : Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
 	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.
-	* Score CVSS : 9,8
-
 2. **CSP: Wildcard Directive**
-	* Description : Le Content Security Policy (CSP) utilise des directives avec des jokers. Cela permet aux attaquants d'injecter du code malveillant.
-	* Impact potentiel : Les attaques de type Cross Site Scripting (XSS) et les injections de données peuvent être utilisées pour voler des données, déformer le site ou distribuer du malware.
+	* Description : Le Content Security Policy (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certaines types d'attaques. Ces attaques incluent (mais ne sont pas limitées à) les attaques de Cross Site Scripting (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, depuis le vol de données jusqu'à la déformation du site ou la distribution de logiciels malveillants. Le CSP fournit un ensemble de dossiers HTTP standards qui permettent aux propriétaires de site Web de déclarer les sources d'approbation de contenu que les navigateurs doivent être autorisés à charger sur cette page — les types couverts sont JavaScript, CSS, HTML frames, polices, images et objets embarqués tels que les applets Java, ActiveX, fichiers audio et vidéo.
+	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
 	* Recommandation technique : Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.
 	* Vérification : Contrôler que les directives CSP n’utilisent plus de joker '*' ni de schéma trop permissif comme https: lorsqu’une liste d’hôtes précise peut être définie.
-	* Score CVSS : 9,5
-
 3. **CSP: script-src unsafe-inline**
-	* Description : Le Content Security Policy (CSP) utilise 'unsafe-inline' dans la directive script-src. Cela permet aux attaquants d'injecter du code malveillant.
-	* Impact potentiel : Les attaques de type Cross Site Scripting (XSS) et les injections de données peuvent être utilisées pour voler des données, déformer le site ou distribuer du malware.
+	* Description : Le Content Security Policy (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certaines types d'attaques. Ces attaques incluent (mais ne sont pas limitées à) les attaques de Cross Site Scripting (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, depuis le vol de données jusqu'à la déformation du site ou la distribution de logiciels malveillants. Le CSP fournit un ensemble de dossiers HTTP standards qui permettent aux propriétaires de site Web de déclarer les sources d'approbation de contenu que les navigateurs doivent être autorisés à charger sur cette page — les types couverts sont JavaScript, CSS, HTML frames, polices, images et objets embarqués tels que les applets Java, ActiveX, fichiers audio et vidéo.
+	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
 	* Recommandation technique : Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
 	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.
-	* Score CVSS : 9,2
-
 4. **CSP: style-src unsafe-inline**
-	* Description : Le Content Security Policy (CSP) utilise 'unsafe-inline' dans la directive style-src. Cela permet aux attaquants d'injecter du code malveillant.
-	* Impact potentiel : Les attaques de type Cross Site Scripting (XSS) et les injections de données peuvent être utilisées pour voler des données, déformer le site ou distribuer du malware.
+	* Description : Le Content Security Policy (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certaines types d'attaques. Ces attaques incluent (mais ne sont pas limitées à) les attaques de Cross Site Scripting (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, depuis le vol de données jusqu'à la déformation du site ou la distribution de logiciels malveillants. Le CSP fournit un ensemble de dossiers HTTP standards qui permettent aux propriétaires de site Web de déclarer les sources d'approbation de contenu que les navigateurs doivent être autorisés à charger sur cette page — les types couverts sont JavaScript, CSS, HTML frames, polices, images et objets embarqués tels que les applets Java, ActiveX, fichiers audio et vidéo.
+	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Supprimer 'unsafe-inline' de style-src et utiliser des nonces ou des hashes pour autoriser uniquement les styles inline légitimes.
-	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que style-src ne contient plus 'unsafe-inline' et que les styles inline nécessaires utilisent un nonce ou un hash.
-	* Score CVSS : 9,2
-
+	* Recommandation technique : Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.
+	* Vérification : Vérifier que style-src ne contient plus 'unsafe-inline' et que les styles requis proviennent de fichiers CSS approuvés ou de hashes explicites.
 5. **Sub Resource Integrity Attribute Missing**
-	* Description : L'attribut de sécurité Sub Resource Integrity (SRI) est absent sur une balise script ou link. Cela permet aux attaquants d'injecter du code malveillant.
-	* Impact potentiel : Les attaques de type Cross Site Scripting (XSS) et les injections de données peuvent être utilisées pour voler des données, déformer le site ou distribuer du malware.
+	* Description : L'attribut d'intégrité est manquant sur une balise script ou link servie par un serveur externe. L'attribut d'intégrité empêche un attaquant qui a accès à ce serveur d'injecter un contenu malveillant.
+	* Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 	* Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-	* Recommandation technique : Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
-	* Vérification : Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.
-	* Score CVSS : 8,5
+	* Recommandation technique : Ajouter un attribut d'intégrité et de cross-origin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
+	* Vérification : Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut d'intégrité valide correspondant au contenu réellement servi.
 
 **C - Plan de remédiation**
 
 1. Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
 2. Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.
 3. Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
-4. Supprimer 'unsafe-inline' de style-src et utiliser des nonces ou des hashes pour autoriser uniquement les styles inline légitimes.
-5. Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
+4. Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.
+5. Ajouter un attribut d'intégrité et de cross-origin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.
 
 **D - Conclusion**
 
-Il est important de prendre en compte les vulnérabilités prioritaires identifiées pour améliorer la sécurité du système. Les recommandations techniques proposées doivent être mises en œuvre pour prévenir les attaques de type Cross Site Scripting (XSS) et les injections de données. Il est essentiel de vérifier régulièrement la configuration pour s'assurer que les mesures de sécurité sont efficaces.
+Un total de 165 vulnérabilités a été identifié. Parmi celles-ci, 5 vulnérabilités sont considérées comme prioritaires. Il est recommandé de mettre en œuvre les mesures de remédiation proposées pour atténuer ces vulnérabilités. Il est essentiel de vérifier que les corrections sont effectives et que les vulnérabilités ne sont pas réapparues.
 
 ## Annexe - Liste complète des findings (générée par Python)
 

@@ -127,22 +127,93 @@ def build_or_load_index() -> Tuple[List[Dict[str, Any]], np.ndarray]:
     _DOCS_CACHE = docs
     _EMBEDDINGS_CACHE = embeddings
     return _DOCS_CACHE, _EMBEDDINGS_CACHE
+def _normalize_key(s: str) -> str:
+    return " ".join((s or "").strip().lower().split())
 
+
+def _exact_title_match(title: str, docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    t = _normalize_key(title)
+    for doc in docs:
+        if _normalize_key(doc.get("title", "")) == t:
+            return [doc]
+    return []
+
+
+def _filter_by_owasp(docs: List[Dict[str, Any]], owasp: str) -> List[Dict[str, Any]]:
+    if not owasp:
+        return docs
+
+    o = _normalize_key(owasp)
+    filtered = [d for d in docs if _normalize_key(d.get("owasp", "")) == o]
+
+    return filtered if filtered else docs
+
+
+def _keyword_prefilter(title: str, description: str, docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    text = _normalize_key(f"{title} {description}")
+
+    strong_tokens = [
+        "unsafe-eval",
+        "unsafe-inline",
+        "style-src",
+        "script-src",
+        "wildcard",
+        "fallback",
+        "rest views",
+        "forceful browsing",
+        "csrf",
+        "sql injection",
+        "xss",
+        "cors",
+        "integrity",
+        "hsts",
+        "deprecated-tls",
+        "weak-cipher-suites",
+    ]
+
+    matched = []
+    for doc in docs:
+        bag = _normalize_key(
+            doc.get("title", "") + " " +
+            " ".join(doc.get("tags", []))
+        )
+
+        if any(tok in text and tok in bag for tok in strong_tokens):
+            matched.append(doc)
+
+    return matched if matched else docs
 
 def retrieve_knowledge(title: str, description: str = "", owasp: str = "", top_k: int = 3) -> List[Dict[str, Any]]:
     query = " ".join([title or "", description or "", owasp or ""]).strip()
 
     try:
-        docs, embeddings = build_or_load_index()
+        docs, _ = build_or_load_index()
+
+        # ✅ 1. Match exact
+        exact = _exact_title_match(title, docs)
+        if exact:
+            doc = exact[0].copy()
+            doc["score"] = 1.0
+            return [doc]
+
+        # ✅ 2. Filtre OWASP
+        filtered_docs = _filter_by_owasp(docs, owasp)
+
+        # ✅ 3. Filtre keywords
+        filtered_docs = _keyword_prefilter(title, description, filtered_docs)
+
+        # ✅ 4. Embedding sur sous-ensemble
+        texts = [doc["_search_text"] for doc in filtered_docs]
+        sub_embeddings = MODEL.encode(texts, convert_to_numpy=True, normalize_embeddings=False)
 
         query_vec = MODEL.encode(query, convert_to_numpy=True, normalize_embeddings=False)
-        sims = _cosine_similarity_matrix(query_vec, embeddings)
+        sims = _cosine_similarity_matrix(query_vec, sub_embeddings)
 
         idxs = np.argsort(sims)[::-1][:top_k]
 
         results = []
         for idx in idxs:
-            doc = docs[int(idx)].copy()
+            doc = filtered_docs[int(idx)].copy()
             doc["score"] = float(sims[int(idx)])
             results.append(doc)
 
@@ -160,10 +231,9 @@ def retrieve_knowledge(title: str, description: str = "", owasp: str = "", top_k
 
 if __name__ == "__main__":
     results = retrieve_knowledge(
-        title="CSP: script-src unsafe-inline",
-        description="Content Security Policy allows unsafe-inline in script-src",
-        owasp="A05:2021 - Security Misconfiguration",
-        top_k=3,
-    )
-
+    title="SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal allows remote attackers to execute arbitrary SQL commands via unspecified vectors related to exposed filters.",
+    description="SQL injection vulnerability in the Views module.",
+    owasp="A03:2021 - Injection",
+    top_k=1,
+)
     print(json.dumps(results, ensure_ascii=False, indent=2))
