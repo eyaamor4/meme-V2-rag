@@ -245,10 +245,21 @@ def needs_rag(title: str, description: str = "") -> bool:
         "organic groups",
         "webform",
         "views svg animation",
+        "hsts",
+        "strict-transport-security",
+        "cookie",
+        "cors",
+        "cross-domain",
     ]
     return any(k in text for k in keywords)
 
+
+# ─── CORRECTION 1 : compress_rag_context moins restrictif ────────────────────
 def compress_rag_context(rag_docs):
+    """
+    Extrait le contexte RAG utile depuis les documents récupérés.
+    Limites augmentées pour réduire la troncature des recommandations.
+    """
     if not rag_docs:
         return {}
 
@@ -256,7 +267,8 @@ def compress_rag_context(rag_docs):
     technical_actions = []
     verification_steps = []
 
-    for doc in rag_docs[:1]:
+    # On itère sur les 2 premiers docs (au lieu de 1)
+    for doc in rag_docs[:2]:
         title = str(doc.get("title") or "").strip()
         if title and title not in selected_titles:
             selected_titles.append(title)
@@ -272,10 +284,11 @@ def compress_rag_context(rag_docs):
                 verification_steps.append(x)
 
     return {
-        "selected_rag_titles": selected_titles[:1],
-        "technical_actions": technical_actions[:3],
-        "verification_steps": verification_steps[:2],
+        "selected_rag_titles": selected_titles[:2],
+        "technical_actions": technical_actions[:5],       # était [:3]
+        "verification_steps": verification_steps[:3],     # était [:2]
     }
+
 
 def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
     out = {}
@@ -284,6 +297,9 @@ def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
             continue
         out[k] = v
     return out
+
+
+# ─── CORRECTION 2 : _make_llm_row passe cve_id + top_k/min_score assouplis ──
 def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]:
     description = f.get("description") or "Non fourni"
 
@@ -293,10 +309,14 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
     source = str(f.get("source") or "").strip().lower()
     shown_title = display_title if source == "cve" and display_title != raw_title else display_title
 
+    # CORRECTION 2a : passer cve_id pour activer CVE_OWASP_OVERRIDE
+    cve_id = f.get("cve_id") or (raw_title if raw_title.upper().startswith("CVE-") else None)
+
     owasp_category = map_owasp(
         title=shown_title,
         description=description if description != "Non fourni" else "",
         cwe=f.get("cwe"),
+        cve_id=cve_id,
     )
 
     rag_context = {}
@@ -309,8 +329,8 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
             technology=str(metadata.get("cms") or f.get("source") or ""),
             component=str(f.get("param") or f.get("kind") or ""),
             reference=str(f.get("reference") or ""),
-            top_k=1,
-            min_score=0.85,
+            top_k=2,          # CORRECTION 2b : était 1
+            min_score=0.75,   # CORRECTION 2b : était 0.85
         )
 
         if rag_docs:
@@ -322,9 +342,13 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
         "evidence": _compact_evidence(f.get("evidence") or f.get("param")),
         "reference": f.get("reference") or f.get("cve_link") or "Non fourni",
         "owasp_category": owasp_category,
-        
         "rag_context": rag_context,
     }
+
+    # CORRECTION 3 : ajouter matched_version pour nuancer les CVEs non confirmées
+    matched_version = f.get("matched_version")
+    if matched_version is not None:
+        row["version_confirmed"] = matched_version
 
     cvss = f.get("cvss")
     if cvss not in (None, "", "Non fourni"):
@@ -333,6 +357,7 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
     return row
 
 
+# ─── CORRECTION 4 : _make_annexe_row passe aussi cve_id ─────────────────────
 def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
     sev = normalize_severity(f.get("severity"))
     description = f.get("description") or "Non fourni"
@@ -342,6 +367,9 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
 
     source = str(f.get("source") or "").strip().lower()
     shown_title = display_title if source == "cve" and display_title != raw_title else display_title
+
+    # CORRECTION 4 : passer cve_id pour activer CVE_OWASP_OVERRIDE dans l'annexe aussi
+    cve_id = f.get("cve_id") or (raw_title if raw_title.upper().startswith("CVE-") else None)
 
     row = {
         "title": shown_title,
@@ -359,6 +387,7 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
             title=shown_title,
             description=description if description != "Non fourni" else "",
             cwe=f.get("cwe"),
+            cve_id=cve_id,
         ),
         "alertRef": f.get("alertRef") or "",
     }
@@ -384,7 +413,7 @@ def compute_summary(findings: List[Dict[str, Any]]) -> Dict[str, int]:
 
 
 def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
-    headers = ["Priorité", "Type", "Severity", "Risk", "Confidence", "Source", "Titre", "Cible", "Preuve", "alertRef"]
+    headers = ["Priorité", "Type", "Severity", "Risk", "Confidence", "Titre", "Cible", "Preuve", "alertRef"]
     lines = []
     lines.append("| " + " | ".join(headers) + " |")
     lines.append("| " + " | ".join(["---"] * len(headers)) + " |")
@@ -396,7 +425,6 @@ def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
             str(f.get("severity", "Non fourni")),
             str(f.get("risk", "Non fourni")),
             str(f.get("confidence", "Non fourni")),
-            str(f.get("source", "Non fourni")),
             str(f.get("title", "Non fourni")),
             str(f.get("target", "Non fourni")),
             str(f.get("evidence", "Non fourni")),
@@ -406,6 +434,7 @@ def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
         lines.append("| " + " | ".join(row) + " |")
 
     return "\n".join(lines)
+
 
 def strip_llm_cvss_lines(report_text: str) -> str:
     cleaned_lines = []
@@ -439,6 +468,7 @@ def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]
 
     return "\n".join(output)
 
+
 def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
     source = str(f.get("source") or "").strip().lower()
     if source in {"cve", "nuclei", "cms_scan"}:
@@ -462,13 +492,12 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     findings = sort_findings(findings)
     computed_counts = compute_summary(findings)
 
-    # Construire séparément les données pour l'annexe et pour le LLM
     annexe_rows_by_id: Dict[int, Dict[str, Any]] = {}
     llm_rows_by_id: Dict[int, Dict[str, Any]] = {}
 
     for f in findings:
         annexe_rows_by_id[id(f)] = _make_annexe_row(f)
-        llm_rows_by_id[id(f)] = _make_llm_row(f,metadata)
+        llm_rows_by_id[id(f)] = _make_llm_row(f, metadata)
 
     all_annexe_rows = [annexe_rows_by_id[id(f)] for f in findings]
     annexe_md = build_annexe_table(all_annexe_rows)
@@ -484,22 +513,23 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     top_llm_rows = [llm_rows_by_id[id(f)] for f in top_findings]
 
     prompt = REPORT_PROMPT.format(
-        scan_id=metadata.get("scan_id") or "Non fourni",
-        target_url=metadata.get("target_url") or "Non fourni",
-        cms=metadata.get("cms") or "Non fourni",
-        mode=metadata.get("mode") or "Non fourni",
-        risk_level=metadata.get("risk_level") or "Non fourni",
-        total_vulnerabilities=metadata.get("total_vulnerabilities")
-        if metadata.get("total_vulnerabilities") is not None else "Non fourni",
-        created_at=metadata.get("created_at") or "Non fourni",
-        scan_time_sec=metadata.get("scan_time_sec")
-        if metadata.get("scan_time_sec") is not None else "Non fourni",
-        severity_counts=json.dumps(metadata.get("severity_counts") or {}, ensure_ascii=False),
-        computed_severity_counts=json.dumps(computed_counts, ensure_ascii=False),
-        total_findings_extraits=len(findings),
-        top_findings_json=json.dumps(top_llm_rows, ensure_ascii=False, indent=2),
-        nb_prioritaires=len(top_findings),
-    )
+    scan_id=metadata.get("scan_id") or "Non fourni",
+    target_url=metadata.get("target_url") or "Non fourni",
+    cms=metadata.get("cms") or "Non fourni",
+    cms_version=metadata.get("cms_version") or "Non fourni",  # ← AJOUTÉ
+    mode=metadata.get("mode") or "Non fourni",
+    risk_level=metadata.get("risk_level") or "Non fourni",
+    total_vulnerabilities=metadata.get("total_vulnerabilities")
+    if metadata.get("total_vulnerabilities") is not None else "Non fourni",
+    created_at=metadata.get("created_at") or "Non fourni",
+    scan_time_sec=metadata.get("scan_time_sec")
+    if metadata.get("scan_time_sec") is not None else "Non fourni",
+    severity_counts=json.dumps(metadata.get("severity_counts") or {}, ensure_ascii=False),
+    computed_severity_counts=json.dumps(computed_counts, ensure_ascii=False),
+    total_findings_extraits=len(findings),
+    top_findings_json=json.dumps(top_llm_rows, ensure_ascii=False, indent=2),
+    nb_prioritaires=len(top_findings),
+)
 
     with open("debug_prompt.txt", "w", encoding="utf-8") as f:
         f.write(prompt)

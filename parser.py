@@ -17,13 +17,14 @@ def safe_get(d: Dict[str, Any], *keys: str, default=None):
 def safe_list(x: Any) -> List[Any]:
     return x if isinstance(x, list) else []
 
+
 def classify_finding_kind(severity: str) -> str:
     sev = normalize_severity(severity)
-
     if sev in {"critical", "high", "medium", "low"}:
         return "vulnerability"
-
     return "information"
+
+
 def normalize_severity(sev: Optional[str]) -> str:
     if not sev:
         return "info"
@@ -60,15 +61,6 @@ def normalize_confidence(conf: Optional[str]) -> str:
 
 
 def should_keep_by_confidence(severity: str, confidence: Optional[str]) -> bool:
-    """User rule-of-thumb for ZAP alerts.
-
-    Requirement from user:
-      - For alerts with the same risk level, prefer confidence Medium/High.
-
-    Practical implementation:
-      - Drop LOW-confidence alerts for (info/low/medium) severities.
-      - Keep all alerts for (high/critical) severities.
-    """
     sev = normalize_severity(severity)
     conf = (confidence or "").strip().lower()
     if sev in {"high", "critical"}:
@@ -87,20 +79,43 @@ def severity_to_priority(sev: str) -> str:
     if sev == "low":
         return "P4"
     return "P5"
+
+
 def get_scan_root(data: Dict[str, Any]) -> Dict[str, Any]:
     s = data.get("scan")
     return s if isinstance(s, dict) else data
 
+
+# ─── CORRECTION 1 : extract_metadata extrait cms_version ─────────────────────
 def extract_metadata(data: Dict[str, Any]) -> Dict[str, Any]:
     scan = get_scan_root(data)
+
+    # Extraire la version du CMS depuis recon.webanalyze.technologies
+    cms_version = None
+    technologies = (
+        safe_get(scan, "recon", "webanalyze", "technologies")
+        or safe_get(data, "scan", "recon", "webanalyze", "technologies")
+        or []
+    )
+
+    cms_name = (scan.get("cms_type") or data.get("cms") or "").lower()
+    for tech in technologies:
+        if not isinstance(tech, dict):
+            continue
+        tech_name = str(tech.get("name", "")).lower()
+        tech_version = str(tech.get("version", "")).strip()
+        # Matcher le CMS détecté (drupal, wordpress, joomla...)
+        if tech_name in {cms_name, "drupal", "wordpress", "joomla"} and tech_version:
+            cms_version = tech_version
+            break
 
     return {
         "scan_id": data.get("scan_id") or scan.get("scan_id"),
         "target_url": scan.get("target_url") or data.get("target_url"),
         "cms": scan.get("cms_type") or data.get("cms") or safe_get(scan, "cms_scan", "cms"),
+        "cms_version": cms_version,  # NOUVEAU — version CMS détectée (ex: "10", "11", "6.4.3")
         "mode": scan.get("mode") or data.get("mode"),
         "risk_level": scan.get("risk_level") or data.get("risk_level"),
-        # important: ton JSON l’a à la racine
         "total_vulnerabilities": data.get("total_vulnerabilities")
         if data.get("total_vulnerabilities") is not None
         else safe_get(scan, "cms_scan", "total_vulnerabilities"),
@@ -113,7 +128,7 @@ def extract_metadata(data: Dict[str, Any]) -> Dict[str, Any]:
 def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     findings: List[Dict[str, Any]] = []
 
-    scan = get_scan_root(data)  
+    scan = get_scan_root(data)
 
     # --- CMS scan findings (simple strings) ---
     for line in safe_list(safe_get(scan, "cms_scan", "findings")):
@@ -138,24 +153,27 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
 
         sev = normalize_severity(cve.get("severity") or "high")
 
+        # CORRECTION 2a : ajouter cve_id explicitement pour CVE_OWASP_OVERRIDE
+        # CORRECTION 2b : matched_version avec valeur par défaut False
         item = {
-        "source": "cve",
-        "title": cve.get("cve_id"),
-        "display_title": cve.get("description") or "Non fourni",
-        "severity": sev,
-        "priority": severity_to_priority(sev),
-        "url": scan.get("target_url"),
-        "description": cve.get("description"),
-        "cwe": cve.get("cwe_id"),
-        "reference": cve.get("nvd_reference"),
-        "kind": classify_finding_kind(sev),
-        "module_name": cve.get("module_name", []),
-        "matched_module": cve.get("matched_module"),
-        "matched_version": cve.get("matched_version"),
-        "published": cve.get("published"),
-        "cvss_version": cve.get("cvss_version"),
-        "raw": cve,
-    }
+            "source": "cve",
+            "title": cve.get("cve_id"),
+            "cve_id": cve.get("cve_id"),                         # NOUVEAU — pour map_owasp() override
+            "display_title": cve.get("description") or "Non fourni",
+            "severity": sev,
+            "priority": severity_to_priority(sev),
+            "url": scan.get("target_url"),
+            "description": cve.get("description"),
+            "cwe": cve.get("cwe_id"),
+            "reference": cve.get("nvd_reference"),
+            "kind": classify_finding_kind(sev),
+            "module_name": cve.get("module_name", []),
+            "matched_module": cve.get("matched_module"),
+            "matched_version": cve.get("matched_version", False),  # NOUVEAU — False si non confirmé
+            "published": cve.get("published"),
+            "cvss_version": cve.get("cvss_version"),
+            "raw": cve,
+        }
 
         cvss = cve.get("cvss_score")
         if cvss not in (None, "", "Non fourni"):
@@ -182,8 +200,6 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
         )
 
     # --- ZAP ---
-    # Dedupe by alertRef: if multiple alerts share same alertRef, keep ONE
-    # representative (highest confidence) and merge params.
     zap_alerts = [a for a in safe_list(safe_get(scan, "zap_scan", "alerts")) if isinstance(a, dict)]
     grouped: Dict[str, List[Dict[str, Any]]] = {}
     for a in zap_alerts:

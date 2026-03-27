@@ -63,7 +63,6 @@ def _build_doc_text(doc: Dict[str, Any]) -> str:
 
 def load_knowledge_base(path: str = None) -> List[Dict[str, Any]]:
     if path is None:
-        # priorité au dossier knowledge_base à côté du script
         base_dir = os.path.dirname(os.path.abspath(__file__))
         candidate_1 = os.path.join(base_dir, "knowledge_base", "security_knowledge.json")
         candidate_2 = os.path.join(base_dir, "security_knowledge.json")
@@ -173,10 +172,11 @@ def _exact_cve_match(cves: List[str], docs: List[Dict[str, Any]]) -> List[Dict[s
                 break
 
     return matches
+
+
 def _classify_vuln_type(title: str) -> str:
     t = _normalize_key(title)
 
-    # CSP précis
     if "content security policy csp header not set" in t or "csp header not set" in t:
         return "csp_header_missing"
     if "failure to define directive with no fallback" in t:
@@ -191,26 +191,18 @@ def _classify_vuln_type(title: str) -> str:
         return "csp_script_unsafe_eval"
     if "cookie no httponly flag" in t or "cookies without httponly" in t:
         return "cookie_httponly_missing"
-
     if "cookie without secure flag" in t or "cookies without secure" in t:
         return "cookie_secure_missing"
-
     if "cookie without samesite attribute" in t or "missing cookie samesite" in t:
         return "cookie_samesite_missing"
-
     if "server leaks information via x powered by http response header field" in t:
         return "x_powered_by_exposure"
-
     if "server leaks version information via server http response header field" in t:
         return "server_header_version_disclosure"
-
     if "cross domain javascript source file inclusion" in t:
         return "cross_domain_js"
-
     if "absence of anti csrf tokens" in t:
         return "csrf_token_missing"
-
-    # header / browser security
     if "missing anti clickjacking header" in t or "x frame options header missing" in t:
         return "clickjacking_missing"
     if "sub resource integrity attribute missing" in t or "subresource integrity attribute missing" in t:
@@ -231,8 +223,6 @@ def _classify_vuln_type(title: str) -> str:
         return "x_permitted_cross_domain_policies_missing"
     if "clear site data header missing" in t:
         return "clear_site_data_missing"
-
-    # vuln web classiques
     if "sql injection" in t or "sqli" in t:
         return "sql_injection"
     if "cross site scripting" in t or "xss" in t:
@@ -243,8 +233,6 @@ def _classify_vuln_type(title: str) -> str:
         return "open_redirect"
     if "reflected file download" in t:
         return "reflected_file_download"
-
-    # drupal / wordpress spécifiques
     if "rest views" in t:
         return "rest_views_exposure"
     if "organic groups" in t or " og " in f" {t} ":
@@ -259,12 +247,11 @@ def _classify_vuln_type(title: str) -> str:
         return "webform_xss"
     if "views module" in t and ("xss" in t or "cross site scripting" in t):
         return "views_xss"
-
-    # CVE pur
     if "cve-" in t:
         return "generic_cve"
 
     return "generic"
+
 
 def _same_vuln_family(
     finding_title: str,
@@ -279,6 +266,7 @@ def _same_vuln_family(
         return False
 
     return finding_type == doc_type
+
 
 def _keyword_prefilter(title: str, description: str, docs: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     q_all = _normalize_key(f"{title} {description}")
@@ -317,35 +305,22 @@ def _specificity_score_for_exact_match(
     score = 0.0
 
     strong_terms = [
-        "rest views",
-        "views svg animation",
-        "organic groups",
-        "system module",
-        "webform",
-        "views",
-        "drupal",
+        "rest views", "views svg animation", "organic groups",
+        "system module", "webform", "views", "drupal",
     ]
     for term in strong_terms:
         if term in ft and term in searchable:
             score += 0.30
 
     vuln_terms = [
-        "sql injection",
-        "cross site scripting",
-        "xss",
-        "csrf",
-        "reflected file download",
-        "forceful browsing",
-        "sensitive information",
-        "access restriction",
-        "hidden content",
-        "open redirect",
+        "sql injection", "cross site scripting", "xss", "csrf",
+        "reflected file download", "forceful browsing", "sensitive information",
+        "access restriction", "hidden content", "open redirect",
     ]
     for term in vuln_terms:
         if term in ft and term in searchable:
             score += 0.20
 
-    # bonus si le titre du doc est très spécifique
     doc_title = _normalize_key(doc.get("title", ""))
     if "drupal" in doc_title:
         score += 0.08
@@ -364,7 +339,6 @@ def _boost_score(
     doc: Dict[str, Any],
 ) -> float:
     q_title = _normalize_key(query_title)
-    q_desc = _normalize_key(query_desc)
     q_owasp = _normalize_key(query_owasp)
     q_cwe = _normalize_key(query_cwe)
     q_all = _normalize_key(f"{query_title} {query_desc} {query_owasp} {query_cwe}")
@@ -378,139 +352,109 @@ def _boost_score(
     query_type = _classify_vuln_type(query_title)
     doc_type = _classify_vuln_type(doc.get("title", ""))
 
-    # 1) match exact titre / alias
     if q_title and (q_title == doc_title or q_title in aliases):
         boost += 1.20
 
-    # 2) match CVE exact
     doc_cves = {c.upper() for c in _to_list(doc.get("cves"))}
     query_cve_set = {c.upper() for c in query_cves}
     if doc_cves & query_cve_set:
         boost += 1.50
 
-    # 3) match type exact / pénalité type différent
     if query_type != "generic" and doc_type != "generic":
         if query_type == doc_type:
             boost += 0.90
         else:
             boost -= 1.20
 
-    # 4) owasp / cwe
     if q_owasp and q_owasp in searchable:
         boost += 0.15
     if q_cwe and q_cwe in searchable:
         boost += 0.20
 
-    # 5) boosts spécifiques
     if query_type == "csp_header_missing":
         if "content security policy" in searchable or "csp" in searchable:
             boost += 0.25
         if "header not set" in searchable or "missing csp" in searchable:
             boost += 0.35
-
     elif query_type == "csp_no_fallback":
         if "no fallback" in searchable or "form action" in searchable or "frame ancestors" in searchable:
             boost += 0.35
-
     elif query_type == "csp_wildcard":
         if "wildcard" in searchable or "*" in str(doc.get("title", "")):
             boost += 0.35
-
     elif query_type == "csp_script_unsafe_inline":
         if "script src unsafe inline" in searchable:
             boost += 0.40
-
     elif query_type == "csp_style_unsafe_inline":
         if "style src unsafe inline" in searchable:
             boost += 0.40
-
     elif query_type == "clickjacking_missing":
         if any(x in searchable for x in ["clickjacking", "x frame options", "frame ancestors"]):
             boost += 0.40
-
     elif query_type == "sri_missing":
         if any(x in searchable for x in ["subresource integrity", "sub resource integrity", "sri", "integrity"]):
             boost += 0.40
-
     elif query_type == "hsts_missing":
         if any(x in searchable for x in ["strict transport security", "hsts"]):
             boost += 0.40
-
     elif query_type == "sql_injection":
         if any(x in searchable for x in ["sql injection", "sqli"]):
             boost += 0.40
-
     elif query_type == "xss":
         if any(x in searchable for x in ["xss", "cross site scripting"]):
             boost += 0.40
-
     elif query_type == "csrf":
         if any(x in searchable for x in ["csrf", "cross site request forgery"]):
             boost += 0.40
-
     elif query_type == "open_redirect":
         if "open redirect" in searchable:
             boost += 0.40
-
     elif query_type == "reflected_file_download":
         if "reflected file download" in searchable:
             boost += 0.40
-
     elif query_type == "rest_views_exposure":
         if "rest views" in searchable:
             boost += 0.45
-
     elif query_type == "og_access_issue":
         if any(x in searchable for x in ["organic groups", "og"]):
             boost += 0.45
-
     elif query_type == "views_svg_xss":
         if "views svg animation" in searchable:
             boost += 0.45
-
     elif query_type == "views_access_bypass":
         if "views" in searchable and any(x in searchable for x in ["hidden content", "access", "statistics"]):
             boost += 0.45
-
     elif query_type == "webform_session_exposure":
         if "webform" in searchable and any(x in searchable for x in ["session", "cache"]):
             boost += 0.45
-
     elif query_type == "webform_xss":
         if "webform" in searchable and any(x in searchable for x in ["xss", "cross site scripting"]):
             boost += 0.45
-
     elif query_type == "views_xss":
         if "views" in searchable and any(x in searchable for x in ["xss", "cross site scripting"]):
             boost += 0.45
     elif query_type == "cookie_httponly_missing":
         if any(x in searchable for x in ["httponly", "cookie no httponly", "cookies without httponly"]):
             boost += 0.40
-
     elif query_type == "cookie_secure_missing":
         if any(x in searchable for x in ["secure flag", "without secure", "cookies without secure"]):
             boost += 0.40
-
     elif query_type == "cookie_samesite_missing":
         if any(x in searchable for x in ["samesite", "cookie without samesite", "missing cookie samesite"]):
             boost += 0.40
-
     elif query_type == "x_powered_by_exposure":
         if any(x in searchable for x in ["x powered by", "server leaks", "information disclosure"]):
             boost += 0.40
-
     elif query_type == "server_header_version_disclosure":
         if any(x in searchable for x in ["server header", "server version disclosure"]):
             boost += 0.40
-
     elif query_type == "cross_domain_js":
         if any(x in searchable for x in ["cross domain javascript", "third party script", "external javascript"]):
             boost += 0.40
-
     elif query_type == "csrf_token_missing":
         if any(x in searchable for x in ["csrf", "anti csrf", "cross site request forgery"]):
             boost += 0.40
-    # 6) bonus léger si drupal seulement quand le finding parle vraiment drupal
+
     if "drupal" in q_all and "drupal" in searchable:
         boost += 0.08
 
@@ -550,7 +494,6 @@ def retrieve_knowledge(
                 key=lambda d: _specificity_score_for_exact_match(title, description, d),
                 reverse=True,
             )
-
             out = []
             for doc in ranked[:top_k]:
                 item = doc.copy()
@@ -640,16 +583,18 @@ def retrieve_knowledge(
                 print(" -", r.get("title"), "| score =", r.get("score"))
             return final[:top_k]
 
-        print("\n=== RAG NO SAFE MATCH ===")
-        print("Query title:", title)
-        print("No validated document found. Returning [].")
-        return []
+        # ─── CORRECTION : return [] supprimé ici ─────────────────────────────
+        # Avant : return [] bloquait l'accès au fallback (code mort)
+        # Maintenant : on tombe dans le fallback si aucun doc validé
 
-        # 6) Fallback
+        # 6) Fallback — résultats par score embedding seul
+        print("\n=== RAG FALLBACK RESULTS ===")
+        print("Query title:", title)
+        print("No validated document found. Trying score-based fallback.")
+
         strong = [r for r in results if r["score"] >= min_score]
         final = strong if strong else results[:top_k]
 
-        print("\n=== RAG FALLBACK RESULTS ===")
         for r in final[:top_k]:
             print(" -", r.get("title"), "| score =", r.get("score"))
 
