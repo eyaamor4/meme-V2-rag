@@ -5,7 +5,7 @@ IMPORTANT :
 Tu dois STRICTEMENT utiliser les données fournies.
 Tu ne dois JAMAIS recalculer les statistiques.
 Tu ne dois JAMAIS inventer de vulnérabilités.
-Tu ne dois JAMAIS modifier les valeurs severity ou priority.
+
 
 Les statistiques ci-dessous sont la vérité absolue.
 Tu dois les reprendre EXACTEMENT telles quelles.
@@ -33,7 +33,9 @@ Chaque finding peut contenir un champ optionnel nommé "rag_context".
 Le champ "rag_context" contient un contexte RAG condensé issu de la base de connaissance cybersécurité.
 Il peut inclure :
 - recommendation
-- verification
+- technical_actions
+- implementation_examples
+- verification_steps
 
 Le finding courant reste toujours la source principale.
 Le rag_context est une aide secondaire pour améliorer la précision de la remédiation et de la vérification.
@@ -43,12 +45,18 @@ RÈGLES STRICTES D’UTILISATION DU RAG :
 3. Ne jamais remplacer la vulnérabilité du finding par une autre vulnérabilité issue du rag_context.
 4. Ne jamais inventer une cause technique à partir du rag_context seul.
 5. Ne jamais inventer une catégorie OWASP, une version, un composant ou une preuve à partir du rag_context seul.
-6. Utiliser le rag_context seulement pour rendre la remédiation plus précise, plus technique et plus exploitable.
+6. Utiliser prioritairement le rag_context pour améliorer :
+   - la recommandation technique,
+   - les actions concrètes de correction,
+   - les exemples d’implémentation,
+   - la méthode de vérification.
 7. Si le rag_context contredit le finding courant, ignorer le rag_context.
 8. Si le rag_context est absent, vide ou peu utile, travailler uniquement à partir du finding courant.
 9. Ne jamais copier textuellement de longs passages du rag_context.
 10. Le rag_context ne doit jamais ajouter une nouvelle vulnérabilité non présente dans le finding courant.
-
+11. Si le rag_context contient des "technical_actions", les transformer en actions concrètes et exploitables.
+12. Si le rag_context contient des "implementation_examples", s’en inspirer pour rendre la recommandation plus technique.
+13. Si le rag_context contient des "verification_steps", les utiliser pour produire une vérification claire et testable.
 --- RÈGLES IMPORTANTES ---
 
 1) La déduplication a DÉJÀ été effectuée.
@@ -130,7 +138,6 @@ La ligne "Description" doit être une reformulation fidèle du champ "descriptio
 - Ne jamais remplacer une vulnérabilité par une autre plus connue.
 
 
-
 14) Qualité des recommandations :
 Chaque recommandation technique doit être :
 - spécifique à la vulnérabilité concernée
@@ -138,7 +145,19 @@ Chaque recommandation technique doit être :
 - exploitable
 - liée au composant réellement concerné
 - cohérente avec le finding courant
-- éventuellement enrichie par le rag_context si cela reste fidèle au finding
+- priorisée en actions techniques directement applicables
+
+Si le rag_context est pertinent, la recommandation doit être enrichie par :
+- technical_actions pour détailler les étapes de correction
+- implementation_examples pour illustrer la mise en œuvre
+- verification_steps pour produire une vérification précise
+
+La recommandation technique ne doit jamais rester générique.
+Elle doit indiquer :
+- quoi corriger
+- où agir
+- comment corriger
+- comment vérifier
 
 15) Interdiction des recommandations vagues :
 Sont interdites les formulations suivantes :
@@ -160,7 +179,15 @@ Pour rédiger la remédiation, se baser d'abord sur :
 Après chaque recommandation technique, ajouter une phrase courte commençant par :
 "Vérification :"
 Cette phrase doit expliquer comment confirmer la correction dans la configuration ou dans la réponse HTTP.
+17 bis) Structure attendue de la recommandation :
+La recommandation technique doit être formulée comme une action concrète.
+Elle doit, lorsque possible, contenir :
+- le composant concerné (header, directive, paramètre, configuration, module…)
+- l’action précise à appliquer
+- éventuellement un exemple (valeur, header, directive)
+- un résultat attendu après correction
 
+Les recommandations abstraites ou vagues sont interdites.
 18) Format obligatoire de la section C :
 La section C doit contenir une liste numérotée.
 Chaque ligne doit correspondre à UNE vulnérabilité de la section B, dans le même ordre.

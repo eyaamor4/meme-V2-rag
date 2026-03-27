@@ -1,51 +1,60 @@
 **A - Résumé Exécutif**
 
-Un total de 11 vulnérabilités a été identifié, dont 5 vulnérabilités prioritaires.
+Un total de 11 vulnérabilités a été identifié sur le système. Parmi elles, 5 sont considérées comme prioritaires. Il est essentiel d'agir rapidement pour corriger ces vulnérabilités pour éviter tout risque potentiel.
 
 **B - Vulnérabilités Prioritaires**
 
 1. **CSP: Failure to Define Directive with No Fallback**
-	* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback. Manquer ou exclure les directives est le même que permettre tout.
+	* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback. Cela signifie que les directives manquantes ou exclues sont considérées comme autorisant tout.
 	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
-	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.
+	* Recommandation technique : Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
+	* Vérification : Exécuter curl -I sur plusieurs pages HTML et vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
+
 2. **CSP: script-src unsafe-eval**
-	* Description : La politique de sécurité du contenu (CSP) inclut 'unsafe-eval' dans script-src. Cette directive permet l'exécution de code JavaScript non autorisé.
+	* Description : La politique de sécurité du contenu (CSP) inclut une directive script-src avec l'option unsafe-eval.
 	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Supprimer 'unsafe-eval' de script-src et refactoriser les bibliothèques ou fonctions JavaScript qui dépendent de eval, new Function ou mécanismes similaires.
-	* Vérification : Vérifier que script-src ne contient plus 'unsafe-eval' et tester le fonctionnement de l’application pour confirmer qu’aucun composant ne dépend encore de eval ou new Function.
+	* Recommandation technique : Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
+	* Vérification : Vérifier que la directive script-src ne contient plus unsafe-eval.
+
 3. **CSP: script-src unsafe-inline**
-	* Description : La politique de sécurité du contenu (CSP) inclut 'unsafe-inline' dans script-src. Cette directive permet l'exécution de code JavaScript non autorisé.
+	* Description : La politique de sécurité du contenu (CSP) inclut une directive script-src avec l'option unsafe-inline.
 	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
-	* Vérification : Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.
+	* Recommandation technique : Identifier tous les scripts inline présents dans les templates HTML.
+	* Vérification : Contrôler que script-src ne contient plus unsafe-inline.
+
 4. **CSP: style-src unsafe-inline**
-	* Description : La politique de sécurité du contenu (CSP) inclut 'unsafe-inline' dans style-src. Cette directive permet l'exécution de code CSS non autorisé.
+	* Description : La politique de sécurité du contenu (CSP) inclut une directive style-src avec l'option unsafe-inline.
 	* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy, https://content-security-policy.com/, https://github.com/HtmlUnit/htmlunit-csp, https://web.dev/articles/csp#resource-options
 	* Catégorie OWASP : A05:2021 - Security Misconfiguration
-	* Recommandation technique : Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.
-	* Vérification : Vérifier que style-src ne contient plus 'unsafe-inline' et que les styles requis proviennent de fichiers CSS approuvés ou de hashes explicites.
+	* Recommandation technique : Identifier les styles inline dans les templates et composants front-end.
+	* Vérification : Contrôler le rendu visuel des pages après externalisation des styles.
+
 5. **Cross-Domain Misconfiguration**
-	* Description : La configuration CORS est trop permissive, permettant aux navigateurs de charger des données provenant de domaines non autorisés.
+	* Description : Une configuration de partage de ressources entre domaines (CORS) est mal configurée sur le serveur web, ce qui pourrait permettre aux navigateurs d'accéder à des données sans autorisation.
 	* Référence : https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy
 	* Catégorie OWASP : A01:2021 - Broken Access Control
-	* Recommandation technique : Restreindre Access-Control-Allow-Origin aux domaines applicatifs explicitement autorisés et éviter l’utilisation de '*' pour les ressources sensibles ou métier.
-	* Vérification : Vérifier dans les réponses HTTP que Access-Control-Allow-Origin contient uniquement les origines prévues et qu’aucune ressource sensible n’est exposée avec une politique trop permissive.
+	* Recommandation technique : Vérifier et ajuster les en-têtes CORS pour limiter l'accès aux ressources.
+	* Vérification : Contrôler que les en-têtes CORS sont correctement configurés.
 
 **C - Plan de remédiation**
 
-1. Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.
-2. Supprimer 'unsafe-eval' de script-src et refactoriser les bibliothèques ou fonctions JavaScript qui dépendent de eval, new Function ou mécanismes similaires.
-3. Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.
-4. Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.
-5. Restreindre Access-Control-Allow-Origin aux domaines applicatifs explicitement autorisés et éviter l’utilisation de '*' pour les ressources sensibles ou métier.
+1. CSP: Failure to Define Directive with No Fallback
+	* Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
+2. CSP: script-src unsafe-eval
+	* Rechercher et corriger les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
+3. CSP: script-src unsafe-inline
+	* Identifier et migrer les scripts inline vers des fichiers JS statiques versionnés.
+4. CSP: style-src unsafe-inline
+	* Identifier et externaliser les styles inline.
+5. Cross-Domain Misconfiguration
+	* Vérifier et ajuster les en-têtes CORS pour limiter l'accès aux ressources.
 
 **D - Conclusion**
 
-Un total de 11 vulnérabilités a été identifié, dont 5 vulnérabilités prioritaires. Il est essentiel de remédier à ces vulnérabilités pour améliorer la sécurité du système. Les recommandations techniques proposées doivent être mises en œuvre pour prévenir les attaques potentielles.
+Un total de 11 vulnérabilités a été identifié sur le système, dont 5 sont considérées comme prioritaires. Il est essentiel d'agir rapidement pour corriger ces vulnérabilités pour éviter tout risque potentiel. Le plan de remédiation proposé doit être mis en œuvre avec soin pour garantir la sécurité du système.
 
 ## Annexe - Liste complète des findings (générée par Python)
 

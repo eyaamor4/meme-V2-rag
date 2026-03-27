@@ -228,39 +228,63 @@ def needs_rag(title: str, description: str = "") -> bool:
     keywords = [
         "csp",
         "content security policy",
-        "cross-domain",
-        "cors",
-        "integrity",
-        "sri",
         "clickjacking",
         "x-frame-options",
         "frame-ancestors",
-        "cookie",
-        "httponly",
-        "samesite",
-        "secure flag",
-        "strict-transport-security",
-        "hsts",
-        "mime",
-        "tls",
-        "cipher",
-        "cve",
+        "integrity",
+        "sri",
+        "cve-",
+        "sql injection",
+        "xss",
+        "cross-site scripting",
+        "csrf",
+        "cross-site request forgery",
+        "open redirect",
+        "reflected file download",
+        "rest views",
+        "organic groups",
+        "webform",
+        "views svg animation",
     ]
     return any(k in text for k in keywords)
 
-
-def compress_rag_context(rag_docs: List[Dict[str, Any]]) -> Dict[str, Any]:
+def compress_rag_context(rag_docs):
     if not rag_docs:
         return {}
 
-    best = rag_docs[0]
+    selected_titles = []
+    technical_actions = []
+    verification_steps = []
+
+    for doc in rag_docs[:1]:
+        title = str(doc.get("title") or "").strip()
+        if title and title not in selected_titles:
+            selected_titles.append(title)
+
+        for x in doc.get("technical_actions", []) or []:
+            x = str(x).strip()
+            if x and x not in technical_actions:
+                technical_actions.append(x)
+
+        for x in doc.get("verification_steps", []) or []:
+            x = str(x).strip()
+            if x and x not in verification_steps:
+                verification_steps.append(x)
+
     return {
-        "recommendation": best.get("recommendation", "Non fourni"),
-        "verification": best.get("verification", "Non fourni"),
+        "selected_rag_titles": selected_titles[:1],
+        "technical_actions": technical_actions[:3],
+        "verification_steps": verification_steps[:2],
     }
 
-
-def _make_llm_row(f: Dict[str, Any]) -> Dict[str, Any]:
+def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
+    out = {}
+    for k, v in d.items():
+        if v in (None, "", [], {}):
+            continue
+        out[k] = v
+    return out
+def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]:
     description = f.get("description") or "Non fourni"
 
     raw_title = f.get("title") or "Non fourni"
@@ -281,9 +305,16 @@ def _make_llm_row(f: Dict[str, Any]) -> Dict[str, Any]:
             title=shown_title,
             description=description,
             owasp=owasp_category,
+            cwe=str(f.get("cwe") or ""),
+            technology=str(metadata.get("cms") or f.get("source") or ""),
+            component=str(f.get("param") or f.get("kind") or ""),
+            reference=str(f.get("reference") or ""),
             top_k=1,
+            min_score=0.85,
         )
-        rag_context = compress_rag_context(rag_docs)
+
+        if rag_docs:
+            rag_context = _drop_empty_fields(compress_rag_context(rag_docs))
 
     row = {
         "title": shown_title,
@@ -291,10 +322,13 @@ def _make_llm_row(f: Dict[str, Any]) -> Dict[str, Any]:
         "evidence": _compact_evidence(f.get("evidence") or f.get("param")),
         "reference": f.get("reference") or f.get("cve_link") or "Non fourni",
         "owasp_category": owasp_category,
+        
         "rag_context": rag_context,
     }
 
-    
+    cvss = f.get("cvss")
+    if cvss not in (None, "", "Non fourni"):
+        row["cvss"] = cvss
 
     return row
 
@@ -434,7 +468,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
 
     for f in findings:
         annexe_rows_by_id[id(f)] = _make_annexe_row(f)
-        llm_rows_by_id[id(f)] = _make_llm_row(f)
+        llm_rows_by_id[id(f)] = _make_llm_row(f,metadata)
 
     all_annexe_rows = [annexe_rows_by_id[id(f)] for f in findings]
     annexe_md = build_annexe_table(all_annexe_rows)

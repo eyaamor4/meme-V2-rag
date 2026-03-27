@@ -149,6 +149,11 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
         "cwe": cve.get("cwe_id"),
         "reference": cve.get("nvd_reference"),
         "kind": classify_finding_kind(sev),
+        "module_name": cve.get("module_name", []),
+        "matched_module": cve.get("matched_module"),
+        "matched_version": cve.get("matched_version"),
+        "published": cve.get("published"),
+        "cvss_version": cve.get("cvss_version"),
         "raw": cve,
     }
 
