@@ -1192,6 +1192,7 @@
   },{
   "id": "kb_clickjacking_001",
   "title": "Missing Anti-clickjacking Header",
+  "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
   "aliases": [
     "X-Frame-Options Header Missing",
     "Missing X-Frame-Options",
@@ -1340,6 +1341,175 @@
     "Identifier les champs vulnérables.",
     "Appliquer un encodage HTML.",
     "Tester avec des payloads XSS."
+  ]
+},
+  {
+    "id": "kb_cookie_001",
+    "title": "Cookie No HttpOnly Flag",
+    "aliases": [
+      "Cookie Without HttpOnly Flag",
+      "Cookies Without HttpOnly",
+      "Cookie No HttpOnly",
+      "HttpOnly Flag Missing",
+      "Missing HttpOnly Flag"
+    ],
+    "description": "Un cookie de session ou applicatif est défini sans l'attribut HttpOnly, ce qui permet à un script JavaScript malveillant d'en lire la valeur en cas de XSS.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-1004",
+    "tags": ["cookie", "httponly", "session", "xss"],
+    "keywords": ["httponly", "cookie no httponly", "cookies without httponly"],
+    "recommendation": "Ajouter l'attribut HttpOnly sur tous les cookies sensibles, notamment les cookies de session, pour empêcher leur lecture via JavaScript.",
+    "recommendation_summary": "Protéger les cookies sensibles contre l'accès JavaScript non autorisé.",
+    "technical_actions": [
+      "Identifier tous les cookies définis par l'application.",
+      "Ajouter l'attribut HttpOnly sur les cookies de session et les cookies sensibles.",
+      "Vérifier la configuration du framework ou du serveur pour appliquer HttpOnly par défaut.",
+      "Ne pas exposer les valeurs de cookies via des endpoints JavaScript ou API."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['httponly' => true]);",
+      "nginx": "proxy_cookie_path / \"/; HttpOnly; Secure; SameSite=Strict\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure",
+      "generic": "Configurer HttpOnly=true dans le framework applicatif pour tous les cookies de session."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut HttpOnly pour tous les cookies sensibles.",
+    "verification_steps": [
+      "Inspecter les en-têtes Set-Cookie dans les réponses HTTP avec curl -I ou les outils navigateur.",
+      "Vérifier que chaque cookie de session contient HttpOnly.",
+      "Tenter d'accéder au cookie via document.cookie dans la console navigateur et confirmer qu'il est inaccessible."
+    ],
+    "report_template": "Ajouter l'attribut HttpOnly sur tous les cookies sensibles afin d'empêcher leur lecture par des scripts JavaScript malveillants en cas d'injection XSS. La correction doit être appliquée au niveau du framework ou du serveur et validée en vérifiant les en-têtes Set-Cookie sur les réponses applicatives."
+  },
+  {
+    "id": "kb_cookie_002",
+    "title": "Cookie Without Secure Flag",
+    "aliases": [
+      "Cookie Without Secure",
+      "Cookies Without Secure Flag",
+      "Missing Secure Flag on Cookie",
+      "Cookie Secure Flag Missing",
+      "Secure Flag Missing"
+    ],
+    "description": "Un cookie est transmis sans l'attribut Secure, ce qui permet sa transmission sur des connexions HTTP non chiffrées et expose sa valeur à une interception réseau.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-614",
+    "tags": ["cookie", "secure", "https", "session"],
+    "keywords": ["cookie without secure", "cookies without secure", "secure flag"],
+    "recommendation": "Ajouter l'attribut Secure sur tous les cookies pour garantir leur transmission uniquement via HTTPS.",
+    "recommendation_summary": "Empêcher la transmission des cookies sur des canaux non chiffrés.",
+    "technical_actions": [
+      "Ajouter l'attribut Secure sur tous les cookies définis par l'application.",
+      "Vérifier que le site est accessible uniquement en HTTPS avant d'activer Secure.",
+      "Configurer le framework ou le serveur pour appliquer Secure par défaut sur les cookies de session.",
+      "Combiner avec HttpOnly et SameSite pour une protection complète."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['secure' => true, 'httponly' => true, 'samesite' => 'Strict']);",
+      "nginx": "proxy_cookie_path / \"/; Secure; HttpOnly; SameSite=Strict\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ $1;Secure;HttpOnly",
+      "generic": "Configurer Secure=true dans les paramètres de session du framework applicatif."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut Secure pour tous les cookies sensibles.",
+    "verification_steps": [
+      "Inspecter les en-têtes Set-Cookie dans les réponses HTTPS avec curl ou les outils navigateur.",
+      "Vérifier que chaque cookie sensible contient l'attribut Secure.",
+      "Tenter d'accéder au site en HTTP et confirmer que les cookies ne sont pas transmis."
+    ],
+    "report_template": "Ajouter l'attribut Secure sur tous les cookies applicatifs afin de garantir qu'ils ne sont transmis que sur des connexions HTTPS chiffrées. La correction doit être appliquée au niveau du framework ou de la configuration serveur et validée en inspectant les en-têtes Set-Cookie sur les réponses HTTPS."
+  },
+  {
+    "id": "kb_cookie_003",
+    "title": "Cookie without SameSite Attribute",
+    "aliases": [
+      "Cookie Without SameSite",
+      "Missing Cookie SameSite",
+      "Cookie SameSite Attribute Missing",
+      "SameSite Attribute Missing",
+      "missing-cookie-samesite-strict",
+      "Cookie without SameSite Attribute"
+    ],
+    "description": "Un cookie est défini sans l'attribut SameSite, ce qui peut permettre son envoi dans des requêtes cross-site et faciliter des attaques CSRF.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-1275",
+    "tags": ["cookie", "samesite", "csrf", "session"],
+    "keywords": ["samesite", "cookie without samesite", "missing cookie samesite"],
+    "recommendation": "Ajouter l'attribut SameSite=Strict ou SameSite=Lax sur tous les cookies pour limiter leur envoi dans les requêtes cross-site.",
+    "recommendation_summary": "Réduire le risque CSRF en limitant l'envoi des cookies aux requêtes same-site.",
+    "technical_actions": [
+      "Ajouter SameSite=Strict sur les cookies de session si aucun besoin cross-site n'est requis.",
+      "Utiliser SameSite=Lax si des liens entrants depuis des sites tiers doivent être supportés.",
+      "Éviter SameSite=None sauf si une intégration cross-site est indispensable — dans ce cas, Secure est obligatoire.",
+      "Combiner avec HttpOnly et Secure pour une protection complète."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['samesite' => 'Strict', 'secure' => true, 'httponly' => true]);",
+      "nginx": "proxy_cookie_path / \"/; SameSite=Strict; Secure; HttpOnly\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ \"$1; SameSite=Strict\"",
+      "generic": "Configurer SameSite=Strict dans les paramètres de session du framework."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut SameSite avec une valeur restrictive.",
+    "verification_steps": [
+      "Inspecter les en-têtes Set-Cookie dans les réponses HTTP.",
+      "Vérifier que chaque cookie sensible contient SameSite=Strict ou SameSite=Lax.",
+      "Tester les formulaires cross-site pour confirmer que les cookies ne sont plus envoyés dans les requêtes cross-origin."
+    ],
+    "report_template": "Ajouter l'attribut SameSite sur tous les cookies applicatifs afin de limiter leur envoi aux requêtes same-site et réduire le risque d'attaques CSRF. La valeur Strict est recommandée par défaut sauf besoin fonctionnel cross-site avéré. La correction doit être validée en inspectant les en-têtes Set-Cookie et en testant les flux cross-site."
+  },
+  {
+    "id": "kb_header_001",
+    "title": "X-Content-Type-Options Header Missing",
+    "aliases": [
+      "X-Content-Type-Options Header Not Set",
+      "Missing X-Content-Type-Options",
+      "X Content Type Options Missing",
+      "X-Content-Type-Options Missing"
+    ],
+    "description": "L'absence de l'en-tête X-Content-Type-Options laisse le navigateur interpréter librement le type MIME des réponses, ce qui peut permettre du MIME sniffing et des attaques associées.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-16",
+    "tags": ["x-content-type-options", "mime sniffing", "security headers"],
+    "keywords": ["x-content-type-options", "mime sniffing", "content type options"],
+    "recommendation": "Ajouter l'en-tête X-Content-Type-Options: nosniff sur toutes les réponses HTTP pour empêcher le MIME sniffing par le navigateur.",
+    "recommendation_summary": "Empêcher le navigateur d'interpréter le contenu avec un type MIME différent de celui déclaré.",
+    "technical_actions": [
+      "Ajouter X-Content-Type-Options: nosniff sur toutes les réponses HTTP.",
+      "Appliquer la configuration au niveau du serveur web ou du reverse proxy.",
+      "Vérifier aussi les pages d'erreur et les réponses d'API."
+    ],
+    "implementation_examples": {
+      "nginx": "add_header X-Content-Type-Options \"nosniff\" always;",
+      "apache": "Header always set X-Content-Type-Options \"nosniff\"",
+      "iis": "Ajouter X-Content-Type-Options dans HTTP Response Headers.",
+      "generic": "Configurer nosniff dans le middleware de sécurité du framework applicatif."
+    },
+    "verification": "Vérifier que l'en-tête X-Content-Type-Options: nosniff est présent dans les réponses HTTP.",
+    "verification_steps": [
+      "Exécuter curl -I sur plusieurs pages et vérifier la présence de X-Content-Type-Options: nosniff.",
+      "Vérifier aussi les réponses d'erreur 404 et 500.",
+      "Contrôler les réponses des endpoints API."
+    ],
+    "report_template": "Ajouter l'en-tête X-Content-Type-Options: nosniff sur toutes les réponses HTTP afin d'empêcher le navigateur d'interpréter les ressources avec un type MIME différent de celui déclaré. La configuration doit être appliquée au niveau du serveur ou du reverse proxy et validée sur les principales routes applicatives."
+  },{
+  "id": "kb_header_002",
+  "title": "Referrer-Policy Header Missing",
+  "aliases": ["Missing Referrer-Policy", "Referrer-Policy Header Not Set"],
+  "description": "L'absence de Referrer-Policy expose les URLs visitées dans l'en-tête Referer lors de navigations cross-origin.",
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-693",
+  "tags": ["referrer-policy", "security headers", "privacy"],
+  "recommendation": "Ajouter l'en-tête Referrer-Policy avec une valeur restrictive comme no-referrer ou strict-origin-when-cross-origin.",
+  "technical_actions": [
+    "Ajouter Referrer-Policy: no-referrer-when-downgrade ou strict-origin-when-cross-origin.",
+    "Appliquer au niveau du serveur web ou reverse proxy.",
+    "Vérifier les pages sensibles comme login et paiement."
+  ],
+  "implementation_examples": {
+    "nginx": "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;",
+    "apache": "Header always set Referrer-Policy \"strict-origin-when-cross-origin\""
+  },
+  "verification_steps": [
+    "Exécuter curl -I et vérifier la présence de Referrer-Policy.",
+    "Contrôler la valeur sur les pages sensibles."
   ]
 }
 ]

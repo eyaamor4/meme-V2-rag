@@ -5,7 +5,7 @@ import os
 import re
 
 from prompts import REPORT_PROMPT
-from parser import normalize_severity
+from parser import classify_finding_kind, normalize_severity
 from nvd import enrich_cves
 from owasp import map_owasp
 from rag_vector import retrieve_knowledge
@@ -24,8 +24,8 @@ def ollama_run(prompt: str) -> str:
                 "prompt": prompt,
                 "stream": True,
                 "options": {
-                    "num_predict": 4096,
-                    "num_ctx": 32768,
+                    "num_predict":6000,
+                    "num_ctx":  12288, 
                     "temperature": 0,
                 }
             },
@@ -329,30 +329,25 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
             technology=str(metadata.get("cms") or f.get("source") or ""),
             component=str(f.get("param") or f.get("kind") or ""),
             reference=str(f.get("reference") or ""),
-            top_k=2,          # CORRECTION 2b : était 1
-            min_score=0.75,   # CORRECTION 2b : était 0.85
+            top_k=1,          
+            min_score=0.80,   
         )
 
         if rag_docs:
             rag_context = _drop_empty_fields(compress_rag_context(rag_docs))
-
+    ref = f.get("reference") or f.get("cve_link") or "Non fourni"
+    if ref and "\n" in str(ref):
+        urls = [u.strip() for u in str(ref).split("\n") if u.strip()]
+        ref = urls 
+    
     row = {
         "title": shown_title,
         "description": description,
         "evidence": _compact_evidence(f.get("evidence") or f.get("param")),
-        "reference": f.get("reference") or f.get("cve_link") or "Non fourni",
+        "reference": ref,
         "owasp_category": owasp_category,
         "rag_context": rag_context,
     }
-
-    # CORRECTION 3 : ajouter matched_version pour nuancer les CVEs non confirmées
-    matched_version = f.get("matched_version")
-    if matched_version is not None:
-        row["version_confirmed"] = matched_version
-
-    cvss = f.get("cvss")
-    if cvss not in (None, "", "Non fourni"):
-        row["cvss"] = cvss
 
     return row
 
@@ -370,19 +365,22 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
 
     # CORRECTION 4 : passer cve_id pour activer CVE_OWASP_OVERRIDE dans l'annexe aussi
     cve_id = f.get("cve_id") or (raw_title if raw_title.upper().startswith("CVE-") else None)
-
+    ref_a = f.get("reference") or f.get("cve_link") or "Non fourni"
+    if ref_a and "\n" in str(ref_a):
+        ref_a = str(ref_a).split("\n")[0].strip()
     row = {
         "title": shown_title,
+
         "severity": sev,
         "priority": f.get("priority", "Non fourni"),
-        "risk": f.get("risk", "Non fourni"),
-        "confidence": f.get("confidence", "Non fourni"),
+        "risk": f.get("risk") or "—",
+        "confidence": f.get("confidence") or "—",
         "source": f.get("source", "Non fourni"),
         "kind": f.get("kind", "Non fourni"),
         "target": _compact_target(f),
         "description": description,
         "evidence": _compact_evidence(f.get("evidence") or f.get("param")),
-        "reference": f.get("reference") or f.get("cve_link") or "Non fourni",
+        "reference": ref_a, 
         "owasp_category": map_owasp(
             title=shown_title,
             description=description if description != "Non fourni" else "",
@@ -413,22 +411,23 @@ def compute_summary(findings: List[Dict[str, Any]]) -> Dict[str, int]:
 
 
 def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
-    headers = ["Priorité", "Type", "Severity", "Risk", "Confidence", "Titre", "Cible", "Preuve", "alertRef"]
+    headers = ["Priorité", "Type", "Severity", "Risk", "Confidence", "Titre", "Cible", "Preuve", "alertRef", "Note"]
     lines = []
     lines.append("| " + " | ".join(headers) + " |")
     lines.append("| " + " | ".join(["---"] * len(headers)) + " |")
 
     for f in all_compact:
         row = [
-            str(f.get("priority", "Non fourni")),
-            str(f.get("kind", "Non fourni")),
-            str(f.get("severity", "Non fourni")),
-            str(f.get("risk", "Non fourni")),
-            str(f.get("confidence", "Non fourni")),
-            str(f.get("title", "Non fourni")),
-            str(f.get("target", "Non fourni")),
-            str(f.get("evidence", "Non fourni")),
-            str(f.get("alertRef", "")),
+            str(f.get("priority", "—")),
+            str(f.get("kind", "—")),
+            str(f.get("severity", "—")),
+            str(f.get("risk") or "—"),
+            str(f.get("confidence") or "—"),
+            str(f.get("title") or "—"),
+            str(f.get("target") or "—"),
+            str(f.get("evidence") or "—"),
+            str(f.get("alertRef") or ""),
+            str(f.get("note") or ""),
         ]
         row = [c.replace("\n", " ").replace("|", "\\|") for c in row]
         lines.append("| " + " | ".join(row) + " |")
@@ -448,23 +447,27 @@ def strip_llm_cvss_lines(report_text: str) -> str:
 def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]]) -> str:
     lines = report_text.splitlines()
     output = []
-
-    title_pattern = re.compile(r"^(\s*\d+\.\s*\*\*)(.+?)(\*\*)\s*$")
-    finding_index = 0
+    injected = set()  # ← tracker les findings déjà injectés
 
     for line in lines:
         output.append(line)
 
-        m = title_pattern.match(line)
-        if m and finding_index < len(top_findings):
-            f = top_findings[finding_index]
+        for f in top_findings:
             cvss = f.get("cvss")
+            if cvss in (None, "", "Non fourni"):
+                continue
 
-            if cvss not in (None, "", "Non fourni"):
+            title = f.get("title") or ""
+            finding_id = id(f)  # identifiant unique du finding
+
+            if finding_id in injected:
+                continue  # ← déjà injecté → ignorer
+
+            if title and title in line:
                 indent = re.match(r"^(\s*)", line).group(1)
                 output.append(f"{indent}* Score CVSS : {cvss}")
-
-            finding_index += 1
+                injected.add(finding_id)  # ← marquer comme injecté
+                break
 
     return "\n".join(output)
 
@@ -519,8 +522,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     cms_version=metadata.get("cms_version") or "Non fourni",  # ← AJOUTÉ
     mode=metadata.get("mode") or "Non fourni",
     risk_level=metadata.get("risk_level") or "Non fourni",
-    total_vulnerabilities=metadata.get("total_vulnerabilities")
-    if metadata.get("total_vulnerabilities") is not None else "Non fourni",
+    total_vulnerabilities=len(findings),
     created_at=metadata.get("created_at") or "Non fourni",
     scan_time_sec=metadata.get("scan_time_sec")
     if metadata.get("scan_time_sec") is not None else "Non fourni",
@@ -538,9 +540,22 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     narrative = ollama_run(prompt)
     narrative = strip_llm_cvss_lines(narrative)
     narrative = inject_cvss_in_section_b(narrative, top_findings)
+   # Utiliser severity_counts du JSON source (vérité absolue)
+    sev = computed_counts
 
+    summary_table = f"""
+    ## Tableau de synthèse des vulnérabilités
+
+    | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
+    |:---:|:---:|:---:|:---:|:---:|
+    | {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {sev.get('info', 0)} |
+
+    **Total :** {len(findings)} | **Prioritaires :** {len(top_findings)}
+    """
     final_report = (
         narrative.strip()
+        + "\n\n"
+        + summary_table
         + "\n\n"
         + "## Annexe - Liste complète des findings (générée par Python)\n\n"
         + annexe_md

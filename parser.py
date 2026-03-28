@@ -150,11 +150,29 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     for cve in safe_list(safe_get(scan, "cms_scan", "cves")):
         if not isinstance(cve, dict):
             continue
+        
+        # Plugins sans CVE réelle → finding informatif
+        cve_id = cve.get("cve_id") or cve.get("cve")
+        title = cve.get("title") or ""
+        plugin_name = cve.get("plugin") or ""
+
+        if not cve_id and title in ("N/A", "", "Non fourni"):
+            findings.append({
+                "source": "cms_scan",
+                "title": f"Plugin détecté : {plugin_name}" if plugin_name else "Plugin détecté",
+                "severity": "info",
+                "priority": severity_to_priority("info"),
+                "url": scan.get("target_url"),
+                "kind": "information",
+                "note": "Plugin installé — aucune CVE connue associée",
+                "raw": cve,
+            })
+            continue
 
         sev = normalize_severity(cve.get("severity") or "high")
-
-        # CORRECTION 2a : ajouter cve_id explicitement pour CVE_OWASP_OVERRIDE
-        # CORRECTION 2b : matched_version avec valeur par défaut False
+        matched_version = cve.get("matched_version", False)
+    
+         
         item = {
             "source": "cve",
             "title": cve.get("cve_id"),
@@ -173,6 +191,8 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
             "published": cve.get("published"),
             "cvss_version": cve.get("cvss_version"),
             "raw": cve,
+            "note": " À vérifier — module détecté mais version non confirmée" if not matched_version else "Vulnérabilité confirmée sur votre installation", 
+
         }
 
         cvss = cve.get("cvss_score")

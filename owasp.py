@@ -20,13 +20,13 @@
 # ------------------------------------------------------------------
 
 CVE_OWASP_OVERRIDE: dict[str, str] = {
-    # CVE-2024-13254 : Drupal REST Views — Forceful Browsing
-    # NVD assigne CWE-94 (Code Injection) — incorrect
-    # Mécanisme réel : accès non autorisé à données sensibles
-    "CVE-2024-13254": "A01:2021 - Broken Access Control",
+   "CVE-2024-13254": "A01:2021 - Broken Access Control",
+    "CVE-2015-5490":  "A01:2021 - Broken Access Control",
+    "CVE-2009-4533":  "A02:2021 - Cryptographic Failures",
 
-    # Ajouter ici d'autres CVE mal classés par NVD si nécessaire
-    # "CVE-XXXX-YYYY": "AXX:2021 - ...",
+   
+
+   
 }
 
 
