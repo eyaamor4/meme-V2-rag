@@ -24,7 +24,7 @@ def ollama_run(prompt: str) -> str:
                 "prompt": prompt,
                 "stream": True,
                 "options": {
-                    "num_predict":6000,
+                    "num_predict":9000,
                     "num_ctx":  12288, 
                     "temperature": 0,
                 }
@@ -347,6 +347,8 @@ def _make_llm_row(f: Dict[str, Any], metadata: Dict[str, Any]) -> Dict[str, Any]
         "reference": ref,
         "owasp_category": owasp_category,
         "rag_context": rag_context,
+        "cms_version": metadata.get("cms_version") or "—",      # ← AJOUTER
+        "plugin_version": f.get("plugin_version") or "—",   
     }
 
     return row
@@ -479,6 +481,23 @@ def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
     c = str(f.get("confidence") or "").strip().lower()
     return c in {"high", "medium"}
 
+def compute_risk_score(findings: List[Dict[str, Any]]) -> Dict[str, Any]:
+    weights = {"critical": 40, "high": 30, "medium": 15, "low": 5, "info": 0}
+    total = sum(
+        weights.get(normalize_severity(f.get("severity")), 0)
+        for f in findings
+        if f.get("priority") in {"P1", "P2", "P3"}
+    )
+    score = min(total, 100)
+    if score >= 70:
+        level = "CRITIQUE"
+    elif score >= 50:
+        level = "ÉLEVÉ"
+    elif score >= 30:
+        level = "MODÉRÉ"
+    else:
+        level = "FAIBLE"
+    return {"score": score, "level": level}
 
 def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n: int = 15) -> str:
     findings = dedupe_merge_across_scanners(findings)
@@ -494,6 +513,18 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
 
     findings = sort_findings(findings)
     computed_counts = compute_summary(findings)
+    # Utiliser le risk_level officiel du backend
+    risk_level_raw = (metadata.get("risk_level") or "medium").lower()
+    risk_level_map = {
+        "critical": "CRITIQUE",
+        "high": "ÉLEVÉ",
+        "medium": "MODÉRÉ",
+        "low": "FAIBLE"
+    }
+    risk_data = {
+        "score": "—",
+        "level": risk_level_map.get(risk_level_raw, "MODÉRÉ")
+    }
 
     annexe_rows_by_id: Dict[int, Dict[str, Any]] = {}
     llm_rows_by_id: Dict[int, Dict[str, Any]] = {}
@@ -531,6 +562,8 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     total_findings_extraits=len(findings),
     top_findings_json=json.dumps(top_llm_rows, ensure_ascii=False, indent=2),
     nb_prioritaires=len(top_findings),
+    risk_score=risk_data["score"],           
+    risk_level_computed=risk_data["level"],  
 )
 
     with open("debug_prompt.txt", "w", encoding="utf-8") as f:

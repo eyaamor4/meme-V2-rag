@@ -5,7 +5,7 @@ A - Résumé Exécutif
 B - Vulnérabilités Prioritaires
 
 **1. CSP: Failure to Define Directive with No Fallback**
-* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback. Manquer ou exclure les directives est le même que permettre tout.
+* Description : La politique de sécurité du contenu (CSP) ne définit pas l'une des directives qui n'a pas de fallback. En les manquant ou en les excluant, on permet tout.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -17,7 +17,7 @@ B - Vulnérabilités Prioritaires
 * Vérification : Exécuter curl -I sur plusieurs pages HTML et vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
 **2. CSP: Wildcard Directive**
-* Description : La politique de sécurité du contenu (CSP) utilise une directive générique qui permet tout.
+* Description : La politique de sécurité du contenu (CSP) utilise une directive wildcard qui permet à tout contenu d'être chargé.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -29,7 +29,7 @@ B - Vulnérabilités Prioritaires
 * Vérification : Comparer la CSP déployée avec l’inventaire réel des ressources chargées.
 
 **3. CSP: script-src unsafe-inline**
-* Description : La politique de sécurité du contenu (CSP) permet les scripts inline non sécurisés.
+* Description : La politique de sécurité du contenu (CSP) utilise unsafe-inline pour les scripts, ce qui permet à tout code JavaScript d'être exécuté.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -41,7 +41,7 @@ B - Vulnérabilités Prioritaires
 * Vérification : Vérifier que script-src ne contient plus unsafe-inline.
 
 **4. CSP: style-src unsafe-inline**
-* Description : La politique de sécurité du contenu (CSP) permet les styles inline non sécurisés.
+* Description : La politique de sécurité du contenu (CSP) utilise unsafe-inline pour les styles, ce qui permet à tout code CSS d'être chargé.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -54,27 +54,27 @@ B - Vulnérabilités Prioritaires
 
 **5. CVE-2023-5561**
 * Score CVSS : 5.3
-* Description : WordPress ne restreint pas correctement les champs utilisateur accessibles via l'API REST, permettant aux attaquants non authentifiés de découvrir les adresses e-mail des utilisateurs qui ont publié des articles publics sur un site affecté.
+* Description : WordPress ne restreint pas correctement les champs utilisateur qui sont recherchables via l'API REST, permettant ainsi aux attaquants non authentifiés de discerner les adresses e-mail des utilisateurs ayant publié des articles publics sur un site affecté.
 * Référence :
   - https://lists.debian.org/debian-lts-announce/2023/11/msg00014.html
   - https://wpscan.com/blog/email-leak-oracle-vulnerability-addressed-in-wordpress-6-3-2/
   - https://wpscan.com/vulnerability/19380917-4c27-4095-abf1-eba6f913b441
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Mettre à jour WordPress à une version corrigée.
+* Recommandation technique : Mettre à jour WordPress vers la version corrigée mentionnée.
 * Vérification : Tester les vues avec plusieurs rôles.
 
 **6. CVE-2024-2473**
 * Score CVSS : 5.3
-* Description : Le plugin WPS Hide Login pour WordPress est vulnérable à la divulgation de la page de connexion en toutes versions jusqu'à et y compris 1.9.15.2, en raison d'une faille qui se crée lorsque le paramètre 'action=postpass' est fourni.
+* Description : Le plugin WPS Hide Login pour WordPress est vulnérable à une fuite de page de connexion dans toutes les versions, y compris 1.9.15.2, en raison d'une faille qui permet aux attaquants de découvrir facilement toute page de connexion qui aurait été cachée par le plugin.
 * Référence :
   - https://plugins.trac.wordpress.org/changeset/3099109/wps-hide-login
   - https://www.wordfence.com/threat-intel/vulnerabilities/id/fd21c7d3-a5f1-4c3a-b6ab-0a979f070a62?source=cve
 * Catégorie OWASP : Non fourni
-* Recommandation technique : Mettre à jour le plugin WPS Hide Login à une version corrigée.
+* Recommandation technique : Mettre à jour le plugin WPS Hide Login vers la version corrigée mentionnée.
 * Vérification : Tester les vues avec plusieurs rôles.
 
 **7. Missing Anti-clickjacking Header**
-* Description : La réponse ne protège pas contre les attaques de 'ClickJacking'. Elle devrait inclure soit la directive 'frame-ancestors' dans la politique de sécurité du contenu (CSP) ou X-Frame-Options.
+* Description : La réponse ne protège pas contre les attaques de "ClickJacking". Elle devrait inclure soit la directive Content-Security-Policy avec le 'frame-ancestors' ou X-Frame-Options.
 * Référence :
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
@@ -82,35 +82,27 @@ B - Vulnérabilités Prioritaires
 * Vérification : Exécuter curl -I sur plusieurs pages HTML.
 
 **8. Sub Resource Integrity Attribute Missing**
-* Description : L'attribut d'intégrité est manquant sur une balise script ou link servie par un serveur externe. Cet attribut empêche les attaquants qui ont accès à ce serveur de injecter du contenu malveillant.
+* Description : L'attribut de sécurité des sous-ressources (SRI) est manquant sur un tag script ou link servi par un serveur externe. L'attribut SRI empêche les attaquants qui ont accès à ce serveur d'injecter du contenu malveillant.
 * Référence :
   - https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
 * Recommandation technique : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
-* Vérification : Vérifier la présence de integrity et crossorigin sur les balises script et link externes.
+* Vérification : Inspecter le code source HTML.
 
 C - Plan de remédiation
 
-1. CSP: Failure to Define Directive with No Fallback
-	* Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
-2. CSP: Wildcard Directive
-	* Remplacer * par une liste précise d’hôtes de confiance.
-3. CSP: script-src unsafe-inline
-	* Identifier tous les scripts inline présents dans les templates HTML et les migrer vers des fichiers JS statiques versionnés.
-4. CSP: style-src unsafe-inline
-	* Identifier les styles inline dans les templates et composants front-end et les déplacer vers des feuilles CSS servies depuis des sources approuvées.
-5. CVE-2023-5561
-	* Mettre à jour WordPress à une version corrigée.
-6. CVE-2024-2473
-	* Mettre à jour le plugin WPS Hide Login à une version corrigée.
-7. Missing Anti-clickjacking Header
-	* Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
-8. Sub Resource Integrity Attribute Missing
-	* Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+1. Mettre à jour WordPress vers la version corrigée mentionnée pour CVE-2023-5561.
+2. Mettre à jour le plugin WPS Hide Login vers la version corrigée mentionnée pour CVE-2024-2473.
+3. Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP pour les findings 1 et 2.
+4. Remplacer * par une liste précise d’hôtes de confiance pour le finding 2.
+5. Identifier tous les scripts inline présents dans les templates HTML et les migrer vers des fichiers JS statiques versionnés pour le finding 3.
+6. Identifier les styles inline dans les templates et composants front-end et les déplacer vers des feuilles CSS servies depuis des sources approuvées pour le finding 4.
+7. Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet pour le finding 5.
+8. Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées pour le finding 6.
 
 D - Conclusion
 
-28 vulnérabilités ont été identifiées au total, dont 8 sont prioritaires. Il est essentiel de traiter ces vulnérabilités pour améliorer la sécurité du site web.
+Le niveau de risque global est MODÉRÉ. Une action immédiate est requise sous 24 heures pour mettre à jour WordPress vers la version corrigée mentionnée pour CVE-2023-5561.
 
 
     ## Tableau de synthèse des vulnérabilités

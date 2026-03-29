@@ -1,9 +1,11 @@
 A - Résumé Exécutif
+
 34 vulnérabilités ont été identifiées au total, dont 5 sont prioritaires.
 
 B - Vulnérabilités Prioritaires
-**CSP: Failure to Define Directive with No Fallback**
-* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback. Les directives manquantes ou exclues ont le même effet que d'autoriser tout.
+
+**1. CSP: Failure to Define Directive with No Fallback**
+* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback. En absence de celle-ci, tout est autorisé.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -14,8 +16,8 @@ B - Vulnérabilités Prioritaires
 * Recommandation technique : Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
 * Vérification : Exécuter curl -I sur plusieurs pages HTML et vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
-**CSP: script-src unsafe-eval**
-* Description : La politique de sécurité du contenu (CSP) autorise l'exécution dynamique de code.
+**2. CSP: script-src unsafe-eval**
+* Description : La politique de sécurité du contenu (CSP) autorise l'exécution dynamique de code via eval.
 * Référence :
   - https://www.w3.org/TR/CSP/
   - https://caniuse.com/#search=content+security+policy
@@ -26,7 +28,7 @@ B - Vulnérabilités Prioritaires
 * Recommandation technique : Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
 * Vérification : Vérifier que la directive script-src ne contient plus unsafe-eval.
 
-**CSP: script-src unsafe-inline**
+**3. CSP: script-src unsafe-inline**
 * Description : La politique de sécurité du contenu (CSP) autorise l'exécution de code inline.
 * Référence :
   - https://www.w3.org/TR/CSP/
@@ -38,7 +40,7 @@ B - Vulnérabilités Prioritaires
 * Recommandation technique : Identifier tous les scripts inline présents dans les templates HTML.
 * Vérification : Contrôler que script-src ne contient plus unsafe-inline.
 
-**CSP: style-src unsafe-inline**
+**4. CSP: style-src unsafe-inline**
 * Description : La politique de sécurité du contenu (CSP) autorise l'injection de styles inline.
 * Référence :
   - https://www.w3.org/TR/CSP/
@@ -48,10 +50,10 @@ B - Vulnérabilités Prioritaires
   - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
 * Recommandation technique : Identifier les styles inline dans les templates et composants front-end.
-* Vérification : Contrôler le rendu visuel des pages après externalisation des styles.
+* Vérification : Contrôler que style-src ne contient plus unsafe-inline.
 
-**Cross-Domain Misconfiguration**
-* Description : La configuration CORS est trop permissive, permettant aux ressources de charger depuis n'importe quelle origine.
+**5. Cross-Domain Misconfiguration**
+* Description : La configuration CORS est trop permissive, permettant aux ressources de charger des origines non autorisées.
 * Référence :
   - https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy
 * Catégorie OWASP : A01:2021 - Broken Access Control
@@ -59,14 +61,21 @@ B - Vulnérabilités Prioritaires
 * Vérification : Tester les endpoints depuis une origine autorisée et une origine non autorisée.
 
 C - Plan de remédiation
-1. CSP: Failure to Define Directive with No Fallback : Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
-2. CSP: script-src unsafe-eval : Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
-3. CSP: script-src unsafe-inline : Identifier tous les scripts inline présents dans les templates HTML.
-4. CSP: style-src unsafe-inline : Identifier les styles inline dans les templates et composants front-end.
-5. Cross-Domain Misconfiguration : Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
+
+1. CSP: Failure to Define Directive with No Fallback
+  - Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
+2. CSP: script-src unsafe-eval
+  - Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
+3. CSP: script-src unsafe-inline
+  - Identifier tous les scripts inline présents dans les templates HTML.
+4. CSP: style-src unsafe-inline
+  - Identifier les styles inline dans les templates et composants front-end.
+5. Cross-Domain Misconfiguration
+  - Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
 
 D - Conclusion
-34 vulnérabilités ont été identifiées au total, dont 5 sont prioritaires.
+
+Le niveau de risque global est MODÉRÉ. Une action immédiate est requise pour CSP: script-src unsafe-eval, car il s'agit d'une vulnérabilité critique qui peut être exploitée pour injecter du code malveillant. Les corrections doivent être effectuées dans les 7 jours.
 
 
     ## Tableau de synthèse des vulnérabilités

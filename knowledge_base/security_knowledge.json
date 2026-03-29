@@ -163,11 +163,12 @@
       "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
       "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
     },
-    "verification_steps": [
-      "Vérifier la présence de integrity et crossorigin sur les balises script et link externes.",
-      "Recalculer le hash en cas de mise à jour de la dépendance.",
-      "Relancer le scan pour confirmer la disparition de l’alerte."
-    ],
+   "verification_steps": [
+    "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+    "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+    "Recalculer le hash en cas de mise à jour de la dépendance.",
+    "Relancer le scan pour confirmer la disparition de l'alerte."
+],
     "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié."
   },
   {

@@ -5,7 +5,7 @@ A - Résumé Exécutif
 B - Vulnérabilités Prioritaires
 
 **Content Security Policy (CSP) Header Not Set**
-* Description : La politique de sécurité du contenu n'est pas définie. Cela signifie que les attaques de type Cross Site Scripting (XSS) et d'injection de données ne sont pas détectées.
+* Description : La politique de sécurité du contenu n'est pas définie. Cela signifie que les attaques XSS et d'injection de données ne peuvent pas être détectées ou mises en échec.
 * Référence :
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
   - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
@@ -19,7 +19,7 @@ B - Vulnérabilités Prioritaires
 * Vérification : Exécuter curl -I sur plusieurs pages HTML. Contrôler la présence de l’en-tête Content-Security-Policy.
 
 **Missing Anti-clickjacking Header**
-* Description : La réponse ne protège pas contre les attaques de type ClickJacking. Elle devrait inclure soit une politique CSP avec la directive 'frame-ancestors' ou X-Frame-Options.
+* Description : La réponse ne protège pas contre les attaques 'ClickJacking'. Elle devrait inclure soit une politique CSP avec la directive 'frame-ancestors' ou X-Frame-Options.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
 * Recommandation technique : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet. Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive.
@@ -30,17 +30,17 @@ B - Vulnérabilités Prioritaires
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
 * Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes. Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées. Héberger localement les ressources externes critiques si leur contenu varie fréquemment. Réduire le nombre de dépendances tierces non indispensables.
-* Vérification : Vérifier la présence de integrity et crossorigin sur les balises script et link externes. Recalculer le hash en cas de mise à jour de la dépendance. Relancer le scan pour confirmer la disparition de l’alerte.
+* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='. Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.
 
 C - Plan de remédiation
 
-1. Définir une politique CSP de base avec default-src 'self' sur les pages HTML.
-2. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors dans la politique CSP.
-3. Héberger localement les ressources externes critiques si leur contenu varie fréquemment.
+1. **Content Security Policy (CSP) Header Not Set** : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+2. **Missing Anti-clickjacking Header** : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet. Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive.
+3. **Sub Resource Integrity Attribute Missing** : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
 
 D - Conclusion
 
-38 vulnérabilités ont été identifiées au total, dont 3 sont prioritaires. Il est essentiel de corriger ces vulnérabilités pour améliorer la sécurité du site web.
+Le niveau de risque global est MODÉRÉ. Une action immédiate est requise pour définir la politique CSP et ajouter l'attribut d'intégrité aux balises script et link externes. Les corrections doivent être effectuées dans les 7 jours.
 
 
     ## Tableau de synthèse des vulnérabilités
