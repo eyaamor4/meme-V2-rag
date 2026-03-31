@@ -1,12 +1,10 @@
 A - Résumé Exécutif
-
 20 vulnérabilités ont été identifiées au total, dont 2 sont prioritaires.
 
 B - Vulnérabilités Prioritaires
-
 **Content Security Policy (CSP) Header Not Set**
-* Description : Content Security Policy (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certaines types d'attaques, notamment les Cross Site Scripting (XSS) et les injections de données. Ces attaques sont utilisées pour tout, depuis le vol de données jusqu'à la déformation du site ou la diffusion de logiciels malveillants.
-* Référence : 
+* Description : La politique de sécurité du contenu n'est pas définie, ce qui rend la protection contre les attaques XSS et d'injection de données difficile.
+* Référence :
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
   - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
   - https://www.w3.org/TR/CSP/
@@ -15,24 +13,22 @@ B - Vulnérabilités Prioritaires
   - https://caniuse.com/#feat=contentsecuritypolicy
   - https://content-security-policy.com/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors. Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée.
-* Vérification : Exécuter curl -I sur plusieurs pages HTML. Contrôler la présence de l’en-tête Content-Security-Policy.
+* Recommandation technique : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy
 
 **Sub Resource Integrity Attribute Missing**
-* Description : L'attribut integrity est manquant sur un script ou une balise link servie par un serveur externe. L'attribut integrity empêche un attaquant qui a accédé à ce serveur d'injecter du contenu malveillant.
+* Description : L'attribut d'intégrité de sous-ressource est manquant sur un script ou une balise link servie par un serveur externe, ce qui permet à un attaquant ayant accès à ce serveur d'injecter du contenu malveillant.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes. Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
-* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='.
+* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='
 
 C - Plan de remédiation
-
-1. **Content Security Policy (CSP) Header Not Set** : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
-2. **Sub Resource Integrity Attribute Missing** : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+1. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+2. Sub Resource Integrity Attribute Missing : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
 
 D - Conclusion
-
-Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique consiste à mettre en place une politique CSP de base avec default-src 'self' pour atténuer les Cross Site Scripting (XSS) et les injections de données. Les corrections doivent être effectuées dans les 7 jours.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de mettre en place une politique CSP de base avec default-src 'self' pour prévenir les attaques XSS. Il faut procéder à ces corrections dans les 30 jours.
 
 
     ## Tableau de synthèse des vulnérabilités

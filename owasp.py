@@ -23,6 +23,8 @@ CVE_OWASP_OVERRIDE: dict[str, str] = {
    "CVE-2024-13254": "A01:2021 - Broken Access Control",
     "CVE-2015-5490":  "A01:2021 - Broken Access Control",
     "CVE-2009-4533":  "A02:2021 - Cryptographic Failures",
+    "CVE-2024-2473":  "A07:2021 - Identification and Authentication Failures",
+
 
    
 

@@ -1,11 +1,9 @@
 A - Résumé Exécutif
-
 38 vulnérabilités ont été identifiées au total, dont 3 sont prioritaires.
 
 B - Vulnérabilités Prioritaires
-
 **Content Security Policy (CSP) Header Not Set**
-* Description : La politique de sécurité du contenu n'est pas définie. Cela signifie que les attaques XSS et d'injection de données ne peuvent pas être détectées ou mises en échec.
+* Description : La politique de sécurité du contenu n'est pas définie, ce qui peut permettre aux attaquants d'injecter du code malveillant.
 * Référence :
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
   - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
@@ -15,32 +13,30 @@ B - Vulnérabilités Prioritaires
   - https://caniuse.com/#feat=contentsecuritypolicy
   - https://content-security-policy.com/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors. Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée.
-* Vérification : Exécuter curl -I sur plusieurs pages HTML. Contrôler la présence de l’en-tête Content-Security-Policy.
+* Recommandation technique : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy
 
 **Missing Anti-clickjacking Header**
-* Description : La réponse ne protège pas contre les attaques 'ClickJacking'. Elle devrait inclure soit une politique CSP avec la directive 'frame-ancestors' ou X-Frame-Options.
+* Description : La réponse ne protège pas contre les attaques de clickjacking. Elle devrait inclure soit l'en-tête Content-Security-Policy avec la directive 'frame-ancestors' ou X-Frame-Options.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet. Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive.
-* Vérification : Exécuter curl -I sur plusieurs pages HTML. Contrôler la présence de X-Frame-Options ou de frame-ancestors.
+* Recommandation technique : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet, ou définir explicitement frame-ancestors avec une valeur restrictive.
+* Vérification : Exécuter curl -I https://[site] | grep -i x-frame-options
 
 **Sub Resource Integrity Attribute Missing**
 * Description : L'attribut d'intégrité est manquant sur un script ou une balise link servie par un serveur externe. Cet attribut empêche un attaquant qui a accédé à ce serveur de injecter du contenu malveillant.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes. Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées. Héberger localement les ressources externes critiques si leur contenu varie fréquemment. Réduire le nombre de dépendances tierces non indispensables.
-* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='. Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.
+* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='
 
 C - Plan de remédiation
-
-1. **Content Security Policy (CSP) Header Not Set** : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
-2. **Missing Anti-clickjacking Header** : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet. Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive.
-3. **Sub Resource Integrity Attribute Missing** : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+1. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+2. Missing Anti-clickjacking Header : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet, ou définir explicitement frame-ancestors avec une valeur restrictive.
+3. Sub Resource Integrity Attribute Missing : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
 
 D - Conclusion
-
-Le niveau de risque global est MODÉRÉ. Une action immédiate est requise pour définir la politique CSP et ajouter l'attribut d'intégrité aux balises script et link externes. Les corrections doivent être effectuées dans les 7 jours.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors. Ce travail doit être réalisé dans les 30 jours.
 
 
     ## Tableau de synthèse des vulnérabilités

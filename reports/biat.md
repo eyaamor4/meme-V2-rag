@@ -1,134 +1,145 @@
 A - Résumé Exécutif
 
-32 vulnérabilités ont été identifiées au total, dont 15 sont prioritaires.
+32 vulnérabilités ont été identifiées au total, dont 15 sont prioritaires. Le niveau de risque global est ÉLEVÉ.
 
 B - Vulnérabilités Prioritaires
 
-**1. SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal**
-* Description : La vulnérabilité de SQL injection dans le module Views permet aux attaquants de exécuter des commandes SQL arbitraires via des vecteurs non spécifiés liés à « un filtre exposé sur les champs texte CCK ».
+1. **SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal**
+* Description : SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal allows remote attackers to execute arbitrary SQL commands via unspecified vectors related to "an exposed filter on CCK text fields."
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2008-6020
 * Score CVSS : 7.5
 * Catégorie OWASP : A03:2021 - Injection
-* Recommandation technique : Identifier les requêtes construites dynamiquement avec concaténation, utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.
-* Vérification : Rechercher les usages de concaténation SQL dans le code.
+* Recommandation technique : Mettre à jour le module Views vers la version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**2. SQL injection vulnerability in the Views module before 6.x-2.13 for Drupal**
-* Description : La vulnérabilité de SQL injection dans le module Views permet aux attaquants de exécuter des commandes SQL arbitraires via des vecteurs liés à « les filtres/arguments sur certains types de vues avec des configurations spécifiques d’arguments ».
+2. **SQL injection vulnerability in the Views module before 6.x-2.13 for Drupal**
+* Description : SQL injection vulnerability in the Views module before 6.x-2.13 for Drupal allows remote attackers to execute arbitrary SQL commands via vectors related to "filters/arguments on certain types of views with specific configurations of arguments."
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2011-4113
 * Score CVSS : 7.5
 * Catégorie OWASP : A03:2021 - Injection
-* Recommandation technique : Identifier les requêtes construites dynamiquement avec concaténation, utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.
-* Vérification : Rechercher les usages de concaténation SQL dans le code.
+* Recommandation technique : Mettre à jour le module Views vers la version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**3. Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views**
-* Description : La vulnérabilité d’insertion de données sensibles dans les données transmises permet aux attaquants de lire des variables de session via des vecteurs non spécifiés.
+3. **Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views**
+* Description : Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views allows Forceful Browsing.This issue affects REST Views: from 0.0.0 before 3.0.1.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2024-13254
 * Score CVSS : 7.5
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Limiter les permissions sur les displays REST de Views, retirer les champs sensibles.
-* Vérification : Tester l’accès anonyme et authentifié aux endpoints REST.
+* Recommandation technique : Limiter les permissions sur les displays REST de Views.
+* Vérification : curl -I https://[site] | grep -i "Set-Cookie"
 
-**4. CSP: Failure to Define Directive with No Fallback**
-* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive avec un fallback, ce qui permet aux attaquants d’injecter des contenus malveillants.
+4. **CSP: Failure to Define Directive with No Fallback**
+* Description : The Content Security Policy fails to define one of the directives that has no fallback. Missing/excluding them is the same as allowing anything.
 * Référence : https://www.w3.org/TR/CSP/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
 * Recommandation technique : Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.
-* Vérification : Exécuter curl -I sur plusieurs pages HTML.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**5. CSP: Wildcard Directive**
-* Description : La politique de sécurité du contenu (CSP) utilise des directives génériques, ce qui permet aux attaquants d’injecter des contenus malveillants.
+5. **CSP: Wildcard Directive**
+* Description : Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks.
 * Référence : https://www.w3.org/TR/CSP/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Remplacer les directives génériques par des listes précises d’hôtes de confiance.
-* Vérification : Comparer la CSP déployée avec l’inventaire réel des ressources chargées.
+* Recommandation technique : Remplacer * par une liste précise d’hôtes de confiance.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**6. CSP: script-src unsafe-inline**
-* Description : La politique de sécurité du contenu (CSP) utilise l’attribut `unsafe-inline`, ce qui permet aux attaquants d’injecter des contenus malveillants.
+6. **CSP: script-src unsafe-inline**
+* Description : Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks.
 * Référence : https://www.w3.org/TR/CSP/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les scripts inline présents dans les templates HTML, migrer vers des fichiers JS statiques versionnés.
-* Vérification : Contrôler que script-src ne contient plus `unsafe-inline`.
+* Recommandation technique : Identifier tous les scripts inline présents dans les templates HTML.
+* Vérification : curl -s https://[site] | grep -i "script-src"
 
-**7. CSP: style-src unsafe-inline**
-* Description : La politique de sécurité du contenu (CSP) utilise l’attribut `unsafe-inline`, ce qui permet aux attaquants d’injecter des contenus malveillants.
+7. **CSP: style-src unsafe-inline**
+* Description : Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks.
 * Référence : https://www.w3.org/TR/CSP/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les styles inline dans les templates et composants front-end, déplacer vers des feuilles CSS servies depuis des sources approuvées.
-* Vérification : Contrôler le rendu visuel des pages après externalisation des styles.
+* Recommandation technique : Identifier les styles inline dans les templates et composants front-end.
+* Vérification : curl -s https://[site] | grep -i "style-src"
 
-**8. The Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal**
-* Description : Le module Webform ne prévient pas la mise en cache de pages contenant des placeholders pour une valeur par défaut, ce qui permet aux attaquants de lire des variables de session.
+8. **The Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal**
+* Description : The Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal, does not prevent caching of a page that contains token placeholders for a default value.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2009-4533
 * Score CVSS : 5.0
 * Catégorie OWASP : A02:2021 - Cryptographic Failures
-* Recommandation technique : Mettre à jour Webform vers la version corrigée, désactiver ou adapter le cache des pages contenant des placeholders dépendant de la session.
-* Vérification : Contrôler la version déployée du module.
+* Recommandation technique : Mettre à jour Webform vers la version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Set-Cookie"
 
-**9. Multiple cross-site request forgery (CSRF) vulnerabilities in the Views UI implementation**
-* Description : Les vulnérabilités CSRF dans l’implémentation de l’interface utilisateur de Views permettent aux attaquants d’hijacker l’autorisation des administrateurs pour les requêtes qui (1) activent toutes les vues ou (2) désactivent toutes les vues.
+9. **Multiple cross-site request forgery (CSRF) vulnerabilities in the Views UI implementation**
+* Description : Multiple cross-site request forgery (CSRF) vulnerabilities in the Views UI implementation in the Views module 5.x before 5.x-1.8 and 6.x before 6.x-2.11 for Drupal allow remote attackers to hijack the authentication of administrators.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2010-4519
 * Score CVSS : 6.8
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Générer un jeton CSRF unique par session ou requête, vérifier ce jeton côté serveur sur tous les endpoints d’écriture ou d’action.
-* Vérification : Tester les formulaires et endpoints POST/PUT/PATCH/DELETE.
+* Recommandation technique : Générer un jeton CSRF unique par session ou requête selon le framework.
+* Vérification : curl -I https://[site] | grep -i "Set-Cookie"
 
-**10. The Organic Groups (OG) module 6.x-2.x before 6.x-2.3 for Drupal**
-* Description : Le module OG ne restreint pas correctement l’accès, ce qui permet aux attaquants d’obtenir des informations sensibles telles que les titres de groupes privés via une requête à travers le module Views.
+10. **The Organic Groups (OG) module 6.x-2.x before 6.x-2.3 for Drupal**
+* Description : The Organic Groups (OG) module 6.x-2.x before 6.x-2.3 for Drupal does not properly restrict access, which allows remote attackers to obtain sensitive information such as private group titles.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2012-2081
 * Score CVSS : 5.0
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Mettre à jour OG vers une version corrigée, revoir les permissions par rôle et les displays Views associés.
-* Vérification : Tester les accès avec plusieurs rôles.
+* Recommandation technique : Mettre à jour Organic Groups vers une version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Set-Cookie"
 
-**11. The _views_fetch_data method in includes/cache.inc in the Views module 7.x-3.5 through 7.x-3.10 for Drupal**
-* Description : La méthode `_views_fetch_data` dans `includes/cache.inc` du module Views ne rebâtit pas la cache complète si la cache statique n’est pas vide, ce qui permet aux attaquants de contourner les filtres intentionnels et d’obtenir accès à des contenus cachés.
+11. **The _views_fetch_data method in includes/cache.inc in the Views module 7.x-3.5 through 7.x-3.10 for Drupal**
+* Description : The _views_fetch_data method in includes/cache.inc in the Views module 7.x-3.5 through 7.x-3.10 for Drupal does not rebuild the full cache if the static cache is not empty.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2015-5490
 * Score CVSS : 5.0
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Mettre à jour le module Views vers une version corrigée.
-* Vérification : Contrôler la version déployée du module.
+* Recommandation technique : Mettre à jour le module Views vers la version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**12. The System module in Drupal 6.x before 6.38 and 7.x before 7.43**
-* Description : Le module System permet aux attaquants d’hijacker l’autorisation des administrateurs pour les requêtes qui téléchargent et exécutent des fichiers avec contenu JSON codé arbitrairement.
+12. **The System module in Drupal 6.x before 6.38 and 7.x before 7.43**
+* Description : The System module in Drupal 6.x before 6.38 and 7.x before 7.43 might allow remote attackers to hijack the authentication of site administrators for requests that download and run files with arbitrary JSON-encoded content.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2016-3168
 * Score CVSS : 6.4
 * Catégorie OWASP : A01:2021 - Broken Access Control
 * Recommandation technique : Neutraliser les entrées utilisateur réinjectées dans les noms ou contenus de fichiers.
-* Vérification : Tester les paramètres d’export avec contenu injecté.
+* Vérification : curl -I https://[site] | grep -i "Set-Cookie"
 
-**13. The Views module 7.x-3.x before 7.x-3.14 in Drupal 7.x and the Views module in Drupal 8.x before 8.1.3**
-* Description : Le module Views permet aux attaquants authentifiés de contourner les restrictions d’accès intentionnelles et d’obtenir des informations sensibles sur les statistiques via des vecteurs non spécifiés.
+13. **The Views module 7.x-3.x before 7.x-3.14 in Drupal 7.x and the Views module in Drupal 8.x before 8.1.3**
+* Description : The Views module 7.x-3.x before 7.x-3.14 in Drupal 7.x and the Views module in Drupal 8.x before 8.1.3 might allow remote authenticated users to bypass intended access restrictions and obtain sensitive Statistics information.
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2016-6212
 * Score CVSS : 5.3
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Mettre à jour le module Views vers une version corrigée.
-* Vérification : Contrôler la version déployée du module.
+* Recommandation technique : Mettre à jour le module Views vers la version corrigée.
+* Vérification : curl -I https://[site] | grep -i "Content-Security-Policy"
 
-**14. Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Drupal Views SVG Animation**
-* Description : La vulnérabilité d’impréhension de l’entrée pendant la génération de page permet aux attaquants d’exécuter du code JavaScript arbitraire via des vecteurs non spécifiés.
+14. **Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Drupal Views SVG Animation**
+* Description : Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Drupal Views SVG Animation allows Cross-Site Scripting (XSS).
 * Référence : https://nvd.nist.gov/vuln/detail/CVE-2024-13287
 * Score CVSS : 5.4
 * Catégorie OWASP : A03:2021 - Injection
-* Recommandation technique : Mettre à jour le module Views, identifier les champs de configuration ou paramètres exposés réinjectés dans la sortie HTML.
-* Vérification : Contrôler la version corrigée installée.
+* Recommandation technique : Mettre à jour le module Views.
+* Vérification : curl -s https://[site] | grep -i "script-src"
 
-**15. Sub Resource Integrity Attribute Missing**
-* Description : L’attribut d’intégrité des sous-ressources est manquant sur une balise script ou link servie par un serveur externe, ce qui permet aux attaquants de injecter du contenu malveillant.
+15. **Sub Resource Integrity Attribute Missing**
+* Description : The integrity attribute is missing on a script or link tag served by an external server.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter l’attribut integrity.
-* Vérification : Inspecter le code source HTML.
+* Recommandation technique : Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+* Vérification : curl -s https://[site] | grep -i "integrity"
 
 C - Plan de remédiation
 
-1. Mettre à jour Drupal vers la version corrigée mentionnée dans chaque CVE.
-2. Mettre à jour les modules et plugins vulnérables vers les versions corrigées.
-3. Configurer correctement la politique de sécurité du contenu (CSP) pour éviter les attaques XSS.
-4. Vérifier régulièrement les mises à jour des composants pour s’assurer qu’ils sont à jour.
+- Mettre à jour le module Views vers la version corrigée pour les findings 1, 2, 11, 13.
+- Limiter les permissions sur les displays REST de Views pour le finding 3.
+- Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP pour le finding 4.
+- Remplacer * par une liste précise d’hôtes de confiance pour le finding 5.
+- Identifier tous les scripts inline présents dans les templates HTML pour le finding 6.
+- Identifier les styles inline dans les templates et composants front-end pour le finding 7.
+- Mettre à jour Webform vers la version corrigée pour le finding 8.
+- Générer un jeton CSRF unique par session ou requête selon le framework pour le finding 9.
+- Mettre à jour Organic Groups vers une version corrigée pour le finding 10.
+- Neutraliser les entrées utilisateur réinjectées dans les noms ou contenus de fichiers pour le finding 12.
+- Mettre à jour le module Views vers la version corrigée pour le finding 13.
+- Mettre à jour le module Views pour le finding 14.
+- Ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées pour le finding 15.
 
 D - Conclusion
 
-Le niveau de risque global est ÉLEVÉ. Une action immédiate est requise sous 24 heures pour mettre en place un plan de remédiation complet et mettre à jour tous les composants vulnérables.
+Le niveau de risque global est ÉLEVÉ. La recommandation la plus critique est de mettre à jour le module Views vers la version corrigée pour les findings 1, 2, 11, 13. Il faut procéder à ces mises à jour sous 24 heures.
+
+Aucune vulnérabilité prioritaire n'a été identifiée.
 
 
     ## Tableau de synthèse des vulnérabilités

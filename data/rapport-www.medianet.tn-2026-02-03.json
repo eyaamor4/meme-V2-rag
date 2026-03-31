@@ -1424,6 +1424,7 @@
         "details": "[tls11 TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA]"
       },
       {
+        
         "name": "tls-version",
         "protocol": "ssl",
         "severity": "info",

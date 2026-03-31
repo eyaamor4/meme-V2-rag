@@ -21,11 +21,12 @@
       "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
       "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
     },
-    "verification_steps": [
-      "Exécuter curl -I sur plusieurs pages HTML et vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.",
-      "Contrôler dans les outils navigateur que les violations CSP attendues sont bien remontées si une ressource interdite est injectée.",
-      "Tester les formulaires métiers, les iframes éventuelles et les redirections."
-    ],
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+    "Contrôler dans les outils navigateur que les violations CSP sont bien remontées.",
+    "Tester les formulaires métiers, les iframes éventuelles et les redirections."
+],
     "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP."
   },
   {
@@ -49,10 +50,11 @@
       "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
     },
     "verification_steps": [
-      "Comparer la CSP déployée avec l’inventaire réel des ressources chargées.",
-      "Supprimer progressivement les sources non justifiées puis tester les parcours applicatifs.",
-      "Relancer le scan pour confirmer la disparition des alertes CSP de type wildcard."
-    ],
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Comparer la CSP déployée avec l'inventaire réel des ressources chargées.",
+    "Supprimer progressivement les sources non justifiées puis tester les parcours applicatifs.",
+    "Relancer le scan pour confirmer la disparition des alertes CSP wildcard."
+],
     "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique."
   },
   {
@@ -76,11 +78,12 @@
       "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
       "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
     },
-    "verification_steps": [
-      "Vérifier que script-src ne contient plus unsafe-inline.",
-      "Contrôler dans le HTML que les scripts inline restants portent bien un nonce valide ou correspondent à un hash déclaré.",
-      "Tester les principales pages applicatives pour détecter les régressions JavaScript."
-    ],
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que script-src ne contient plus unsafe-inline.",
+    "Contrôler dans le HTML que les scripts inline restants portent un nonce ou hash valide.",
+    "Tester les principales pages pour détecter les régressions JavaScript."
+],
     "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP."
   },
   {
@@ -104,10 +107,11 @@
       "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
     },
     "verification_steps": [
-      "Vérifier que style-src ne contient plus unsafe-inline.",
-      "Contrôler le rendu visuel des pages après externalisation des styles.",
-      "Surveiller les erreurs CSP et corriger les blocs inline restants."
-    ],
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que style-src ne contient plus unsafe-inline.",
+    "Contrôler le rendu visuel des pages après externalisation des styles.",
+    "Surveiller les erreurs CSP et corriger les blocs inline restants."
+],
     "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP."
   },
   {
@@ -129,11 +133,12 @@
       "generic": "Remplacer eval(payload) par un parseur contrôlé ou une structure de données JSON validée.",
       "csp": "script-src 'self' https://cdn.example.com;"
     },
-    "verification_steps": [
-      "Vérifier que la directive script-src ne contient plus unsafe-eval.",
-      "Tester les fonctionnalités front-end dynamiques susceptibles d’utiliser une exécution runtime.",
-      "Contrôler la console navigateur pour détecter les blocages CSP."
-    ],
+  "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que script-src ne contient plus unsafe-eval.",
+    "Tester les fonctionnalités front-end dynamiques susceptibles d'utiliser eval.",
+    "Contrôler la console navigateur pour détecter les blocages CSP."
+],
     "report_template": "Supprimer l’autorisation 'unsafe-eval' de la directive script-src et éliminer les usages applicatifs ou bibliothèques qui reposent sur eval, new Function ou mécanismes similaires. Cette mesure réduit la surface d’exploitation côté client et doit être accompagnée d’une validation fonctionnelle complète des scripts de l’application."
   },
   {
@@ -226,11 +231,11 @@
       "apache": "Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"",
       "iis": "Ajouter Strict-Transport-Security dans HTTP Response Headers ou web.config."
     },
-    "verification_steps": [
-      "Exécuter curl -I sur plusieurs URLs HTTPS.",
-      "Vérifier que HSTS n’est pas renvoyé sur HTTP non chiffré.",
-      "Tester aussi les pages d’erreur et routes d’authentification."
-    ],
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i strict-transport-security",
+    "Vérifier que HSTS n'est pas renvoyé sur HTTP non chiffré.",
+    "Tester aussi les pages d'erreur et routes d'authentification."
+],
     "report_template": "Mettre en place l’en-tête HTTP Strict-Transport-Security sur toutes les réponses HTTPS afin d’imposer l’utilisation du canal chiffré côté navigateur. Une valeur max-age durable est recommandée, avec includeSubDomains uniquement si tous les sous-domaines sont correctement servis en HTTPS. La configuration doit être validée sur les routes applicatives, pages sensibles et réponses d’erreur."
   },
   {
@@ -1216,10 +1221,11 @@
     "csp": "Content-Security-Policy: frame-ancestors 'self';"
   },
   "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
-  "verification_steps": [
-    "Exécuter curl -I sur plusieurs pages HTML.",
-    "Contrôler la présence de X-Frame-Options ou de frame-ancestors."
-  ]
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i x-frame-options",
+    "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+    "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+]
 },{
   "id": "kb_csp_missing_001",
   "title": "Content Security Policy (CSP) Header Not Set",
@@ -1246,11 +1252,11 @@
     "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
   },
   "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
-  "verification_steps": [
-    "Exécuter curl -I sur plusieurs pages HTML.",
-    "Contrôler la présence de l’en-tête Content-Security-Policy.",
-    "Tester l’application pour détecter d’éventuelles régressions fonctionnelles liées à la CSP."
-  ]
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Contrôler la présence de l'en-tête Content-Security-Policy.",
+    "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+]
 },
 {
   "id": "kb_drupal_001",
@@ -1374,11 +1380,11 @@
       "generic": "Configurer HttpOnly=true dans le framework applicatif pour tous les cookies de session."
     },
     "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut HttpOnly pour tous les cookies sensibles.",
-    "verification_steps": [
-      "Inspecter les en-têtes Set-Cookie dans les réponses HTTP avec curl -I ou les outils navigateur.",
-      "Vérifier que chaque cookie de session contient HttpOnly.",
-      "Tenter d'accéder au cookie via document.cookie dans la console navigateur et confirmer qu'il est inaccessible."
-    ],
+  "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i set-cookie",
+    "Vérifier que chaque cookie de session contient HttpOnly.",
+    "Tenter d'accéder au cookie via document.cookie dans la console navigateur."
+],
     "report_template": "Ajouter l'attribut HttpOnly sur tous les cookies sensibles afin d'empêcher leur lecture par des scripts JavaScript malveillants en cas d'injection XSS. La correction doit être appliquée au niveau du framework ou du serveur et validée en vérifiant les en-têtes Set-Cookie sur les réponses applicatives."
   },
   {
@@ -1411,11 +1417,11 @@
       "generic": "Configurer Secure=true dans les paramètres de session du framework applicatif."
     },
     "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut Secure pour tous les cookies sensibles.",
-    "verification_steps": [
-      "Inspecter les en-têtes Set-Cookie dans les réponses HTTPS avec curl ou les outils navigateur.",
-      "Vérifier que chaque cookie sensible contient l'attribut Secure.",
-      "Tenter d'accéder au site en HTTP et confirmer que les cookies ne sont pas transmis."
-    ],
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i set-cookie",
+    "Vérifier que chaque cookie sensible contient l'attribut Secure.",
+    "Tenter d'accéder au site en HTTP et confirmer que les cookies ne sont pas transmis."
+],
     "report_template": "Ajouter l'attribut Secure sur tous les cookies applicatifs afin de garantir qu'ils ne sont transmis que sur des connexions HTTPS chiffrées. La correction doit être appliquée au niveau du framework ou de la configuration serveur et validée en inspectant les en-têtes Set-Cookie sur les réponses HTTPS."
   },
   {
@@ -1508,9 +1514,38 @@
     "nginx": "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;",
     "apache": "Header always set Referrer-Policy \"strict-origin-when-cross-origin\""
   },
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i referrer-policy",
+    "Contrôler la valeur sur les pages sensibles comme login et paiement."
+]
+},
+{
+  "id": "kb_header_003",
+  "title": "Server Leaks Information via X-Powered-By HTTP Response Header",
+  "aliases": [
+    "Server Leaks Information via X-Powered-By",
+    "X-Powered-By Header Disclosure",
+    "X-Powered-By Information Leakage"
+  ],
+  "description": "Le serveur expose le langage ou framework utilisé via l'en-tête X-Powered-By, ce qui facilite le fingerprinting et le ciblage d'attaques spécifiques.",
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-497",
+  "tags": ["x-powered-by", "information disclosure", "fingerprinting"],
+  "recommendation": "Supprimer ou masquer l'en-tête X-Powered-By dans la configuration du serveur ou du framework.",
+  "technical_actions": [
+    "Désactiver l'en-tête X-Powered-By au niveau du framework applicatif.",
+    "Configurer le serveur web pour supprimer cet en-tête.",
+    "Vérifier aussi les proxies intermédiaires."
+  ],
+  "implementation_examples": {
+    "php": "header_remove('X-Powered-By'); ou expose_php = Off dans php.ini",
+    "nginx": "proxy_hide_header X-Powered-By;",
+    "express": "app.disable('x-powered-by');"
+  },
   "verification_steps": [
-    "Exécuter curl -I et vérifier la présence de Referrer-Policy.",
-    "Contrôler la valeur sur les pages sensibles."
+    "Exécuter curl -I https://[site] | grep -i x-powered-by",
+    "Vérifier que l'en-tête X-Powered-By est absent de la réponse.",
+    "Tester aussi les pages d'erreur et routes d'API."
   ]
 }
 ]
