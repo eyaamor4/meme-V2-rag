@@ -10,11 +10,9 @@
     "verification": "Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.",
     "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
     "technical_actions": [
-      "Ajouter explicitement form-action, frame-ancestors, base-uri et object-src dans l’en-tête CSP.",
-      "Définir object-src 'none' sauf besoin métier explicite.",
-      "Définir base-uri 'self' pour empêcher la redéfinition de l’URL de base.",
-      "Définir frame-ancestors 'self' ou 'none' selon le besoin d’intégration dans des iframes.",
-      "Définir form-action vers les seules destinations de soumission autorisées."
+      "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+    "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+    "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
     ],
     "implementation_examples": {
       "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
@@ -92,7 +90,7 @@
     "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
     "owasp": "A05:2021 - Security Misconfiguration",
     "cwe": "CWE-693",
-    "tags": ["csp", "unsafe-inline", "style-src"],
+    "tags": ["csp", "unsafe-inline", "style-src","css-injection"],
     "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
     "verification": "Vérifier que style-src ne contient plus 'unsafe-inline' et que les styles requis proviennent de fichiers CSS approuvés ou de hashes explicites.",
     "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",

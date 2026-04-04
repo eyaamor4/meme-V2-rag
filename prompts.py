@@ -18,11 +18,17 @@ Si un finding contient "rag_context" :
 - Ne jamais écrire "curl -I" seul sans grep.
 
 Si rag_context est absent :
-- Header HTTP → curl -I https://[site] | grep -i [nom-exact-header]
-- Attribut HTML → curl -s https://[site] | grep -i '[attribut]'
-- Cookie → curl -I https://[site] | grep -i set-cookie
-- Version module → vérifier via interface admin ou CLI
-- Ne jamais écrire curl -I sans grep.
+
+- Adapter OBLIGATOIREMENT la vérification au type de vulnérabilité :
+
+  * SQL injection → tester payload (' OR 1=1 --)
+  * XSS → injecter <script>alert(1)</script>
+  * CSRF → vérifier absence de token CSRF
+  * Access control → tester accès sans authentification
+  * Data exposure → accéder directement à l’endpoint
+  * Headers uniquement → curl -I https://[site] | grep -i [header]
+
+- INTERDIT d’utiliser une vérification générique pour toutes les vulnérabilités.
 
 --- RÈGLES STRICTES ---
 
@@ -30,7 +36,7 @@ DONNÉES : Utiliser uniquement les données fournies. Ne jamais recalculer ni in
 
 TITRES : Copier le titre exactement tel qu'il apparaît dans le champ "title". Ne jamais le reformuler.
 
-RÉSUMÉ : Écrire exactement : "{total_vulnerabilities} vulnérabilités ont été identifiées au total, dont {nb_prioritaires} sont prioritaires."
+RÉSUMÉ : Écrire exactement : "{total_vulnerabilities} vulnérabilités ont été retenues dans ce rapport, dont {nb_prioritaires} sont prioritaires."
 
 RÈGLE DESCRIPTION STRICTE :
 Chaque finding a sa propre description UNIQUE.
@@ -59,10 +65,18 @@ FORMAT PAR FINDING :
 * Référence : valeur exacte du champ "reference". Si liste, chaque URL sur une ligne précédée de "  - "
 * Catégorie OWASP : valeur exacte du champ "owasp_category".
 * Recommandation technique : concrète, spécifique au finding courant. Mentionner la version cible si disponible dans cms_version ou plugin_version.
-* Vérification : utiliser les verification_steps du rag_context si disponibles. Sinon :
-  - Header HTTP → curl -I https://[site] | grep -i [nom-header]
-  - Attribut HTML (ex: integrity) → curl -s https://[site] | grep -i '[attribut]'
-  - Version module → vérifier via interface admin ou CLI du CMS
+* Vérification :
+  - Si rag_context existe → utiliser OBLIGATOIREMENT les verification_steps du rag_context.
+  - Sinon → adapter STRICTEMENT la vérification au type de vulnérabilité :
+    - SQL injection → tester les paramètres avec payloads d’injection SQL
+    - XSS → rejouer des payloads XSS sur les champs affectés
+    - CSRF → vérifier l’absence/présence et le contrôle du token CSRF
+    - Access control / data exposure → tester l’accès avec profils autorisés et non autorisés
+    - Reflected file download → tester les endpoints de téléchargement avec entrées manipulées
+    - Header HTTP uniquement → curl -I https://[site] | grep -i [nom-header]
+    - Attribut HTML uniquement → curl -s https://[site] | grep -i '[attribut]'
+    - Version module → vérifier via interface admin ou CLI du CMS
+  - INTERDIT d’utiliser une vérification de header HTTP pour une vulnérabilité applicative.
 
 CVE : utiliser uniquement le champ "description" du finding. Ne pas inventer de cause ni de composant.
 
