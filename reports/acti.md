@@ -1,12 +1,10 @@
 A - Résumé Exécutif
-
-3 vulnérabilités ont été retenues dans ce rapport, dont 1 est prioritaire.
+3 vulnérabilités ont été retenues dans ce rapport, dont 1 sont prioritaires.
 
 B - Vulnérabilités Prioritaires
-
 **Content Security Policy (CSP) Header Not Set**
-* Description : La politique de sécurité du contenu n'est pas définie, ce qui peut permettre des attaques XSS et d'autres types d'attaques.
-* Référence :
+* Description : La politique de sécurité de contenu (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certains types d'attaques, notamment les attaques de scriptage intersite (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, depuis le vol de données jusqu'à la défiguration de site ou la distribution de logiciels malveillants. La CSP fournit un ensemble d'en-têtes HTTP standard qui permettent aux propriétaires de sites Web de déclarer les sources approuvées de contenu que les navigateurs devraient être autorisés à charger sur cette page — les types couverts sont JavaScript, CSS, les cadres HTML, les polices, les images et les objets incorporables tels que les applets Java, ActiveX, les fichiers audio et vidéo.
+* Référence : 
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
   - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
   - https://www.w3.org/TR/CSP/
@@ -15,17 +13,17 @@ B - Vulnérabilités Prioritaires
   - https://caniuse.com/#feat=contentsecuritypolicy
   - https://content-security-policy.com/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+* Recommandation technique : Définir une politique CSP de base avec default-src 'self', déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors, et éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée.
 * Vérification :
-  Exécuter la commande suivante pour vérifier l'en-tête Content-Security-Policy : `curl -I https://[site] | grep -i content-security-policy`
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Contrôler la présence de l'en-tête Content-Security-Policy.
+  - Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP.
 
 C - Plan de remédiation
-
-1. [Content Security Policy (CSP) Header Not Set] : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+1. **Content Security Policy (CSP) Header Not Set** : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
 
 D - Conclusion
-
-Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique consiste à mettre en place une politique CSP de base pour prévenir les attaques XSS. Ce travail doit être réalisé dans les 30 jours.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de définir une politique CSP de base pour atténuer les risques d'attaques XSS et d'injection de données. Il est recommandé de prendre cette action dans les 30 jours.
 
 
 ## Tableau de synthèse des vulnérabilités

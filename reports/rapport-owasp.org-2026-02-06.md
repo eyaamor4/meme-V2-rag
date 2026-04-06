@@ -1,59 +1,90 @@
 A - Résumé Exécutif
-
-7 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. Le niveau de risque global est MODÉRÉ.
+7 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. La présence de plusieurs vulnérabilités liées à la politique de sécurité de contenu (CSP) amplifie la surface d'attaque XSS, ce qui rend le risque combiné plus élevé.
 
 B - Vulnérabilités Prioritaires
-
-1. **CSP: Failure to Define Directive with No Fallback**
+**CSP: Failure to Define Directive with No Fallback**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive qui n'a pas de fallback, ce qui permet à tout code d'être exécuté.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La politique de sécurité de contenu (CSP) ne définit pas une directive essentielle sans fallback, ce qui équivaut à autoriser n'importe quelle source.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle et ajouter uniquement les directives manquantes avec des valeurs restrictives.
-* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
+* Recommandation technique : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle et les ajouter avec des valeurs restrictives.
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
+  - Contrôler dans les outils navigateur que les violations CSP sont bien remontées.
 
-2. **CSP: script-src unsafe-eval**
+**CSP: script-src unsafe-eval**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) permet l'exécution dynamique de code via eval.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La politique de sécurité de contenu (CSP) autorise l'exécution dynamique de code via la directive script-src avec l'option unsafe-eval.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.
-* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que script-src ne contient plus unsafe-eval.
+* Recommandation technique : Rechercher les usages de eval, new Function, setTimeout avec chaîne ou équivalent dans le code et les dépendances, et refactoriser les composants front-end concernés pour éviter l’exécution dynamique de code.
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Vérifier que script-src ne contient plus unsafe-eval.
+  - Tester les fonctionnalités front-end dynamiques susceptibles d'utiliser eval.
 
-3. **CSP: script-src unsafe-inline**
+**CSP: script-src unsafe-inline**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La politique de sécurité de contenu (CSP) autorise l'exécution de scripts inline via la directive script-src avec l'option unsafe-inline.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier tous les scripts inline présents dans les templates HTML.
-* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que script-src ne contient plus unsafe-inline.
+* Recommandation technique : Identifier les scripts inline présents dans les templates HTML et les migrer vers des fichiers JS statiques versionnés lorsque possible.
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Vérifier que script-src ne contient plus unsafe-inline.
+  - Contrôler dans le HTML que les scripts inline restants portent un nonce ou hash valide.
 
-4. **CSP: style-src unsafe-inline**
+**CSP: style-src unsafe-inline**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La politique de sécurité de contenu (CSP) autorise l'injection de styles inline via la directive style-src avec l'option unsafe-inline.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les styles inline dans les templates et composants front-end.
-* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que style-src ne contient plus unsafe-inline.
+* Recommandation technique : Identifier les styles inline dans les templates et composants front-end et les déplacer vers des feuilles CSS servies depuis des sources approuvées.
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Vérifier que style-src ne contient plus unsafe-inline.
+  - Contrôler le rendu visuel des pages après externalisation des styles.
 
-5. **Cross-Domain Misconfiguration**
-* Description : La configuration de la politique de sécurité du contenu (CSP) permet l'accès cross-origin.
+**Cross-Domain Misconfiguration**
+* Description : La configuration de partage de ressources cross-domain (CORS) est trop permissive, permettant potentiellement des attaques de type Cross-Site Request Forgery (CSRF) ou d'injection de données.
 * Référence : https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy
 * Catégorie OWASP : A01:2021 - Broken Access Control
-* Recommandation technique : Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
-* Vérification : Tester les endpoints depuis une origine autorisée et une origine non autorisée.
+* Recommandation technique : Identifier les endpoints réellement destinés à un accès cross-origin et remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
+* Vérification : 
+  - Tester les endpoints depuis une origine autorisée et une origine non autorisée.
+  - Vérifier qu’une origine arbitraire ne reçoit plus de réponse CORS valide.
+  - Contrôler les endpoints contenant des données métiers ou identifiants.
 
 C - Plan de remédiation
-
-- Mettre à jour la politique de sécurité du contenu (CSP) pour inclure les directives manquantes avec des valeurs restrictives.
-- Rechercher et corriger les usages de eval, new Function, setTimeout avec chaîne ou équivalent dans le code et les dépendances.
-- Identifier et supprimer les scripts inline présents dans les templates HTML.
-- Identifier et supprimer les styles inline présents dans les templates et composants front-end.
-- Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
+1. **CSP: Failure to Define Directive with No Fallback** : Ajouter les directives manquantes avec des valeurs restrictives.
+2. **CSP: script-src unsafe-eval** : Refactoriser les composants front-end pour éviter l’exécution dynamique de code.
+3. **CSP: script-src unsafe-inline** : Migrer les scripts inline vers des fichiers JS statiques versionnés.
+4. **CSP: style-src unsafe-inline** : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
+5. **Cross-Domain Misconfiguration** : Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.
 
 D - Conclusion
-
-Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de mettre à jour la politique de sécurité du contenu (CSP) pour inclure les directives manquantes avec des valeurs restrictives. Ce travail doit être réalisé dans les 30 jours.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de remédier à la vulnérabilité **CSP: Failure to Define Directive with No Fallback** pour réduire la surface d'attaque XSS. Il est recommandé de traiter ces vulnérabilités dans les 30 jours.
 
 
 ## Tableau de synthèse des vulnérabilités

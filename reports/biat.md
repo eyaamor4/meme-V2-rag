@@ -1,59 +1,75 @@
 A - Résumé Exécutif
-
-8 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. Le niveau de risque global est ÉLEVÉ.
+8 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. La surface d'attaque XSS est plus large en raison de la combinaison de plusieurs vulnérabilités CSP, ce qui rend le risque combiné plus élevé.
 
 B - Vulnérabilités Prioritaires
-
-1. **CSP: Failure to Define Directive with No Fallback**
+**CSP: Failure to Define Directive with No Fallback**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) ne définit pas une directive avec un fallback, ce qui permet à n'importe quel code d'être exécuté.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La politique de sécurité de contenu (CSP) ne définit pas une directive qui n'a pas de fallback, ce qui est équivalent à autoriser tout.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle et ajouter uniquement les directives manquantes avec des valeurs restrictives.
+* Recommandation technique : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle et les ajouter avec des valeurs restrictives.
 * Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
-2. **CSP: Wildcard Directive**
+**CSP: Wildcard Directive**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) utilise un joker qui autorise toutes les sources.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La directive CSP utilise un joker qui autorise des sources trop larges.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Remplacer * par une liste précise d’hôtes de confiance et éviter les schémas génériques comme https:.
+* Recommandation technique : Remplacer le joker par une liste précise d'hôtes de confiance.
 * Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, comparer la CSP déployée avec l'inventaire réel des ressources chargées.
 
-3. **CSP: script-src unsafe-inline**
+**CSP: script-src unsafe-inline**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La directive CSP autorise l'exécution de scripts inline.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier tous les scripts inline présents dans les templates HTML et migrer les scripts inline vers des fichiers JS statiques versionnés.
+* Recommandation technique : Identifier les scripts inline et les migrer vers des fichiers JS statiques versionnés.
 * Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que script-src ne contient plus unsafe-inline.
 
-4. **CSP: style-src unsafe-inline**
+**CSP: style-src unsafe-inline**
 * **Paramètre/Ressource affecté(e) :** `Content-Security-Policy`
-* Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline.
-* Référence : https://www.w3.org/TR/CSP/, https://caniuse.com/#search=content+security+policy
+* Description : La directive CSP autorise l'injection de styles inline.
+* Référence : 
+  - https://www.w3.org/TR/CSP/
+  - https://caniuse.com/#search=content+security+policy
+  - https://content-security-policy.com/
+  - https://github.com/HtmlUnit/htmlunit-csp
+  - https://web.dev/articles/csp#resource-options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Identifier les styles inline dans les templates et composants front-end et déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
+* Recommandation technique : Identifier les styles inline et les déplacer vers des feuilles CSS servies depuis des sources approuvées.
 * Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que style-src ne contient plus unsafe-inline.
 
-5. **Sub Resource Integrity Attribute Missing**
-* Description : L'attribut de sécurité du sous-ressource (SRI) est absent sur une balise script ou link.
+**Sub Resource Integrity Attribute Missing**
+* Description : L'attribut d'intégrité de sous-ressource est manquant sur un script ou un lien externe.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-* Recommandation technique : Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.
+* Recommandation technique : Ajouter l'attribut d'intégrité sur les ressources stables et versionnées.
 * Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity=', vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.
 
 C - Plan de remédiation
-
-1. Mettre à jour la politique de sécurité du contenu (CSP) pour inclure les directives manquantes avec des valeurs restrictives.
-2. Remplacer le joker * par une liste précise d’hôtes de confiance dans la CSP.
-3. Migrer les scripts inline vers des fichiers JS statiques versionnés.
-4. Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
-5. Ajouter l'attribut SRI sur les ressources stables et versionnées.
+1. **CSP: Failure to Define Directive with No Fallback** : Identifier les directives CSP sans fallback et les ajouter avec des valeurs restrictives.
+2. **CSP: Wildcard Directive** : Remplacer le joker par une liste précise d'hôtes de confiance.
+3. **CSP: script-src unsafe-inline** : Identifier les scripts inline et les migrer vers des fichiers JS statiques versionnés.
+4. **CSP: style-src unsafe-inline** : Identifier les styles inline et les déplacer vers des feuilles CSS servies depuis des sources approuvées.
+5. **Sub Resource Integrity Attribute Missing** : Ajouter l'attribut d'intégrité sur les ressources stables et versionnées.
 
 D - Conclusion
-
-Le niveau de risque global est ÉLEVÉ. L'action prioritaire la plus critique est de mettre à jour la politique de sécurité du contenu (CSP) pour inclure les directives manquantes avec des valeurs restrictives. Ce doit être fait sous 24 heures.
+Le niveau de risque global est ÉLEVÉ. La priorité la plus critique est de corriger la directive CSP pour éviter les attaques XSS. Il est recommandé de prendre des mesures correctives dans les 7 jours.
 
 
 ## Tableau de synthèse des vulnérabilités

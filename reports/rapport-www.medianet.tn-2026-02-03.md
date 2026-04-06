@@ -1,38 +1,52 @@
 A - Résumé Exécutif
-
 12 vulnérabilités ont été retenues dans ce rapport, dont 3 sont prioritaires.
 
 B - Vulnérabilités Prioritaires
-
-**1. Content Security Policy (CSP) Header Not Set**
-* Description : La politique de sécurité du contenu n'est pas définie, ce qui permet des attaques XSS et d'injection de données.
-* Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP, https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
+**Content Security Policy (CSP) Header Not Set**
+* Description : La politique de sécurité de contenu (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certains types d'attaques, notamment les attaques de scriptage inter-site (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, desde le vol de données jusqu'à la défiguration de site ou la distribution de logiciels malveillants.
+* Référence : 
+  - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
+  - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
+  - https://www.w3.org/TR/CSP/
+  - https://w3c.github.io/webappsec-csp/
+  - https://web.dev/articles/csp
+  - https://caniuse.com/#feat=contentsecuritypolicy
+  - https://content-security-policy.com/
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
-* Recommandation technique : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires.
-* Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy
+* Recommandation technique : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i content-security-policy
+  - Contrôler la présence de l'en-tête Content-Security-Policy.
+  - Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP.
 
-**2. Missing Anti-clickjacking Header**
+**Missing Anti-clickjacking Header**
 * **Paramètre/Ressource affecté(e) :** `x-frame-options`
-* Description : La réponse ne protège pas contre les attaques de clickjacking. Il faut inclure soit Content-Security-Policy avec la directive 'frame-ancestors', soit X-Frame-Options.
+* Description : La réponse ne protège pas contre les attaques de type "ClickJacking". Elle devrait inclure soit Content-Security-Policy avec la directive 'frame-ancestors', soit X-Frame-Options.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
 * Catégorie OWASP : A05:2021 - Security Misconfiguration
 * Recommandation technique : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
-* Vérification : Exécuter curl -I https://[site] | grep -i x-frame-options
+* Vérification : 
+  - Exécuter curl -I https://[site] | grep -i x-frame-options
+  - Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.
+  - Tester l'intégration de la page dans une iframe depuis un domaine tiers.
 
-**3. Sub Resource Integrity Attribute Missing**
-* Description : L'attribut d'intégrité est absent sur un script ou une balise link servie par un serveur externe. Cet attribut empêche un attaquant qui a accédé à ce serveur de injecter du contenu malveillant.
+**Sub Resource Integrity Attribute Missing**
+* Description : L'attribut d'intégrité est manquant sur une balise script ou link servie par un serveur externe. L'attribut d'intégrité empêche un attaquant qui a accès à ce serveur d'injecter un contenu malveillant.
 * Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
 * Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
-* Vérification : Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='
+* Recommandation technique : Identifier les scripts et feuilles CSS chargés depuis des domaines externes et ajouter l'attribut integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+* Vérification : 
+  - Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='
+  - Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.
+  - Recalculer le hash en cas de mise à jour de la dépendance.
 
 C - Plan de remédiation
-1. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires.
-2. Missing Anti-clickjacking Header : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
-3. Sub Resource Integrity Attribute Missing : Identifier les scripts et feuilles CSS chargés depuis des domaines externes, ajouter integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+1. **Content Security Policy (CSP) Header Not Set** : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.
+2. **Missing Anti-clickjacking Header** : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
+3. **Sub Resource Integrity Attribute Missing** : Identifier les scripts et feuilles CSS chargés depuis des domaines externes et ajouter l'attribut integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
 
 D - Conclusion
-Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires. Le délai pour remédier à ces vulnérabilités est dans les 30 jours.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique est de définir une politique CSP de base avec default-src 'self' pour atténuer les attaques de scriptage inter-site (XSS). Il est recommandé de prendre ces mesures dans les 30 jours.
 
 
 ## Tableau de synthèse des vulnérabilités

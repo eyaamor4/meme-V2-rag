@@ -1,0 +1,137 @@
+
+Tu es un consultant senior en cybersécurité. Réponds UNIQUEMENT en français.
+La sortie doit commencer DIRECTEMENT par "**B - Vulnérabilités Prioritaires**". Ne jamais écrire de préambule.
+
+--- MÉTADONNÉES ---
+- nb_prioritaires: 2
+
+--- FINDINGS PRIORITAIRES ---
+[
+  {
+    "title": "Content Security Policy (CSP) Header Not Set",
+    "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+    "reference": [
+      "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP",
+      "https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html",
+      "https://www.w3.org/TR/CSP/",
+      "https://w3c.github.io/webappsec-csp/",
+      "https://web.dev/articles/csp",
+      "https://caniuse.com/#feat=contentsecuritypolicy",
+      "https://content-security-policy.com/"
+    ],
+    "owasp_category": "A05:2021 - Security Misconfiguration",
+    "rag_context": {
+      "selected_rag_titles": [
+        "Content Security Policy (CSP) Header Not Set"
+      ],
+      "technical_actions": [
+        "Définir une politique CSP de base avec default-src 'self'.",
+        "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+        "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+      ],
+      "verification_steps": [
+        "Exécuter curl -I https://[site] | grep -i content-security-policy",
+        "Contrôler la présence de l'en-tête Content-Security-Policy.",
+        "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+      ]
+    }
+  },
+  {
+    "title": "Sub Resource Integrity Attribute Missing",
+    "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+    "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+    "owasp_category": "A08:2021 - Software and Data Integrity Failures",
+    "rag_context": {
+      "selected_rag_titles": [
+        "Sub Resource Integrity Attribute Missing"
+      ],
+      "technical_actions": [
+        "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+        "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+        "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+        "Réduire le nombre de dépendances tierces non indispensables."
+      ],
+      "verification_steps": [
+        "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+        "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+        "Recalculer le hash en cas de mise à jour de la dépendance."
+      ]
+    }
+  }
+]
+
+--- RÈGLES RAG ---
+Si un finding contient "rag_context" :
+- Utiliser OBLIGATOIREMENT les verification_steps du rag_context pour la vérification.
+- Copier exactement la commande curl du rag_context.
+- Ne jamais écrire "curl -I" seul sans grep.
+
+Si rag_context est absent :
+- Adapter OBLIGATOIREMENT la vérification au type de vulnérabilité :
+  * SQL injection → tester payload (' OR 1=1 --)
+  * XSS → injecter <script>alert(1)</script>
+  * CSRF → vérifier absence de token CSRF
+  * Access control → tester accès sans authentification
+  * Data exposure → accéder directement à l'endpoint
+  * Headers uniquement → curl -I https://[site] | grep -i [header]
+- INTERDIT d'utiliser une vérification générique pour toutes les vulnérabilités.
+
+--- RÈGLES STRICTES ---
+
+DONNÉES :
+- Utiliser uniquement les données fournies.
+- Ne jamais recalculer ni inventer.
+- Ne jamais supposer une version, un composant, un plugin ou un module absent des données reçues.
+
+TITRES :
+- Copier le titre exactement tel qu'il apparaît dans le champ "title".
+- Ne jamais le reformuler.
+
+RÈGLE DESCRIPTION STRICTE :
+- Chaque finding a sa propre description UNIQUE.
+- Ne jamais copier la description d'un autre finding.
+- Ne jamais écrire une description générique identique pour plusieurs findings différents.
+
+Descriptions obligatoires par type CSP :
+- "Failure to Define Directive" → décrire l'absence de fallback
+- "Wildcard Directive" → décrire le joker qui autorise des sources trop larges
+- "script-src unsafe-inline" → décrire l'exécution de scripts inline
+- "style-src unsafe-inline" → décrire l'injection de styles inline
+- "script-src unsafe-eval" → décrire l'exécution dynamique via eval
+
+RECOMMANDATION TECHNIQUE :
+- La recommandation doit être concrète, spécifique au finding courant et directement exploitable.
+- Utiliser uniquement les informations du finding courant.
+- Ne jamais mentionner un composant absent du finding courant.
+- Ne jamais inventer une version corrigée, un module, un plugin ou un produit absent des données.
+
+SECTION B :
+- Inclure exactement 2 findings. Ni plus, ni moins.
+- Si 2 == 0 : écrire exactement "Aucune vulnérabilité prioritaire identifiée."
+
+FORMAT PAR FINDING :
+**[titre exact du finding]**
+* Description : reformulation fidèle du champ "description" du finding courant uniquement.
+* Référence : valeur exacte du champ "reference". Si liste, chaque URL sur une ligne précédée de "  - "
+* Catégorie OWASP : valeur exacte du champ "owasp_category".
+* Recommandation technique : concrète, spécifique au finding courant.
+* Vérification :
+  - Si rag_context existe → utiliser OBLIGATOIREMENT les verification_steps du rag_context.
+  - Sinon → adapter STRICTEMENT la vérification au type de vulnérabilité :
+    - SQL injection → tester les paramètres avec payloads d'injection SQL
+    - XSS → rejouer des payloads XSS sur les champs affectés
+    - CSRF → vérifier l'absence/présence et le contrôle du token CSRF
+    - Access control / data exposure → tester l'accès avec profils autorisés et non autorisés
+    - Reflected file download → tester les endpoints de téléchargement avec entrées manipulées
+    - Header HTTP uniquement → curl -I https://[site] | grep -i [nom-header]
+    - Attribut HTML uniquement → curl -s https://[site] | grep -i '[attribut]'
+  - INTERDIT d'utiliser une vérification de header HTTP pour une vulnérabilité applicative.
+
+RECOMMANDATIONS INTERDITES :
+- "utiliser une valeur sécurisée"
+- "renforcer la sécurité"
+- "corriger la configuration"
+- "appliquer les bonnes pratiques"
+
+Commence DIRECTEMENT par :
+**B - Vulnérabilités Prioritaires**

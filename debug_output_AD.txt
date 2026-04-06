@@ -1,0 +1,5 @@
+**A - Résumé Exécutif**
+3 vulnérabilités ont été retenues dans ce rapport, dont 2 sont prioritaires. Le niveau de risque global est MODÉRÉ. L'action prioritaire la plus critique parmi les findings prioritaires est la correction d'une vulnérabilité de niveau MODÉRÉ qui doit être corrigée dans les 30 jours.
+
+**D - Conclusion**
+Il est important de corriger les vulnérabilités identifiées pour réduire le risque de cyber-attaques. Les deux findings prioritaires doivent être traitées en priorité, avec une attention particulière à la correction d'une vulnérabilité de niveau MODÉRÉ qui doit être corrigée dans les 30 jours. En outre, il est recommandé de surveiller régulièrement l'état de sécurité du système pour détecter et traiter toute nouvelle menace potentielle.
