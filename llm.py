@@ -1,65 +1,56 @@
-
 import json
-import re
 import os
+import re
 import time
-from typing import Any, Dict, List
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, Dict, List, Tuple
 
-# ✅ Groq SDK
 from groq import Groq
 
-from prompts import REPORT_PROMPT
-from parser import classify_finding_kind, get_owasp_from_source_tags, normalize_severity
+from prompts import REPORT_PROMPT, REPORT_PROMPT_COMPLETE
+from parser import (
+    build_summary_stats,
+    classify_finding_kind,
+    count_severity,
+    get_owasp_from_source_tags,
+    normalize_severity,
+    split_findings,
+)
 from nvd import enrich_cves
 from owasp import map_owasp
 from rag_vector import retrieve_knowledge
 
+
 # ============================================================
-#  CONFIG GROQ
-#  Modèles disponibles :
-#    - "llama-3.3-70b-versatile"  → meilleure qualité (recommandé)
-#    - "llama-3.1-8b-instant"     → plus rapide, moins bon
+# CONFIG
 # ============================================================
+
 MODEL_NAME = "llama-3.3-70b-versatile"
-
-# Limites free tier Groq :
-# - 6000 tokens/minute
-# - 30 requêtes/minute
-# - 14400 requêtes/jour
-GROQ_MAX_TOKENS = 6000   # max output tokens par appel
+GROQ_MAX_TOKENS = 2500
 
 
 # ============================================================
-#  CLIENT GROQ — initialisé une seule fois
+# CLIENT GROQ
 # ============================================================
+
 def _get_groq_client() -> Groq:
     api_key = os.getenv("GROQ_API_KEY")
     if not api_key:
         raise ValueError(
             "⚠️ GROQ_API_KEY non définie.\n"
             "1. Va sur https://console.groq.com → API Keys → Create API Key\n"
-            "2. Dans PowerShell : $env:GROQ_API_KEY = 'gsk_...ta_clé...'\n"
-            "   Ou dans .env : GROQ_API_KEY=gsk_...ta_clé..."
+            "2. Dans PowerShell : $env:GROQ_API_KEY = 'gsk_...'\n"
+            "   Ou dans .env : GROQ_API_KEY=gsk_..."
         )
     return Groq(api_key=api_key)
 
 
-# ============================================================
-#  GROQ RUN — remplace ollama_run
-# ============================================================
 def ollama_run(prompt: str) -> str:
-    """
-    Appel Groq API — interface identique à l'ancien ollama_run
-    pour ne rien casser dans analyze_full.
-    """
     print(f"Taille du prompt: {len(prompt)} chars (~{len(prompt)//4} tokens)")
-
     client = _get_groq_client()
 
     try:
         start = time.time()
-
         completion = client.chat.completions.create(
             model=MODEL_NAME,
             messages=[
@@ -79,9 +70,8 @@ def ollama_run(prompt: str) -> str:
 
         elapsed = time.time() - start
         out = completion.choices[0].message.content or ""
-
-        # Stats
         usage = completion.usage
+
         print(
             f"✅ Groq terminé en {elapsed:.2f}s | "
             f"Tokens prompt: {usage.prompt_tokens} | "
@@ -91,13 +81,10 @@ def ollama_run(prompt: str) -> str:
 
     except Exception as e:
         error_msg = str(e)
-
-        # Rate limit → attendre et réessayer une fois
         if "rate_limit" in error_msg.lower() or "429" in error_msg:
             print("⚠️ Rate limit Groq atteint — attente 60s puis réessai...")
             time.sleep(60)
             return ollama_run(prompt)
-
         return f"⚠️ ERREUR GROQ: {error_msg}"
 
     if not out:
@@ -110,8 +97,372 @@ def ollama_run(prompt: str) -> str:
 
 
 # ============================================================
-#  PARALLÉLISATION — Préparation des données (RAG + OWASP)
+# UTILITAIRES
 # ============================================================
+
+def _norm(s: Any) -> str:
+    s = "" if s is None else str(s)
+    return re.sub(r"\s+", " ", s.strip().lower())
+
+
+def _sev_rank(sev: Any) -> int:
+    return {
+        "critical": 5,
+        "high": 4,
+        "medium": 3,
+        "low": 2,
+        "info": 1,
+    }.get(_norm(sev), 0)
+
+
+def _prio_rank(p: Any) -> int:
+    return {"P1": 1, "P2": 2, "P3": 3, "P4": 4, "P5": 5}.get(str(p), 9)
+
+
+def _conf_rank(conf: Any) -> int:
+    return {"high": 3, "medium": 2, "low": 1}.get(_norm(conf), 0)
+
+
+def _as_list_unique(x: Any) -> List[str]:
+    if x is None:
+        return []
+    vals = [str(v).strip() for v in (x if isinstance(x, list) else [x]) if str(v).strip()]
+    out = []
+    for v in vals:
+        if v not in out:
+            out.append(v)
+    return out
+
+
+def _compact_evidence(ev: Any, max_items: int = 6, max_chars: int = 6000) -> str:
+    if ev is None:
+        return "—"
+    if isinstance(ev, list):
+        parts = [str(x) for x in ev if x is not None]
+        if len(parts) > max_items:
+            s = ", ".join(parts[:max_items]) + f" (+{len(parts)-max_items} autres)"
+        else:
+            s = ", ".join(parts)
+    else:
+        s = str(ev)
+    s = " ".join(s.split())
+    if len(s) > max_chars:
+        s = s[:max_chars] + "…"
+    return s if s else "—"
+
+
+def _compact_target(f: Dict[str, Any]) -> str:
+    return str(f.get("url") or f.get("host") or "—")
+
+
+def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
+    return {k: v for k, v in d.items() if v not in (None, "", [], {})}
+
+
+def _text_blob(f: Dict[str, Any]) -> str:
+    return _norm(" ".join([
+        str(f.get("title") or ""),
+        str(f.get("display_title") or ""),
+        str(f.get("description") or ""),
+        str(f.get("note") or ""),
+        str(f.get("reference") or ""),
+    ]))
+
+
+def classify_finding_type(f: Dict[str, Any]) -> str:
+    source = str(f.get("source") or "").strip().lower()
+    severity = normalize_severity(f.get("severity"))
+    text = _text_blob(f)
+    matched_version = f.get("matched_version")
+
+    if severity == "info":
+        return "informational"
+
+    if source == "cve":
+        return "confirmed_cve" if matched_version is True else "potential_cve"
+
+    tls_markers = [
+        "tls", "ssl", "cipher", "sweet32", "lucky13", "beast", "breach",
+        "poodle", "freak", "drown", "heartbleed", "logjam", "robot",
+        "deprecated-tls", "weak-cipher", "weak cipher", "protocole depr",
+    ]
+    if any(m in text for m in tls_markers):
+        return "tls_crypto"
+
+    exposure_markers = [
+        "cross-domain misconfiguration", "cross domain misconfiguration",
+        "access-control-allow-origin", "port sensible expose", "server leaks",
+        "x-powered-by", "google-calendar-exposure", "google calendar exposure",
+        "timestamp disclosure",
+    ]
+    if any(m in text for m in exposure_markers):
+        return "exposure"
+
+    misconfig_markers = [
+        "csp", "content security policy", "anti-clickjacking", "x-frame-options",
+        "strict-transport-security", "hsts", "x-content-type-options",
+        "cookie no httponly", "cookie without", "samesite", "secure flag",
+        "sub resource integrity", "subresource integrity", "missing-sri",
+        "cache-control", "fastly-debug", "permissions-policy", "referrer-policy",
+    ]
+    if any(m in text for m in misconfig_markers):
+        return "web_misconfig"
+
+    return "vulnerability_general"
+
+
+# ============================================================
+# PRIORITÉ
+# ============================================================
+
+def compute_priority(f: Dict[str, Any]) -> str:
+    sev = normalize_severity(f.get("severity"))
+    conf = str(f.get("confidence") or "").strip().lower()
+    cvss = f.get("cvss")
+    finding_type = f.get("finding_type") or classify_finding_type(f)
+
+    def _cvss_bonus(value: Any) -> int:
+        if isinstance(value, (int, float)):
+            return min(int(value), 10)
+        try:
+            return min(int(float(str(value))), 10)
+        except Exception:
+            return 0
+
+    if finding_type == "confirmed_cve":
+        base = {"critical": "P1", "high": "P2", "medium": "P3", "low": "P4", "info": "P5"}
+        return base.get(sev, "P5")
+
+    if finding_type == "potential_cve":
+        if sev in {"critical", "high"}:
+            return "P3"
+        if sev == "medium":
+            return "P4"
+        return "P5"
+
+    if finding_type == "tls_crypto":
+        title = str(f.get("title") or f.get("display_title") or "").lower()
+
+        strong_tls = ["sweet32", "heartbleed", "drown", "poodle", "lucky13", "beast"]
+        deprecated_tls = ["tls 1.0", "tls 1.1", "weak-cipher", "weak cipher", "deprecated-tls"]
+
+        if any(k in title for k in strong_tls):
+            if sev in {"critical", "high"}:
+                return "P2"
+            if sev == "medium":
+                return "P3"
+            return "P4"
+
+        if any(k in title for k in deprecated_tls):
+            if sev == "high":
+                return "P3"
+            if sev == "medium":
+                return "P4"
+            return "P5"
+
+    # FIX: Les blocs exposure / web_misconfig / score numérique étaient
+    # du code mort (unreachable) car un return inconditionnel les précédait.
+    # Correction : placer le fallback générique EN DERNIER, après tous les blocs typés.
+
+    if finding_type == "exposure":
+        if sev in {"critical", "high"}:
+            return "P2"
+        if sev == "medium":
+            return "P3"
+        return "P4"
+
+    if finding_type == "web_misconfig":
+        if sev in {"critical", "high"}:
+            return "P3"
+        if sev == "medium":
+            return "P4"
+        return "P5"
+
+    # Fallback : score numérique pour vulnerability_general
+    base_score = {"critical": 90, "high": 70, "medium": 50, "low": 30, "info": 10}.get(sev, 10)
+    if conf == "high":
+        base_score += 15
+    elif conf == "medium":
+        base_score += 8
+    base_score += _cvss_bonus(cvss)
+
+    if base_score >= 90:
+        return "P1"
+    if base_score >= 75:
+        return "P2"
+    if base_score >= 55:
+        return "P3"
+    if base_score >= 35:
+        return "P4"
+    return "P5"
+
+
+def sort_findings(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    order = {"P1": 1, "P2": 2, "P3": 3, "P4": 4, "P5": 5}
+    return sorted(findings, key=lambda f: (order.get(f.get("priority", "P5"), 9), f.get("title") or ""))
+
+
+# ============================================================
+# DÉDUP INTER-SCANNERS
+# ============================================================
+
+def _fingerprint(f: Dict[str, Any]) -> str:
+    src = _norm(f.get("source"))
+    title = _norm(f.get("title"))
+    display_title = _norm(f.get("display_title"))
+    cve_id = _norm(f.get("cve_id"))
+    raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
+    raw_cve_id = _norm(raw.get("cve_id") or raw.get("cve"))
+    cwe = f.get("cwe") or raw.get("cweid")
+    alert_ref = f.get("alertRef") or raw.get("alertRef")
+
+    if cve_id:
+        return f"cve:{cve_id}"
+    if raw_cve_id:
+        return f"cve:{raw_cve_id}"
+    if src == "zap" and alert_ref:
+        return f"zap:{_norm(alert_ref)}"
+    if cwe:
+        return f"cwe:{_norm(cwe)}:{display_title or title}"
+    if src == "nuclei":
+        # FIX: inclure l'host dans la clé nuclei pour éviter les faux doublons
+        # entre des findings nuclei identiques sur des hôtes différents
+        host = _norm(f.get("url") or f.get("host") or "")
+        return f"nuclei:{title}:{host}"
+
+    return f"title:{display_title or title}"
+
+
+def dedupe_merge_across_scanners(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    merged: Dict[str, Dict[str, Any]] = {}
+
+    for f in findings:
+        key = _fingerprint(f)
+
+        if key not in merged:
+            merged[key] = {
+                **f,
+                "sources": sorted({str(f.get("source") or "")}),
+                "param": _as_list_unique(f.get("param")),
+                "targets": _as_list_unique(f.get("url") or f.get("host")),
+                "evidences": _as_list_unique(f.get("evidence")),
+            }
+            continue
+
+        m = merged[key]
+        m["sources"] = sorted(set(m.get("sources", [])) | {str(f.get("source") or "")})
+        m["param"] = list(dict.fromkeys(m.get("param", []) + _as_list_unique(f.get("param"))))
+        m["targets"] = list(dict.fromkeys(m.get("targets", []) + _as_list_unique(f.get("url") or f.get("host"))))
+        m["evidences"] = list(dict.fromkeys(m.get("evidences", []) + _as_list_unique(f.get("evidence"))))
+
+        if _sev_rank(f.get("severity")) > _sev_rank(m.get("severity")):
+            m["severity"] = f.get("severity")
+        if _prio_rank(f.get("priority")) < _prio_rank(m.get("priority")):
+            m["priority"] = f.get("priority")
+        if _conf_rank(f.get("confidence")) > _conf_rank(m.get("confidence")):
+            m["confidence"] = f.get("confidence")
+
+        for field in ["description", "solution", "reference", "risk", "cwe", "cvss", "note"]:
+            if not m.get(field) and f.get(field):
+                m[field] = f.get(field)
+
+    out = []
+    for m in merged.values():
+        m["param"] = ", ".join(m.get("param", [])) if isinstance(m.get("param"), list) else (m.get("param") or "")
+        targets = m.get("targets", [])
+        m["targets"] = targets
+        m["url"] = targets[0] if targets else (m.get("url") or "")
+        m["evidence"] = ", ".join(m.get("evidences", [])) if m.get("evidences") else (m.get("evidence") or "")
+        m["finding_type"] = classify_finding_type(m)
+        m["kind"] = classify_finding_kind(m.get("severity"), m)
+        out.append(m)
+
+    return out
+
+
+# ============================================================
+# RAG / OWASP / PREP LLM
+# ============================================================
+
+def needs_rag(title: str, description: str = "") -> bool:
+    text = f"{title or ''} {description or ''}".lower()
+    keywords = [
+        "csp", "content security policy", "clickjacking", "x-frame-options",
+        "frame-ancestors", "integrity", "sri", "cve-", "sql injection", "xss",
+        "cross-site scripting", "csrf", "cross-site request forgery",
+        "open redirect", "reflected file download", "rest views",
+        "organic groups", "webform", "views svg animation", "hsts",
+        "strict-transport-security", "cookie", "cors", "cross-domain",
+        "tls", "ssl", "breach", "beast", "lucky13",
+    ]
+    return any(k in text for k in keywords)
+
+
+def compress_rag_context(rag_docs: List[Dict[str, Any]]) -> Dict[str, Any]:
+    if not rag_docs:
+        return {}
+    selected_titles, technical_actions, verification_steps = [], [], []
+    for doc in rag_docs[:2]:
+        title = str(doc.get("title") or "").strip()
+        if title and title not in selected_titles:
+            selected_titles.append(title)
+        for x in doc.get("technical_actions", []) or []:
+            x = str(x).strip()
+            if x and x not in technical_actions:
+                technical_actions.append(x)
+        for x in doc.get("verification_steps", []) or []:
+            x = str(x).strip()
+            if x and x not in verification_steps:
+                verification_steps.append(x)
+    return {
+        "selected_rag_titles": selected_titles[:2],
+        "technical_actions": technical_actions[:5],
+        "verification_steps": verification_steps[:3],
+    }
+
+
+def is_rag_context_coherent(finding: Dict[str, Any], rag_docs: List[Dict[str, Any]]) -> bool:
+    if not rag_docs:
+        return False
+
+    title = str(finding.get("title") or "").lower()
+    description = str(finding.get("description") or "").lower()
+    source = str(finding.get("source") or "").lower()
+    owasp = str(finding.get("owasp_category") or "").lower()
+
+    query_text = f"{title} {description} {owasp}"
+
+    rag_text = " ".join(
+        json.dumps(doc, ensure_ascii=False).lower()
+        for doc in rag_docs[:2]
+    )
+
+    if source == "network_ssl" or any(x in query_text for x in ["tls", "ssl", "cipher", "sweet32", "lucky13", "breach", "beast"]):
+        expected = ["tls", "ssl", "cipher", "sweet32", "lucky13", "breach", "beast", "cryptographic", "deprecated-tls", "weak-cipher"]
+        return any(x in rag_text for x in expected)
+
+    if "csp" in query_text or "content security policy" in query_text:
+        expected = ["csp", "content security policy", "unsafe-inline", "unsafe-eval", "fallback", "wildcard"]
+        return any(x in rag_text for x in expected)
+
+    if "sub resource integrity" in query_text or "subresource integrity" in query_text or "integrity" in query_text:
+        expected = ["sri", "integrity", "subresource"]
+        return any(x in rag_text for x in expected)
+
+    if "sql injection" in query_text or "sqli" in query_text:
+        expected = ["sql injection", "sqli", "cwe-89"]
+        return any(x in rag_text for x in expected)
+
+    if "xss" in query_text or "cross-site scripting" in query_text or "cross site scripting" in query_text:
+        expected = ["xss", "cross-site scripting", "cross site scripting"]
+        return any(x in rag_text for x in expected)
+
+    if "cross-domain misconfiguration" in query_text or "cross domain misconfiguration" in query_text or "access-control-allow-origin" in query_text:
+        expected = ["cors", "cross-domain", "access-control-allow-origin"]
+        return any(x in rag_text for x in expected)
+
+    return True
+
 
 def _prepare_single_finding(args: tuple) -> tuple:
     idx, f, metadata = args
@@ -138,7 +489,6 @@ def _prepare_single_finding(args: tuple) -> tuple:
         cve_id=cve_id,
     )
 
-    # ✅ fallback OWASP si map_owasp ne trouve rien
     if mapped_owasp == "Non fourni":
         cwe_name = str(f.get("cwe_name") or "").lower()
         raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
@@ -157,6 +507,8 @@ def _prepare_single_finding(args: tuple) -> tuple:
             mapped_owasp = "A01:2021 - Broken Access Control"
         elif "integrity" in combined:
             mapped_owasp = "A08:2021 - Software and Data Integrity Failures"
+        elif "tls" in combined or "ssl" in combined or "cipher" in combined:
+            mapped_owasp = "A02:2021 - Cryptographic Failures"
 
     owasp_category = mapped_owasp if mapped_owasp != "Non fourni" else (source_owasp or "Non fourni")
 
@@ -182,19 +534,33 @@ def _prepare_single_finding(args: tuple) -> tuple:
                 filtered = []
                 for doc in rag_docs:
                     text_blob = json.dumps(doc, ensure_ascii=False).lower()
-
                     if cve_id and cve_id.lower() in text_blob:
                         filtered.append(doc)
                         continue
-
                     if module_name_for_filter and module_name_for_filter in text_blob:
                         filtered.append(doc)
                         continue
-
                 rag_docs = filtered[:1]
 
-            if rag_docs:
-                rag_context = _drop_empty_fields(compress_rag_context(rag_docs[:1]))
+            # FIX: valider la cohérence sur rag_docs complet (pas [:1])
+            # avant de le comprimer — évite de perdre des docs valides
+            tmp_finding = {
+                "title": shown_title,
+                "description": description,
+                "source": source,
+                "owasp_category": owasp_category,
+            }
+
+            if rag_docs and is_rag_context_coherent(tmp_finding, rag_docs):
+                # compress sur les 2 premiers docs cohérents
+                rag_context = _drop_empty_fields(compress_rag_context(rag_docs[:2]))
+                print(f"✅ RAG cohérent pour: {shown_title} -> {rag_docs[0].get('title')}")
+            else:
+                rag_context = {}
+                if rag_docs:
+                    print(f"⚠️ RAG incohérent ignoré pour: {shown_title} -> {rag_docs[0].get('title')}")
+                else:
+                    print(f"ℹ️ Aucun RAG trouvé pour: {shown_title} -> fallback LLM")
 
         except Exception as e:
             print(f"⚠️ RAG erreur pour '{shown_title}': {e}")
@@ -226,12 +592,11 @@ def _prepare_single_finding(args: tuple) -> tuple:
         "published": f.get("published") or "",
     }
 
-    # ✅ Délai basé sur la sévérité réelle
     if source == "cve" and f.get("matched_version") is True:
         sev = normalize_severity(f.get("severity"))
-        if sev in {"critical"}:
+        if sev == "critical":
             remediation_delay = "sous 24h"
-        elif sev in {"high"}:
+        elif sev == "high":
             remediation_delay = "7 jours"
         elif sev == "medium":
             remediation_delay = "30 jours"
@@ -282,182 +647,26 @@ def make_llm_rows_parallel(
 
 
 # ============================================================
-#  FONCTIONS UTILITAIRES
+# DÉDUP ROWS LLM
 # ============================================================
-
-def _compact_evidence(ev: Any, max_items: int = 6, max_chars: int = 6000) -> str:
-    if ev is None:
-        return "Non fourni"
-    if isinstance(ev, list):
-        parts = [str(x) for x in ev if x is not None]
-        if len(parts) > max_items:
-            s = ", ".join(parts[:max_items]) + f" (+{len(parts)-max_items} autres)"
-        else:
-            s = ", ".join(parts)
-    else:
-        s = str(ev)
-    s = " ".join(s.split())
-    if len(s) > max_chars:
-        s = s[:max_chars] + "…"
-    return s
-
-
-def _compact_target(f: Dict[str, Any]) -> str:
-    return str(f.get("url") or f.get("host") or "")
-
-
-def _norm(s: Any) -> str:
-    s = "" if s is None else str(s)
-    return re.sub(r"\s+", " ", s.strip().lower())
-
-
-def _conf_rank(conf: Any) -> int:
-    return {"high": 3, "medium": 2, "low": 1}.get(_norm(conf), 0)
-
-
-def _prio_rank(p: Any) -> int:
-    return {"P1": 1, "P2": 2, "P3": 3, "P4": 4, "P5": 5}.get(str(p), 9)
-
-
-def _sev_rank(sev: Any) -> int:
-    return {"critical": 5, "high": 4, "medium": 3, "low": 2, "info": 1}.get(_norm(sev), 0)
-
-
-def compute_priority(f: Dict[str, Any]) -> str:
-    sev = normalize_severity(f.get("severity"))
-    conf = str(f.get("confidence") or "").strip().lower()
-    cvss = f.get("cvss")
-    matched_version = f.get("matched_version")
-
-    base_score = 0
-    if sev == "critical":
-        base_score += 90
-    elif sev == "high":
-        base_score += 70
-    elif sev == "medium":
-        base_score += 50
-    elif sev == "low":
-        base_score += 30
-    else:
-        base_score += 10
-
-    if conf == "high":
-        base_score += 15
-    elif conf == "medium":
-        base_score += 8
-
-    if isinstance(cvss, (int, float)):
-        base_score += min(int(cvss), 10)
-
-    prio_base = "P5"
-    if base_score >= 90:
-        prio_base = "P1"
-    elif base_score >= 75:
-        prio_base = "P2"
-    elif base_score >= 55:
-        prio_base = "P3"
-    elif base_score >= 35:
-        prio_base = "P4"
-
-    if matched_version is False:
-        if prio_base in {"P1", "P2", "P3"}:
-            prio_base = "P4"
-
-    return prio_base
-
-
-def _as_list_unique(x: Any) -> List[str]:
-    if x is None:
-        return []
-    vals = [str(v).strip() for v in (x if isinstance(x, list) else [x]) if str(v).strip()]
-    out = []
-    for v in vals:
-        if v not in out:
-            out.append(v)
-    return out
-
-
-def _fingerprint(f: Dict[str, Any]) -> str:
-    src = _norm(f.get("source"))
-    title = _norm(f.get("title"))
-    display_title = _norm(f.get("display_title"))
-    cve_id = _norm(f.get("cve_id"))
-    raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
-    raw_cve_id = _norm(raw.get("cve_id") or raw.get("cve"))
-    cwe = f.get("cwe") or raw.get("cweid")
-    alert_ref = f.get("alertRef") or raw.get("alertRef")
-
-    if cve_id:
-        return f"cve:{cve_id}"
-    if raw_cve_id:
-        return f"cve:{raw_cve_id}"
-    if src == "zap" and alert_ref:
-        return f"zap:{_norm(alert_ref)}"
-    if cwe:
-        return f"cwe:{_norm(cwe)}:{display_title or title}"
-
-    if src == "nuclei":
-        host = _norm(f.get("url") or "")
-        return f"nuclei:{title}:{host}"
-
-    return f"title:{display_title or title}"
-
-
-def dedupe_merge_across_scanners(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    merged: Dict[str, Dict[str, Any]] = {}
-
-    for f in findings:
-        key = _fingerprint(f)
-        if key not in merged:
-            merged[key] = {
-                **f,
-                "sources": sorted({str(f.get("source") or "")}),
-                "param": _as_list_unique(f.get("param")),
-                "targets": _as_list_unique(f.get("url") or f.get("host")),
-                "evidences": _as_list_unique(f.get("evidence")),
-            }
-            continue
-
-        m = merged[key]
-        m["sources"] = sorted(set(m.get("sources", [])) | {str(f.get("source") or "")})
-        m["param"] = list(dict.fromkeys(m.get("param", []) + _as_list_unique(f.get("param"))))
-        m["targets"] = list(dict.fromkeys(m.get("targets", []) + _as_list_unique(f.get("url") or f.get("host"))))
-        m["evidences"] = list(dict.fromkeys(m.get("evidences", []) + _as_list_unique(f.get("evidence"))))
-
-        if _sev_rank(f.get("severity")) > _sev_rank(m.get("severity")):
-            m["severity"] = f.get("severity")
-        if _prio_rank(f.get("priority")) < _prio_rank(m.get("priority")):
-            m["priority"] = f.get("priority")
-        if _conf_rank(f.get("confidence")) > _conf_rank(m.get("confidence")):
-            m["confidence"] = f.get("confidence")
-        for field in ["description", "solution", "reference", "risk", "cwe", "cvss"]:
-            if not m.get(field) and f.get(field):
-                m[field] = f.get(field)
-
-    out = []
-    for m in merged.values():
-        m["param"] = ", ".join(m.get("param", [])) if isinstance(m.get("param"), list) else (m.get("param") or "")
-        targets = m.get("targets", [])
-        m["targets"] = targets
-        m["url"] = targets[0] if targets else (m.get("url") or "")
-        m["evidence"] = ", ".join(m.get("evidences", [])) if m.get("evidences") else (m.get("evidence") or "")
-        out.append(m)
-    return out
-
 
 def _llm_item_key(row: Dict[str, Any]) -> str:
     cve_id = str(row.get("cve_id") or "").strip().upper()
     if re.match(r"^CVE-\d{4}-\d{4,7}$", cve_id):
         return cve_id
+
     ref = row.get("reference")
     title = row.get("title")
     ref_text = " ".join(str(x) for x in ref if x) if isinstance(ref, list) else str(ref or "")
+
     m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", ref_text, flags=re.IGNORECASE)
     if m:
         return m.group(0).upper()
+
     m2 = re.search(r"\bCVE-\d{4}-\d{4,7}\b", str(title or ""), flags=re.IGNORECASE)
     if m2:
         return m2.group(0).upper()
+
     return _norm(title)
 
 
@@ -470,47 +679,114 @@ def dedupe_llm_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         seen.add(key)
         unique.append(row)
     return unique
+def _normalize_dedup_title(title: str) -> str:
+    t = _norm(title)
+
+    # équivalences métier
+    if "sub resource integrity attribute missing" in t or "missing sri" in t:
+        return "sub resource integrity"
+
+    if "content security policy" in t or t.startswith("csp:") or "weak csp" in t:
+        # on garde les variantes CSP spécifiques séparées
+        if "failure to define directive with no fallback" in t:
+            return "csp no fallback"
+        if "wildcard directive" in t:
+            return "csp wildcard"
+        if "script src unsafe inline" in t:
+            return "csp script unsafe inline"
+        if "style src unsafe inline" in t:
+            return "csp style unsafe inline"
+        if "notices" in t:
+            return "csp notices"
+        return "csp generic"
+
+    if "missing anti-clickjacking header" in t or "x-frame-options" in t:
+        return "clickjacking"
+
+    if "strict-transport-security header not set" in t or "http-missing-security-headers:strict-transport-security" in t:
+        return "hsts"
+
+    if "tls 1.0" in t or "deprecated-tls:tls_1.0" in t:
+        return "tls 1.0"
+
+    if "tls 1.1" in t or "deprecated-tls:tls_1.1" in t:
+        return "tls 1.1"
+
+    if "tls-version" in t:
+        # tls-version brut est une observation technique
+        return f"tls-version:{t}"
+
+    return t
 
 
-def needs_rag(title: str, description: str = "") -> bool:
-    text = f"{title or ''} {description or ''}".lower()
-    keywords = [
-        "csp", "content security policy", "clickjacking", "x-frame-options",
-        "frame-ancestors", "integrity", "sri", "cve-", "sql injection", "xss",
-        "cross-site scripting", "csrf", "cross-site request forgery",
-        "open redirect", "reflected file download", "rest views",
-        "organic groups", "webform", "views svg animation", "hsts",
-        "strict-transport-security", "cookie", "cors", "cross-domain",
+def _finding_dedup_key(f: Dict[str, Any]) -> str:
+    cve_id = str(f.get("cve_id") or "").strip().upper()
+    if re.match(r"^CVE-\d{4}-\d{4,7}$", cve_id):
+        return cve_id
+
+    title = str(f.get("display_title") or f.get("title") or "")
+    desc = str(f.get("description") or "")
+
+    m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", title, flags=re.IGNORECASE)
+    if m:
+        return m.group(0).upper()
+
+    m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", desc, flags=re.IGNORECASE)
+    if m:
+        return m.group(0).upper()
+
+    return _normalize_dedup_title(title)
+
+
+def _row_dedup_key(row: Dict[str, Any]) -> str:
+    cve_id = str(row.get("cve_id") or "").strip().upper()
+    if re.match(r"^CVE-\d{4}-\d{4,7}$", cve_id):
+        return cve_id
+
+    title = row.get("title") or ""
+    return _normalize_dedup_title(title)
+
+
+def _is_pure_observation_row(row: Dict[str, Any]) -> bool:
+    title = _norm(row.get("title"))
+    kind = _norm(row.get("kind"))
+    severity = _norm(row.get("severity"))
+
+    if kind == "information":
+        return True
+
+    observation_markers = [
+        "ssl-issuer",
+        "ssl-dns-names",
+        "wildcard-tls",
+        "tls-version",
+        "dkim-record-detect",
+        "dmarc-detect",
+        "spf-record-detect",
+        "mx-fingerprint",
+        "mx-service-detector",
+        "nameserver-fingerprint",
+        "txt-fingerprint",
+        "aaaa-fingerprint",
+        "caa-fingerprint",
+        "drupal-detect",
+        "drupal-login",
+        "dns-waf-detect",
+        "technologie détectée",
     ]
-    return any(k in text for k in keywords)
 
+    if any(m in title for m in observation_markers):
+        return True
 
-def compress_rag_context(rag_docs):
-    if not rag_docs:
-        return {}
-    selected_titles, technical_actions, verification_steps = [], [], []
-    for doc in rag_docs[:2]:
-        title = str(doc.get("title") or "").strip()
-        if title and title not in selected_titles:
-            selected_titles.append(title)
-        for x in doc.get("technical_actions", []) or []:
-            x = str(x).strip()
-            if x and x not in technical_actions:
-                technical_actions.append(x)
-        for x in doc.get("verification_steps", []) or []:
-            x = str(x).strip()
-            if x and x not in verification_steps:
-                verification_steps.append(x)
-    return {
-        "selected_rag_titles": selected_titles[:2],
-        "technical_actions": technical_actions[:5],
-        "verification_steps": verification_steps[:3],
-    }
+    # les findings info marqués vulnerability par erreur -> observation
+    if severity == "info":
+        return True
 
+    return False
 
-def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
-    return {k: v for k, v in d.items() if v not in (None, "", [], {})}
-
+# ============================================================
+# ANNEXES
+# ============================================================
 
 def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
     sev = normalize_severity(f.get("severity"))
@@ -538,7 +814,6 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
         cve_id=cve_id,
     )
 
-    # ✅ même fallback OWASP dans l’annexe
     if mapped_owasp == "Non fourni":
         cwe_name = str(f.get("cwe_name") or "").lower()
         raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
@@ -557,6 +832,8 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
             mapped_owasp = "A01:2021 - Broken Access Control"
         elif "integrity" in combined:
             mapped_owasp = "A08:2021 - Software and Data Integrity Failures"
+        elif "tls" in combined or "ssl" in combined or "cipher" in combined:
+            mapped_owasp = "A02:2021 - Cryptographic Failures"
 
     row = {
         "title": shown_title,
@@ -574,23 +851,12 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
         "alertRef": f.get("alertRef") or "",
         "note": f.get("note") or "—",
     }
+
     cvss = f.get("cvss")
     if cvss not in (None, "", "Non fourni"):
         row["cvss"] = cvss
+
     return row
-
-
-def sort_findings(findings: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    order = {"P1": 1, "P2": 2, "P3": 3, "P4": 4, "P5": 5}
-    return sorted(findings, key=lambda f: (order.get(f.get("priority", "P5"), 9), f.get("title") or ""))
-
-
-def compute_summary(findings: List[Dict[str, Any]]) -> Dict[str, int]:
-    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
-    for f in findings:
-        sev = normalize_severity(f.get("severity"))
-        counts[sev] = counts.get(sev, 0) + 1
-    return counts
 
 
 def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
@@ -599,18 +865,29 @@ def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
         "| " + " | ".join(headers) + " |",
         "| " + " | ".join(["---"] * len(headers)) + " |",
     ]
+
     for f in all_compact:
         row = [
-            str(f.get("priority", "—")), str(f.get("kind", "—")),
-            str(f.get("severity", "—")), str(f.get("risk") or "—"),
-            str(f.get("confidence") or "—"), str(f.get("title") or "—"),
-            str(f.get("target") or "—"), str(f.get("evidence") or "—"),
-            str(f.get("alertRef") or ""), str(f.get("note") or ""),
+            str(f.get("priority", "—")),
+            str(f.get("kind", "—")),
+            str(f.get("severity", "—")),
+            str(f.get("risk") or "—"),
+            str(f.get("confidence") or "—"),
+            str(f.get("title") or "—"),
+            str(f.get("target") or "—"),
+            str(f.get("evidence") or "—"),
+            str(f.get("alertRef") or ""),
+            str(f.get("note") or ""),
         ]
         row = [c.replace("\n", " ").replace("|", "\\|") for c in row]
         lines.append("| " + " | ".join(row) + " |")
+
     return "\n".join(lines)
 
+
+# ============================================================
+# POST-TRAITEMENTS NARRATIF
+# ============================================================
 
 def strip_llm_cvss_lines(report_text: str) -> str:
     return "\n".join(
@@ -621,6 +898,7 @@ def strip_llm_cvss_lines(report_text: str) -> str:
 
 def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]]) -> str:
     lines, output, injected = report_text.splitlines(), [], set()
+
     for line in lines:
         output.append(line)
         for f in top_findings:
@@ -636,11 +914,13 @@ def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]
                 output.append(f"{indent}* Score CVSS : {cvss}")
                 injected.add(fid)
                 break
+
     return "\n".join(output)
 
 
 def inject_param_in_section_b(report_text: str, top_findings: List[Dict[str, Any]]) -> str:
     lines, output, injected = report_text.splitlines(), [], set()
+
     for line in lines:
         output.append(line)
         for f in top_findings:
@@ -656,13 +936,15 @@ def inject_param_in_section_b(report_text: str, top_findings: List[Dict[str, Any
                 output.append(f"{indent}* **Paramètre/Ressource affecté(e) :** `{param}`")
                 injected.add(fid)
                 break
+
     return "\n".join(output)
 
 
 def extract_section_b(report_text: str) -> str:
     m = re.search(
         r"(\*\*B\s*-\s*Vulnérabilités Prioritaires\*\*.*?)(?=\n\*\*C\s*-\s*Plan de remédiation\*\*|\Z)",
-        report_text, flags=re.DOTALL | re.IGNORECASE,
+        report_text,
+        flags=re.DOTALL | re.IGNORECASE,
     )
     return m.group(1).strip() if m else ""
 
@@ -686,9 +968,11 @@ def _dedup_key_from_llm_item(item: str) -> str:
     m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", item, flags=re.IGNORECASE)
     if m:
         return m.group(0).upper()
+
     title_match = re.search(r"^\s*\d+\.\s+\*\*(.*?)\*\*", item, flags=re.MULTILINE)
     if title_match:
         return _norm(title_match.group(1))
+
     return _norm(item)
 
 
@@ -696,33 +980,82 @@ def dedupe_section_b(report_text: str) -> str:
     section_b = extract_section_b(report_text)
     if not section_b:
         return report_text
+
     items = split_section_b_items(section_b)
     seen, unique_items = set(), []
+
     for item in items:
         key = _dedup_key_from_llm_item(item)
         if key in seen:
             continue
         seen.add(key)
         unique_items.append(item)
+
     if not unique_items:
         return report_text
+
     header_match = re.match(r"^\*\*B\s*-\s*Vulnérabilités Prioritaires\*\*", section_b, flags=re.IGNORECASE)
     header = header_match.group(0) if header_match else "**B - Vulnérabilités Prioritaires**"
+
     rebuilt = [header, ""]
     for i, item in enumerate(unique_items, start=1):
         item = re.sub(r"^\s*\d+\.\s+", f"{i}. ", item, count=1)
         rebuilt.append(item)
+
     return report_text.replace(section_b, "\n".join(rebuilt).strip(), 1)
 
 
+# ============================================================
+# SECTION B
+# ============================================================
+
 def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
-    source = str(f.get("source") or "").strip().lower()
-    if source in {"cve", "nuclei", "cms_scan"}:
+    finding_type = f.get("finding_type") or classify_finding_type(f)
+    conf = str(f.get("confidence") or "").strip().lower()
+    sev = normalize_severity(f.get("severity"))
+
+    if finding_type in {"confirmed_cve", "potential_cve", "tls_crypto"}:
         return True
-    return str(f.get("confidence") or "").strip().lower() in {"high", "medium"}
+    if finding_type == "exposure" and sev in {"high", "medium"}:
+        return True
+    return conf in {"high", "medium"}
 
 
-def compute_risk_score(findings: List[Dict[str, Any]], source_level: str = "medium") -> Dict[str, Any]:
+def _force_section_b(f: Dict[str, Any]) -> bool:
+    finding_type = f.get("finding_type") or classify_finding_type(f)
+    sev = normalize_severity(f.get("severity"))
+    text = _text_blob(f)
+
+    if finding_type == "confirmed_cve":
+        return True
+    if finding_type == "potential_cve" and sev in {"high", "critical"}:
+        return True
+    if finding_type == "tls_crypto" and sev in {"high", "medium"}:
+        return True
+    if finding_type == "exposure" and sev in {"high", "medium"}:
+        return True
+
+    if finding_type == "web_misconfig":
+        important_misconfig = [
+            "content security policy (csp) header not set",
+            "csp: failure to define directive with no fallback",
+            "csp: script-src unsafe-eval",
+            "csp: script-src unsafe-inline",
+            "csp: style-src unsafe-inline",
+            "missing anti-clickjacking header",
+            "sub resource integrity attribute missing",
+            "cross-domain misconfiguration",
+        ]
+        return any(k in text for k in important_misconfig)
+
+    return False
+
+
+# ============================================================
+# SCORE RISQUE
+# ============================================================
+
+def compute_risk_score(vulnerabilities: List[Dict[str, Any]], source_level: str = "medium") -> Dict[str, Any]:
     severity_points = {
         "critical": 40,
         "high": 22,
@@ -731,47 +1064,56 @@ def compute_risk_score(findings: List[Dict[str, Any]], source_level: str = "medi
         "info": 0,
     }
 
-    def reliability_multiplier(f: Dict[str, Any]) -> float:
-        source = str(f.get("source") or "").strip().lower()
-        severity = normalize_severity(f.get("severity"))
-
-        if source == "cve" and f.get("matched_version") is False:
-            return 0.15
-
-        if source == "cve" and f.get("matched_version") is True:
-            return 1.0
-
-        if severity == "info":
-            return 0.0
-
-        return 1.0
+    type_multiplier = {
+        "confirmed_cve": 1.0,
+        "potential_cve": 0.30,
+        "tls_crypto": 0.85,
+        "exposure": 0.70,
+        "web_misconfig": 0.45,
+        "vulnerability_general": 0.80,
+        "informational": 0.0,
+    }
 
     counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
     total = 0.0
+    type_counts: Dict[str, int] = {}
 
-    for f in findings:
+    for f in vulnerabilities:
         severity = normalize_severity(f.get("severity"))
+        finding_type = f.get("finding_type") or classify_finding_type(f)
         counts[severity] = counts.get(severity, 0) + 1
+        type_counts[finding_type] = type_counts.get(finding_type, 0) + 1
 
         if severity == "info":
             continue
 
         base = severity_points.get(severity, 0)
-        total += base * reliability_multiplier(f)
+        total += base * type_multiplier.get(finding_type, 0.8)
 
-    # Bonus léger de densité
-    if counts["medium"] >= 4:
-        total += 5
-    if counts["high"] >= 2:
+    if type_counts.get("confirmed_cve", 0) >= 1:
+        total += 12
+    if type_counts.get("tls_crypto", 0) >= 2:
         total += 8
-    if counts["critical"] >= 1 and counts["high"] >= 1:
-        total += 10
+    if counts["medium"] >= 4 and type_counts.get("web_misconfig", 0) >= 3:
+        total += 3
 
     score = min(round(total), 100)
-
     source_level_norm = str(source_level or "").strip().lower()
 
-    # garde-fous
+    only_misconfig_like = all(
+        (f.get("finding_type") or classify_finding_type(f)) in {"web_misconfig", "informational"}
+        for f in vulnerabilities
+    ) if vulnerabilities else True
+
+    no_strong_core_risk = not any(
+        (f.get("finding_type") or classify_finding_type(f)) in {"confirmed_cve", "tls_crypto"}
+        and normalize_severity(f.get("severity")) in {"critical", "high", "medium"}
+        for f in vulnerabilities
+    )
+
+    if only_misconfig_like and no_strong_core_risk:
+        score = min(score, 35)
+
     if counts["critical"] == 0 and counts["high"] == 0:
         score = min(score, 60)
 
@@ -781,17 +1123,16 @@ def compute_risk_score(findings: List[Dict[str, Any]], source_level: str = "medi
     if counts["critical"] == 0 and counts["high"] == 0 and counts["medium"] == 0:
         score = min(score, 25)
 
-    # ✅ empêcher CRITIQUE trop facilement
     has_confirmed_critical = any(
-        normalize_severity(f.get("severity")) == "critical" and f.get("matched_version") is True
-        for f in findings
+        (f.get("finding_type") or classify_finding_type(f)) == "confirmed_cve"
+        and normalize_severity(f.get("severity")) == "critical"
+        for f in vulnerabilities
     )
 
     has_confirmed_high = any(
-        normalize_severity(f.get("severity")) == "high" and (
-            str(f.get("source") or "").lower() != "cve" or f.get("matched_version") is True
-        )
-        for f in findings
+        (f.get("finding_type") or classify_finding_type(f)) == "confirmed_cve"
+        and normalize_severity(f.get("severity")) == "high"
+        for f in vulnerabilities
     )
 
     if not has_confirmed_critical and not has_confirmed_high:
@@ -810,49 +1151,91 @@ def compute_risk_score(findings: List[Dict[str, Any]], source_level: str = "medi
         "score": score,
         "level": level,
         "counts": counts,
+        "type_counts": type_counts,
     }
 
 
+def cleanup_manual_validation_text(report_text: str, nb_unconfirmed: int) -> str:
+    """
+    Supprime les phrases automatiques de validation manuelle / Annexe A
+    quand il n'y a aucune vulnérabilité potentielle non confirmée.
+    """
+    if nb_unconfirmed > 0:
+        return report_text
+
+    patterns_to_remove = [
+        r"^\s*Validation manuelle recommandée\.?\s*$",
+        r"^\s*En outre,\s*0\s+vulnérabilité\(s\)\s+potentielle\(s\)\s+n'ont pu être confirmées.*Annexe A\.?\s*$",
+        r"^\s*Il est essentiel de procéder à une validation manuelle.*?\s*$",
+        r"^\s*Puisque\s*0\s+vulnérabilités?\s+potentielles?.*?\s*$",
+        r"^\s*Aucune validation manuelle n'est recommandée\.?\s*$",
+    ]
+
+    cleaned = report_text
+    for pattern in patterns_to_remove:
+        cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE | re.MULTILINE)
+
+    cleaned = re.sub(r"\n{3,}", "\n\n", cleaned)
+    return cleaned.strip()
+
+
 # ============================================================
-#  FONCTION PRINCIPALE
+# ANALYSE PRINCIPALE
 # ============================================================
 
 def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n: int = 15) -> str:
-
-    # ── ÉTAPE 1 : DÉDUPLICATION ──────────────────────────────────
+    # --------------------------------------------------------
+    # 1) Déduplication inter-scanners
+    # --------------------------------------------------------
     findings = dedupe_merge_across_scanners(findings)
     print("\n" + "=" * 80)
     print(f"Total findings dédupliqués : {len(findings)}")
-    print(f"Findings CSRF : {len([f for f in findings if 'csrf' in str(f.get('title', '')).lower()])}")
     print("=" * 80)
 
-    # ── ÉTAPE 2 : ENRICHISSEMENT ─────────────────────────────────
+    # --------------------------------------------------------
+    # 2) Enrichissement NVD
+    # --------------------------------------------------------
     nvd_key = os.getenv("NVD_API_KEY")
     if nvd_key:
         enrich_cves(findings, api_key=nvd_key, sleep_sec=1.2)
 
+    # --------------------------------------------------------
+    # 3) Recalcul des priorités
+    # --------------------------------------------------------
     for f in findings:
+        f["finding_type"] = classify_finding_type(f)
         f["priority"] = compute_priority(f)
+        f["kind"] = classify_finding_kind(f.get("severity"), f)
     findings = sort_findings(findings)
 
-    # ── ÉTAPE 3 : SÉPARATION matched_version ─────────────────────
-    unconfirmed_cves, other_findings = [], []
-    for f in findings:
+    # --------------------------------------------------------
+    # 4) Split clair : vulnérabilités / infos
+    # --------------------------------------------------------
+    vulnerabilities, informations = split_findings(findings)
+
+    unconfirmed_cves = []
+    reportable_vulns = []
+
+    for f in vulnerabilities:
         source = str(f.get("source") or "").lower()
-        is_unconfirmed_cve = source == "cve" and f.get("matched_version") is False
         sev = normalize_severity(f.get("severity"))
-        # CVEs HIGH/CRITICAL non confirmées → restent dans other_findings pour section B
+        is_unconfirmed_cve = source == "cve" and f.get("matched_version") is False
+
+        if sev == "info":
+            continue
+
         if is_unconfirmed_cve and sev not in {"high", "critical"}:
             unconfirmed_cves.append(f)
         else:
-            other_findings.append(f)
+            reportable_vulns.append(f)
 
-    # ── ÉTAPE 4 : BASE OFFICIELLE ────────────────────────────────
-    reportable_vulns = [f for f in other_findings if normalize_severity(f.get("severity")) != "info"]
-    reportable_info = [f for f in other_findings if normalize_severity(f.get("severity")) == "info"]
+    reportable_info = informations
 
-    # ── ÉTAPE 5 : COMPTAGES ──────────────────────────────────────
-    computed_counts = compute_summary(reportable_vulns)
+    # --------------------------------------------------------
+    # 5) Comptages cohérents
+    # --------------------------------------------------------
+    all_stats = build_summary_stats(findings)
+    vuln_counts = count_severity(reportable_vulns, vulnerabilities_only=False)
     info_count = len(reportable_info)
 
     risk_data = compute_risk_score(
@@ -865,26 +1248,18 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         divergence_found = False
         for sev_key in ["critical", "high", "medium", "low"]:
             json_val = json_counts.get(sev_key, 0)
-            computed_val = computed_counts.get(sev_key, 0)
+            computed_val = vuln_counts.get(sev_key, 0)
             if json_val != computed_val:
                 if not divergence_found:
-                    print("\n⚠️  DIVERGENCE severity_counts JSON vs Calculé :")
+                    print("\n⚠️ DIVERGENCE severity_counts JSON vs Calculé :")
                     divergence_found = True
                 print(f"   '{sev_key}': JSON={json_val} | Calculé={computed_val}")
         if not divergence_found:
             print("✅ severity_counts JSON == Calculé")
 
-    # ── ÉTAPE 6 : FILTRAGE SECTION B ─────────────────────────────
-    def _force_section_b(f: Dict[str, Any]) -> bool:
-        """CVE confirmée OU CVE HIGH/CRITICAL non confirmée → toujours dans section B."""
-        source = str(f.get("source") or "").lower()
-        if source != "cve":
-            return False
-        if f.get("matched_version") is True:
-            return True
-        sev = normalize_severity(f.get("severity"))
-        return sev in {"high", "critical"}
-
+    # --------------------------------------------------------
+    # 6) Filtrage section B
+    # --------------------------------------------------------
     prioritized_for_section_b = [
         f for f in reportable_vulns
         if (
@@ -893,24 +1268,81 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         )
         or _force_section_b(f)
     ]
+
+    section_b_order = {
+        "confirmed_cve": 1,
+        "potential_cve": 2,
+        "tls_crypto": 3,
+        "exposure": 4,
+        "web_misconfig": 5,
+        "vulnerability_general": 6,
+        "informational": 7,
+    }
+    prioritized_for_section_b = sorted(
+        prioritized_for_section_b,
+        key=lambda f: (
+            section_b_order.get(f.get("finding_type") or classify_finding_type(f), 9),
+            _prio_rank(f.get("priority")),
+            -_sev_rank(f.get("severity")),
+            str(f.get("title") or ""),
+        ),
+    )
+
     print(f"\nSection B — après filtre confidence : {len(prioritized_for_section_b)}")
 
     top_findings = (
-        prioritized_for_section_b if top_n is None or int(top_n) <= 0
+        prioritized_for_section_b
+        if top_n is None or int(top_n) <= 0
         else prioritized_for_section_b[:int(top_n)]
     )
 
-    # ── ÉTAPE 7 : CRÉATION DES ROWS (parallèle) ──────────────────
+    # --------------------------------------------------------
+    # 7) Rows LLM
+    # --------------------------------------------------------
     top_llm_rows = make_llm_rows_parallel(top_findings, metadata, max_workers=6)
     top_llm_rows = dedupe_llm_rows(top_llm_rows)
 
     annexe_unconfirmed_rows = [_make_annexe_row(f) for f in unconfirmed_cves]
-    all_annexe_rows = [_make_annexe_row(f) for f in other_findings]
+
+    # clés des findings déjà affichés en section B
+    section_b_keys = {_finding_dedup_key(f) for f in top_findings}
+
+    # clés déjà affichées dans l'annexe A
+    annexe_a_keys = {_finding_dedup_key(f) for f in unconfirmed_cves}
+
+    all_annexe_rows = []
+    seen_annexe_keys = set()
+
+    for f in findings:
+        row = _make_annexe_row(f)
+        key = _finding_dedup_key(f)
+
+        # 1) supprimer tout ce qui est déjà en section B
+        if key in section_b_keys:
+            continue
+
+        # 2) supprimer tout ce qui est déjà en annexe A
+        if key in annexe_a_keys:
+            continue
+
+        # 3) supprimer les observations pures mal classées en vulnérabilité
+        if _is_pure_observation_row(row):
+            row["kind"] = "information"
+            row["severity"] = "info"
+            row["priority"] = "P5"
+
+        # 4) supprimer les doublons internes de l'annexe B
+        row_key = _row_dedup_key(row)
+        if row_key in seen_annexe_keys:
+            continue
+        seen_annexe_keys.add(row_key)
+
+        all_annexe_rows.append(row)
+
     annexe_unconfirmed_md = build_annexe_table(annexe_unconfirmed_rows)
     annexe_md = build_annexe_table(all_annexe_rows)
 
     nb_unconfirmed = len(unconfirmed_cves)
-
     nb_high_unconfirmed = sum(
         1 for f in findings
         if str(f.get("source") or "").lower() == "cve"
@@ -918,9 +1350,16 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         and normalize_severity(f.get("severity")) in {"high", "critical"}
     )
 
-    print(f"Total findings annexe : {len(all_annexe_rows)} | CVE non confirmées : {len(annexe_unconfirmed_rows)}")
+    print(
+        f"Total findings annexe : {len(all_annexe_rows)} | "
+        f"Vulnérabilités reportables : {len(reportable_vulns)} | "
+        f"Infos : {len(reportable_info)} | "
+        f"CVE non confirmées : {len(annexe_unconfirmed_rows)}"
+    )
 
-    # Détecter le secteur depuis l'URL cible
+    # --------------------------------------------------------
+    # 8) Détection secteur
+    # --------------------------------------------------------
     target_url = metadata.get("target_url") or ""
     sector = "Non fourni"
     regulatory_context = "Non fourni"
@@ -928,10 +1367,20 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     banking_keywords = ["bank", "banque", "credit", "finance", "biat", "stb", "bh ", "bnp", "atb"]
     if any(kw in target_url.lower() for kw in banking_keywords):
         sector = "Secteur bancaire / financier"
-        regulatory_context = "BCT (Banque Centrale de Tunisie), circulaire n°2021-05 sur la cybersécurité, PCI-DSS si paiement en ligne"
+        regulatory_context = (
+            "BCT (Banque Centrale de Tunisie), circulaire n°2021-05 sur la cybersécurité, "
+            "PCI-DSS si paiement en ligne"
+        )
 
-    # ── ÉTAPE 8 : GÉNÉRATION DU PROMPT ───────────────────────────
-    prompt = REPORT_PROMPT.format(
+    # --------------------------------------------------------
+    # 9) Prompt
+    # --------------------------------------------------------
+    is_complete = str(metadata.get("mode") or "").lower() == "complete"
+
+    # FIX: nb_unconfirmed était absent de prompt_kwargs — le prompt
+    # l'utilisait via {nb_unconfirmed} mais ne le recevait jamais,
+    # provoquant une KeyError silencieuse ou un rendu "{nb_unconfirmed}" brut.
+    prompt_kwargs = dict(
         scan_id=metadata.get("scan_id") or "Non fourni",
         target_url=metadata.get("target_url") or "Non fourni",
         cms=metadata.get("cms") or "Non fourni",
@@ -941,80 +1390,104 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         created_at=metadata.get("created_at") or "Non fourni",
         scan_time_sec=metadata.get("scan_time_sec") if metadata.get("scan_time_sec") is not None else "Non fourni",
         severity_counts=json.dumps(metadata.get("severity_counts") or {}, ensure_ascii=False),
-        computed_severity_counts=json.dumps(computed_counts, ensure_ascii=False),
-        total_findings_extraits=len(reportable_vulns),
+        computed_severity_counts=json.dumps(vuln_counts, ensure_ascii=False),
+        total_findings_extraits=len(findings),
         top_findings_json=json.dumps(top_llm_rows, ensure_ascii=False, indent=2),
         nb_prioritaires=len(top_llm_rows),
-        
         risk_level_computed=risk_data["level"],
-        nb_unconfirmed=nb_unconfirmed,
+        nb_unconfirmed=nb_unconfirmed,          # FIX: ajouté
         risk_level_source=metadata.get("risk_level") or "Non fourni",
         nb_high_unconfirmed=nb_high_unconfirmed,
         sector=sector,
         regulatory_context=regulatory_context,
     )
 
+    if is_complete:
+        prompt = REPORT_PROMPT_COMPLETE.format(
+            **prompt_kwargs,
+            ssl_grade=metadata.get("ssl_grade") or "",
+            open_ports_count=metadata.get("open_ports_count") or 0,
+            whois_org=metadata.get("whois_org") or "Non fourni",
+        )
+    else:
+        prompt = REPORT_PROMPT.format(**prompt_kwargs)
+
     with open("debug_prompt.txt", "w", encoding="utf-8") as f:
         f.write(prompt)
     print("Prompt sauvegardé dans debug_prompt.txt")
 
-    # ── ÉTAPE 9 : GÉNÉRATION LLM via Groq ────────────────────────
+    # --------------------------------------------------------
+    # 10) Génération LLM
+    # --------------------------------------------------------
     start_llm = time.time()
     narrative = ollama_run(prompt)
     llm_seconds = time.time() - start_llm
     print(f"⚡ Temps génération Groq : {llm_seconds:.2f}s ({llm_seconds/60:.2f} min)")
 
-    # ── ÉTAPE 10 : POST-TRAITEMENTS ──────────────────────────────
+    # --------------------------------------------------------
+    # 11) Post-traitements
+    # --------------------------------------------------------
     narrative = strip_llm_cvss_lines(narrative)
     narrative = dedupe_section_b(narrative)
     narrative = inject_cvss_in_section_b(narrative, top_findings)
     narrative = inject_param_in_section_b(narrative, top_findings)
     narrative = dedupe_section_b(narrative)
+    narrative = cleanup_manual_validation_text(narrative, nb_unconfirmed)
 
-    # ── ÉTAPE 11 : TABLEAU DE SYNTHÈSE ───────────────────────────
-    sev = computed_counts
-    unconfirmed_counts = compute_summary(unconfirmed_cves)
+    # --------------------------------------------------------
+    # 12) Tableau de synthèse cohérent
+    # --------------------------------------------------------
+    sev = vuln_counts
+    unconfirmed_counts = count_severity(unconfirmed_cves, vulnerabilities_only=False)
 
     if nb_unconfirmed > 0:
         summary_table = f"""
-    ## Tableau de synthèse des vulnérabilités
+## Tableau de synthèse des vulnérabilités
 
-    > **Note méthodologique :** Ce tableau comptabilise les vulnérabilités retenues dans le rapport principal après déduplication.
-    > Les CVEs à version non confirmée sont séparées en Annexe A. Parmi elles, {nb_high_unconfirmed} vulnérabilité(s) HIGH/CRITICAL
-    > figurent en section B à titre d’alerte, avec validation manuelle recommandée.
+> **Note méthodologique :** Ce tableau comptabilise uniquement les vulnérabilités retenues dans le rapport principal après déduplication.
+> Les éléments informationnels ne sont pas inclus dans les colonnes de sévérité. Les CVEs à version non confirmée de sévérité faible/moyenne sont séparées en Annexe A.
 
-    | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
-    |:---:|:---:|:---:|:---:|:---:|
-    | {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
+| 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
+|:---:|:---:|:---:|:---:|:---:|
+| {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
 
-     *En sus : {unconfirmed_counts.get('critical', 0)} critique(s), {nb_high_unconfirmed} élevé(s) et {unconfirmed_counts.get('medium', 0)} moyen(s) potentiels détectés (version non confirmée — voir Annexe A)*
+> Vulnérabilités potentielles non retenues dans le total principal (Annexe A) : {nb_unconfirmed}
+> Dont HIGH/CRITICAL conservées en alerte dans la logique de priorisation : {nb_high_unconfirmed}
+> Répartition Annexe A : critique={unconfirmed_counts.get('critical', 0)}, élevé={unconfirmed_counts.get('high', 0)}, moyen={unconfirmed_counts.get('medium', 0)}, faible={unconfirmed_counts.get('low', 0)}
 
-    **Niveau de risque global : {risk_data['level']}**
+**Niveau de risque global : {risk_data['level']}**
 
-    **Éléments techniques listés en annexe :** {len(findings)} | **Vulnérabilités retenues dans le rapport :** {len(reportable_vulns)} | **Prioritaires (section B) :** {len(top_llm_rows)}**
+**Findings techniques dédupliqués (total) :** {len(findings)}  
+**Faiblesses et vulnérabilités retenues dans le rapport :** {len(reportable_vulns)}
+**Éléments informationnels :** {len(reportable_info)}  
+**Prioritaires (section B) :** {len(top_llm_rows)}  
 
-    > ℹ️ *Les chiffres ci-dessus sont calculés après déduplication.
-    > Le JSON source peut afficher davantage de CVEs brutes, y compris celles non confirmées en version.*
-    """
+> ℹ️ *Les chiffres ci-dessus sont calculés après déduplication globale.*
+"""
     else:
         summary_table = f"""
-    ## Tableau de synthèse des vulnérabilités
+## Tableau de synthèse des vulnérabilités
 
-    > **Note méthodologique :** Ce tableau comptabilise les vulnérabilités retenues dans le rapport principal après déduplication.
+> **Note méthodologique :** Ce tableau comptabilise uniquement les vulnérabilités retenues dans le rapport principal après déduplication.
+> Les éléments informationnels sont comptabilisés séparément.
 
-    | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
-    |:---:|:---:|:---:|:---:|:---:|
-    | {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
+| 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
+|:---:|:---:|:---:|:---:|:---:|
+| {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
 
-    
-    **Niveau de risque global : {risk_data['level']}**
+**Niveau de risque global : {risk_data['level']}**
 
-    **Éléments techniques listés en annexe :** {len(findings)} | **Vulnérabilités retenues dans le rapport :** {len(reportable_vulns)} | **Prioritaires (section B) :** {len(top_llm_rows)}**
+**Findings techniques dédupliqués (total) :** {len(findings)}  
+**Faiblesses et vulnérabilités retenues dans le rapport :** {len(reportable_vulns)}
+**Éléments informationnels :** {len(reportable_info)}  
+**Prioritaires (section B) :** {len(top_llm_rows)}  
 
-    > ℹ️ *Les chiffres ci-dessus sont calculés après déduplication.*
-    """
+> ℹ️ *Les chiffres ci-dessus sont calculés après déduplication globale.*
+"""
 
-    # ── ÉTAPE 12 : RAPPORT FINAL ─────────────────────────────────
+    # --------------------------------------------------------
+    # 13) Rapport final
+    # --------------------------------------------------------
     report = narrative.strip() + "\n\n" + summary_table + "\n\n"
 
     if nb_unconfirmed > 0:

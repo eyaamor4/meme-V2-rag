@@ -1998,5 +1998,835 @@
         "score": 0.6054
       }
     ]
+  },
+  "456c7ff7487d28e5ed4f298313d04d89abe266e9a5f09491fcad195a50eff67b": {
+    "ts": 1776343534.412567,
+    "result": [
+      {
+        "id": "kb_001",
+        "title": "CSP: Failure to Define Directive with No Fallback",
+        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "missing directive",
+          "fallback",
+          "security header"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
+        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "technical_actions": [
+          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
+          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+        },
+        "verification": "Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+          "Contrôler dans les outils navigateur que les violations CSP sont bien remontées.",
+          "Tester les formulaires métiers, les iframes éventuelles et les redirections."
+        ],
+        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "score": 1.0
+      }
+    ]
+  },
+  "2c331547dd7bb0bd963d97ac7fa3e809943882a0e9519c74d7d2065e86bc01c8": {
+    "ts": 1776343534.4327302,
+    "result": [
+      {
+        "id": "kb_004",
+        "title": "CSP: style-src unsafe-inline",
+        "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "style-src",
+          "css-injection"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
+        "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",
+        "technical_actions": [
+          "Identifier les styles inline dans les templates et composants front-end.",
+          "Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.",
+          "Conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.",
+          "Nettoyer les librairies ou widgets qui injectent du style inline non indispensable."
+        ],
+        "implementation_examples": {
+          "generic": "style-src 'self' https://fonts.googleapis.com;",
+          "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
+        },
+        "verification": "Vérifier que style-src ne contient plus 'unsafe-inline' et que les styles requis proviennent de fichiers CSS approuvés ou de hashes explicites.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Vérifier que style-src ne contient plus unsafe-inline.",
+          "Contrôler le rendu visuel des pages après externalisation des styles.",
+          "Surveiller les erreurs CSP et corriger les blocs inline restants."
+        ],
+        "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: style-src unsafe-inline La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline style-src css-injection",
+        "score": 1.0
+      }
+    ]
+  },
+  "3a2057c8f1549fcb4e1a808ebbddd6b53295841005fe551c297f054286b71571": {
+    "ts": 1776343534.4414144,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.",
+        "verification_steps": [
+          "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+          "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+          "Recalculer le hash en cas de mise à jour de la dépendance.",
+          "Relancer le scan pour confirmer la disparition de l'alerte."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "aa98a90fa846dca1f35ca81548b16bb0cf26d7a827c6c95c9d40939418b62178": {
+    "ts": 1776343534.4486074,
+    "result": [
+      {
+        "id": "kb_003",
+        "title": "CSP: script-src unsafe-inline",
+        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "script-src",
+          "xss"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
+        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "technical_actions": [
+          "Identifier tous les scripts inline présents dans les templates HTML.",
+          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
+          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
+          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+        ],
+        "implementation_examples": {
+          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
+          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
+          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+        },
+        "verification": "Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Vérifier que script-src ne contient plus unsafe-inline.",
+          "Contrôler dans le HTML que les scripts inline restants portent un nonce ou hash valide.",
+          "Tester les principales pages pour détecter les régressions JavaScript."
+        ],
+        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "score": 1.0
+      }
+    ]
+  },
+  "55b8cfd60e3c0d0fbddc159aa5471d6009de4e9b737b0cf5189bf798f8df5a16": {
+    "ts": 1776343534.4562626,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "e1b1f20597d6232f833680e39ac25c3799fabb6447e3bbf6e577aefb5beb8b0f": {
+    "ts": 1776343534.4648883,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy.",
+          "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "03221c3bbce50ba1b10e68139ba91491dc16b7e4e590a394a64929e3b1253745": {
+    "ts": 1776343534.4723759,
+    "result": [
+      {
+        "id": "kb_002",
+        "title": "CSP: Wildcard Directive",
+        "description": "Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "wildcard",
+          "misconfiguration"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.",
+        "recommendation_summary": "Réduire la surface autorisée par la CSP en supprimant les jokers et schémas trop larges.",
+        "technical_actions": [
+          "Remplacer * par une liste précise d’hôtes de confiance.",
+          "Éviter les schémas génériques comme https: quand les domaines réels sont connus.",
+          "Séparer les besoins par type de ressource : script-src, style-src, img-src, font-src, connect-src, frame-src.",
+          "Supprimer les doublons et les domaines non utilisés."
+        ],
+        "implementation_examples": {
+          "generic": "Remplacer img-src * data: https: par img-src 'self' data: https://cdn.example.com si seul ce CDN est nécessaire.",
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
+        },
+        "verification": "Contrôler que les directives CSP n’utilisent plus de joker '*' ni de schéma trop permissif comme https: lorsqu’une liste d’hôtes précise peut être définie.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Comparer la CSP déployée avec l'inventaire réel des ressources chargées.",
+          "Supprimer progressivement les sources non justifiées puis tester les parcours applicatifs.",
+          "Relancer le scan pour confirmer la disparition des alertes CSP wildcard."
+        ],
+        "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Wildcard Directive Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique. A05:2021 - Security Misconfiguration CWE-693 csp wildcard misconfiguration",
+        "score": 1.0
+      }
+    ]
+  },
+  "08108a5d9229a1890750ff6f2577949d462dcf8aa29bba99ffe344630037ecb5": {
+    "ts": 1776347075.8376176,
+    "result": [
+      {
+        "id": "kb_009",
+        "title": "weak-cipher-suites",
+        "description": "Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls",
+          "cipher suites",
+          "crypto"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Désactiver les suites cryptographiques faibles et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Renforcer la configuration cryptographique du serveur TLS.",
+        "technical_actions": [
+          "Supprimer les suites CBC anciennes ou faibles lorsque la compatibilité n’est pas requise.",
+          "Conserver uniquement les suites recommandées pour TLS 1.2 et TLS 1.3.",
+          "Appliquer la configuration au niveau du serveur web, du reverse proxy ou du load balancer selon le point de terminaison TLS."
+        ],
+        "implementation_examples": {
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+        },
+        "verification": "Vérifier avec un scanner TLS que les suites faibles ne sont plus proposées et que seules des suites modernes restent activées.",
+        "verification_steps": [
+          "Relancer un scan TLS après correction.",
+          "Vérifier que les suites faibles ne sont plus proposées.",
+          "Confirmer que les clients métiers compatibles TLS 1.2+ continuent de se connecter."
+        ],
+        "report_template": "Durcir la configuration cryptographique en supprimant les suites faibles ou obsolètes et en ne conservant que des suites robustes compatibles avec TLS 1.2 et TLS 1.3. La configuration doit être appliquée sur le composant qui termine réellement TLS et confirmée par un nouveau scan SSL/TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "weak-cipher-suites Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens. A02:2021 - Cryptographic Failures CWE-327 tls cipher suites crypto",
+        "score": 0.8571
+      }
+    ]
+  },
+  "4bd3c7fa514250a00c41be17e911b95003c16bb82ad6e6782939f5efd564f05e": {
+    "ts": 1776351029.9505324,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy.",
+          "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "20a4cfef16b24c2c0c7821fa5f6abe0f61671af8232a42a25ffaf016dbafbb34": {
+    "ts": 1776351029.9589317,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "8e6252092866139e11f61048d65c75d9f534eac83785fd4d852891fb52a3dc02": {
+    "ts": 1776351029.9655375,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.",
+        "verification_steps": [
+          "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+          "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+          "Recalculer le hash en cas de mise à jour de la dépendance.",
+          "Relancer le scan pour confirmer la disparition de l'alerte."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "9fb65dff278fb6f7616755db0660ee22e53a4e4c1f5b4bd47a7ddb7f27bfb6b5": {
+    "ts": 1776364904.9832182,
+    "result": [
+      {
+        "id": "kb_009",
+        "title": "weak-cipher-suites",
+        "description": "Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls",
+          "cipher suites",
+          "crypto"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Désactiver les suites cryptographiques faibles et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Renforcer la configuration cryptographique du serveur TLS.",
+        "technical_actions": [
+          "Supprimer les suites CBC anciennes ou faibles lorsque la compatibilité n’est pas requise.",
+          "Conserver uniquement les suites recommandées pour TLS 1.2 et TLS 1.3.",
+          "Appliquer la configuration au niveau du serveur web, du reverse proxy ou du load balancer selon le point de terminaison TLS."
+        ],
+        "implementation_examples": {
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+        },
+        "verification": "Vérifier avec un scanner TLS que les suites faibles ne sont plus proposées et que seules des suites modernes restent activées.",
+        "verification_steps": [
+          "Relancer un scan TLS après correction.",
+          "Vérifier que les suites faibles ne sont plus proposées.",
+          "Confirmer que les clients métiers compatibles TLS 1.2+ continuent de se connecter."
+        ],
+        "report_template": "Durcir la configuration cryptographique en supprimant les suites faibles ou obsolètes et en ne conservant que des suites robustes compatibles avec TLS 1.2 et TLS 1.3. La configuration doit être appliquée sur le composant qui termine réellement TLS et confirmée par un nouveau scan SSL/TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "weak-cipher-suites Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens. A02:2021 - Cryptographic Failures CWE-327 tls cipher suites crypto",
+        "score": 0.8556
+      }
+    ]
+  },
+  "f5b480f568551fad54686d9bb8f49f1ba66752a25ada2a1375d84f82a94d378d": {
+    "ts": 1776364905.0343897,
+    "result": [
+      {
+        "id": "kb_023",
+        "title": "Reflected File Download",
+        "description": "Une réponse contrôlable permet le téléchargement d’un fichier interprétable contenant un contenu malveillant.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-Other",
+        "tags": [
+          "reflected file download",
+          "download",
+          "json"
+        ],
+        "keywords": [],
+        "aliases": [
+          "reflected file download vulnerability",
+          "Drupal System module reflected file download",
+          "System module RFD",
+          "CVE-2016-3168"
+        ],
+        "cves": [
+          "CVE-2016-3168"
+        ],
+        "recommendation": "Éviter les réponses téléchargeables construites à partir d’entrées non fiables, définir un Content-Type approprié et empêcher l’injection de contenu interprétable dans les fichiers téléchargés.",
+        "recommendation_summary": "Empêcher la génération de fichiers téléchargeables manipulables par l’utilisateur.",
+        "technical_actions": [
+          "Neutraliser les entrées utilisateur réinjectées dans les noms ou contenus de fichiers.",
+          "Forcer un Content-Type correct et un nom de fichier maîtrisé.",
+          "Éviter de concaténer directement des paramètres dans des exports téléchargeables.",
+          "Valider les caractères autorisés dans les noms ou contenus exportés."
+        ],
+        "implementation_examples": {
+          "generic": "Ne pas refléter un paramètre brut dans Content-Disposition ou dans un fichier exporté.",
+          "header": "Content-Type: application/json; charset=UTF-8"
+        },
+        "verification": "Vérifier qu’un paramètre contrôlé par l’utilisateur ne peut plus produire un téléchargement contenant du contenu exécutable ou trompeur.",
+        "verification_steps": [
+          "Tester les paramètres d’export avec contenu injecté.",
+          "Vérifier les headers Content-Type et Content-Disposition.",
+          "Contrôler le comportement du fichier téléchargé sous Windows et navigateur."
+        ],
+        "report_template": "Sécuriser les réponses téléchargeables en supprimant toute réinjection non contrôlée d’entrées utilisateur dans le contenu ou les métadonnées du fichier. Les réponses d’export doivent utiliser un type MIME cohérent, un nom de fichier maîtrisé et une validation stricte des données exportées.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Reflected File Download Une réponse contrôlable permet le téléchargement d’un fichier interprétable contenant un contenu malveillant. A05:2021 - Security Misconfiguration CWE-Other reflected file download download json reflected file download vulnerability Drupal System module reflected file download System module RFD CVE-2016-3168 CVE-2016-3168",
+        "score": 0.2061
+      },
+      {
+        "id": "kb_034",
+        "title": "Views Access Restriction Bypass",
+        "description": "Le module Views permet un contournement de filtres ou une exposition de contenus cachés.",
+        "owasp": "A01:2021 - Broken Access Control",
+        "cwe": "CWE-284",
+        "tags": [
+          "views",
+          "access bypass",
+          "hidden content",
+          "drupal"
+        ],
+        "keywords": [],
+        "aliases": [
+          "The _views_fetch_data method in includes/cache.inc",
+          "Views access restriction bypass",
+          "Drupal Views hidden content exposure",
+          "CVE-2015-5490",
+          "CVE-2016-6212"
+        ],
+        "cves": [
+          "CVE-2015-5490",
+          "CVE-2016-6212"
+        ],
+        "recommendation": "Mettre à jour le module Views vers une version corrigée et revoir les filtres, permissions et caches influençant l’exposition du contenu.",
+        "recommendation_summary": "Empêcher les contournements de filtres ou de règles d’accès dans Views.",
+        "technical_actions": [
+          "Mettre à jour Views à une version corrigée.",
+          "Revoir les filtres exposés, permissions et displays affectés.",
+          "Contrôler les interactions entre cache, filtres et visibilité du contenu.",
+          "Tester l’accès direct par URL et paramètres manipulés."
+        ],
+        "implementation_examples": {
+          "drupal": "Auditer les displays Views publics, leurs filtres et leurs règles d’accès."
+        },
+        "verification": "Vérifier qu’un utilisateur non autorisé ne peut plus accéder au contenu caché ni contourner les filtres applicatifs via les vues concernées.",
+        "verification_steps": [
+          "Tester les vues avec plusieurs rôles.",
+          "Manipuler les paramètres exposés et filtres.",
+          "Vérifier l’absence d’accès au contenu caché."
+        ],
+        "report_template": "Mettre à jour le module Views et réviser les filtres, permissions et mécanismes de cache pouvant conduire à une exposition non prévue du contenu. Une campagne de tests fonctionnels et de contrôle d’accès doit confirmer l’impossibilité de contourner les restrictions applicatives.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Views Access Restriction Bypass Le module Views permet un contournement de filtres ou une exposition de contenus cachés. A01:2021 - Broken Access Control CWE-284 views access bypass hidden content drupal The _views_fetch_data method in includes/cache.inc Views access restriction bypass Drupal Views hidden content exposure CVE-2015-5490 CVE-2016-6212 CVE-2015-5490 CVE-2016-6212",
+        "score": 0.2053
+      }
+    ]
+  },
+  "a13009fed3e246e43593ac34788a9502d413431b24b36c649c2e953e0e2cd88e": {
+    "ts": 1776364905.0611947,
+    "result": [
+      {
+        "id": "kb_009",
+        "title": "weak-cipher-suites",
+        "description": "Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls",
+          "cipher suites",
+          "crypto"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Désactiver les suites cryptographiques faibles et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Renforcer la configuration cryptographique du serveur TLS.",
+        "technical_actions": [
+          "Supprimer les suites CBC anciennes ou faibles lorsque la compatibilité n’est pas requise.",
+          "Conserver uniquement les suites recommandées pour TLS 1.2 et TLS 1.3.",
+          "Appliquer la configuration au niveau du serveur web, du reverse proxy ou du load balancer selon le point de terminaison TLS."
+        ],
+        "implementation_examples": {
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+        },
+        "verification": "Vérifier avec un scanner TLS que les suites faibles ne sont plus proposées et que seules des suites modernes restent activées.",
+        "verification_steps": [
+          "Relancer un scan TLS après correction.",
+          "Vérifier que les suites faibles ne sont plus proposées.",
+          "Confirmer que les clients métiers compatibles TLS 1.2+ continuent de se connecter."
+        ],
+        "report_template": "Durcir la configuration cryptographique en supprimant les suites faibles ou obsolètes et en ne conservant que des suites robustes compatibles avec TLS 1.2 et TLS 1.3. La configuration doit être appliquée sur le composant qui termine réellement TLS et confirmée par un nouveau scan SSL/TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "weak-cipher-suites Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens. A02:2021 - Cryptographic Failures CWE-327 tls cipher suites crypto",
+        "score": 0.7632
+      },
+      {
+        "id": "kb_010",
+        "title": "deprecated-tls",
+        "description": "Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls 1.0",
+          "tls 1.1",
+          "deprecated tls"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Désactiver TLS 1.0 et TLS 1.1 sur le serveur et conserver uniquement TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Supprimer les protocoles TLS obsolètes exposés par le service.",
+        "technical_actions": [
+          "Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.",
+          "Conserver uniquement TLS 1.2 et TLS 1.3.",
+          "Vérifier les dépendances applicatives et clients legacy avant mise en production."
+        ],
+        "implementation_examples": {
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3;",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+        },
+        "verification": "Vérifier via un scan SSL/TLS que TLS 1.0 et TLS 1.1 ne sont plus négociables et que TLS 1.2 ou TLS 1.3 restent disponibles.",
+        "verification_steps": [
+          "Scanner le service TLS après changement.",
+          "Contrôler que seules TLS 1.2 et TLS 1.3 restent disponibles.",
+          "Tester la compatibilité des clients métiers."
+        ],
+        "report_template": "Désactiver les protocoles TLS 1.0 et TLS 1.1, devenus obsolètes, et limiter le service aux versions TLS 1.2 et TLS 1.3. La mesure doit être appliquée sur le serveur ou le composant réseau terminant HTTPS, puis validée par un nouveau contrôle SSL/TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "deprecated-tls Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes. A02:2021 - Cryptographic Failures CWE-327 tls 1.0 tls 1.1 deprecated tls",
+        "score": 0.6676
+      },
+      {
+        "id": "kb_030",
+        "title": "Drupal Module Vulnerability",
+        "description": "Un module Drupal détecté correspond à une version vulnérable référencée par CVE.",
+        "owasp": "A06:2021 - Vulnerable and Outdated Components",
+        "cwe": "CWE-1104",
+        "tags": [
+          "drupal",
+          "module",
+          "cve",
+          "outdated component"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Mettre à jour le module Drupal concerné vers la version corrigée indiquée par le bulletin de sécurité ou le correctif officiel du projet.",
+        "recommendation_summary": "Corriger la vulnérabilité par mise à jour du composant Drupal affecté.",
+        "technical_actions": [
+          "Identifier précisément le module et la version installée.",
+          "Consulter le bulletin Drupal ou la référence CVE pour la version corrigée.",
+          "Mettre à jour le module via Composer ou le processus de déploiement standard.",
+          "Appliquer les correctifs de sécurité complémentaires si requis.",
+          "Désactiver ou retirer le module si sa mise à jour n’est pas possible rapidement."
+        ],
+        "implementation_examples": {
+          "composer": "composer update drupal/views --with-dependencies",
+          "generic": "Vérifier ensuite les changements de schéma, cache et compatibilité applicative."
+        },
+        "verification": "Vérifier la version réellement installée du module Drupal et confirmer qu’elle est supérieure ou égale à la version corrigée mentionnée dans la référence officielle.",
+        "verification_steps": [
+          "Contrôler la version du module après déploiement.",
+          "Vider les caches Drupal si nécessaire.",
+          "Relancer le scan de vulnérabilités et vérifier la disparition de la CVE."
+        ],
+        "report_template": "Mettre à jour le module Drupal concerné vers une version corrigée conformément au bulletin de sécurité ou à la référence CVE associée. La version réellement déployée doit être confirmée après publication, puis validée par un nouveau scan et par des tests fonctionnels sur les fonctionnalités dépendantes.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Drupal Module Vulnerability Un module Drupal détecté correspond à une version vulnérable référencée par CVE. A06:2021 - Vulnerable and Outdated Components CWE-1104 drupal module cve outdated component",
+        "score": 0.4324
+      }
+    ]
   }
 }
