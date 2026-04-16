@@ -5,10 +5,148 @@ from typing import Any, Dict, List, Set, Tuple
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
+import hashlib
+import threading
+import time
 
 
 MODEL_NAME = "all-MiniLM-L6-v2"
 MODEL = SentenceTransformer(MODEL_NAME)
+# ============================================================
+# CACHE RAG (mémoire + disque)
+# ============================================================
+
+CACHE_VERSION = "v1"
+CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache")
+CACHE_PATH = os.path.join(CACHE_DIR, "rag_cache.json")
+CACHE_TTL_SECONDS = 7 * 24 * 3600  # 7 jours
+
+_CACHE_LOCK = threading.Lock()
+_RAG_CACHE: Dict[str, Dict[str, Any]] = {}
+
+
+def _ensure_cache_dir() -> None:
+    os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def _safe_json_dump(data: Dict[str, Any], path: str) -> None:
+    tmp_path = path + ".tmp"
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+    os.replace(tmp_path, path)
+
+
+def _load_rag_cache() -> Dict[str, Dict[str, Any]]:
+    _ensure_cache_dir()
+    if not os.path.exists(CACHE_PATH):
+        return {}
+
+    try:
+        with open(CACHE_PATH, "r", encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict):
+            return data
+        return {}
+    except Exception as e:
+        print(f"⚠️ Impossible de charger le cache RAG: {e}")
+        return {}
+
+
+def _save_rag_cache() -> None:
+    try:
+        _ensure_cache_dir()
+        _safe_json_dump(_RAG_CACHE, CACHE_PATH)
+    except Exception as e:
+        print(f"⚠️ Impossible de sauvegarder le cache RAG: {e}")
+
+
+def _normalize_cache_payload(value: Any) -> Any:
+    if isinstance(value, str):
+        return _normalize_text(value)
+    if isinstance(value, list):
+        return [_normalize_cache_payload(x) for x in value]
+    if isinstance(value, dict):
+        return {str(k): _normalize_cache_payload(v) for k, v in sorted(value.items())}
+    return value
+
+
+def _make_cache_key(
+    title: str,
+    description: str = "",
+    owasp: str = "",
+    cwe: str = "",
+    technology: str = "",
+    component: str = "",
+    reference: str = "",
+    top_k: int = 2,
+    min_score: float = 0.60,
+) -> str:
+    payload = {
+        "v": CACHE_VERSION,
+        "title": title,
+        "description": description,
+        "owasp": owasp,
+        "cwe": cwe,
+        "technology": technology,
+        "component": component,
+        "reference": reference,
+        "top_k": top_k,
+        "min_score": round(float(min_score), 4),
+        "model_name": MODEL_NAME,
+    }
+    normalized = _normalize_cache_payload(payload)
+    raw = json.dumps(normalized, ensure_ascii=False, sort_keys=True)
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def _get_cached_result(cache_key: str) -> List[Dict[str, Any]] | None:
+    with _CACHE_LOCK:
+        item = _RAG_CACHE.get(cache_key)
+        if not item:
+            return None
+
+        ts = item.get("ts", 0)
+        if not isinstance(ts, (int, float)):
+            return None
+
+        if time.time() - ts > CACHE_TTL_SECONDS:
+            _RAG_CACHE.pop(cache_key, None)
+            return None
+
+        result = item.get("result")
+        if isinstance(result, list):
+            print("⚡ RAG cache hit")
+            return result
+
+        return None
+
+
+def _set_cached_result(cache_key: str, result: List[Dict[str, Any]]) -> None:
+    with _CACHE_LOCK:
+        _RAG_CACHE[cache_key] = {
+            "ts": time.time(),
+            "result": result,
+        }
+        _save_rag_cache()
+
+
+def clear_expired_cache() -> None:
+    now = time.time()
+    changed = False
+
+    with _CACHE_LOCK:
+        keys_to_delete = []
+        for k, v in _RAG_CACHE.items():
+            ts = v.get("ts", 0)
+            if not isinstance(ts, (int, float)) or now - ts > CACHE_TTL_SECONDS:
+                keys_to_delete.append(k)
+
+        for k in keys_to_delete:
+            _RAG_CACHE.pop(k, None)
+            changed = True
+
+        if changed:
+            _save_rag_cache()
 
 
 def _normalize_text(s: Any) -> str:
@@ -466,6 +604,9 @@ DOCS = load_knowledge_base()
 DOC_EMBEDDINGS = MODEL.encode([doc["_search_text"] for doc in DOCS], convert_to_numpy=True)
 DOC_ID_TO_INDEX = {doc["id"]: idx for idx, doc in enumerate(DOCS)}
 
+# Chargement cache au démarrage
+_RAG_CACHE = _load_rag_cache()
+clear_expired_cache()
 
 def retrieve_knowledge(
     title: str,
@@ -478,6 +619,22 @@ def retrieve_knowledge(
     top_k: int = 2,
     min_score: float = 0.60,
 ) -> List[Dict[str, Any]]:
+    cache_key = _make_cache_key(
+        title=title,
+        description=description,
+        owasp=owasp,
+        cwe=cwe,
+        technology=technology,
+        component=component,
+        reference=reference,
+        top_k=top_k,
+        min_score=min_score,
+    )
+
+    cached = _get_cached_result(cache_key)
+    if cached is not None:
+        return cached
+
     try:
         query_blob = " ".join([
             str(title or ""),
@@ -504,6 +661,8 @@ def retrieve_knowledge(
             print("Query title:", title)
             for x in out:
                 print("Selected:", x.get("title"), "| score =", x.get("score"))
+
+            _set_cached_result(cache_key, out)
             return out
 
         # 2) Exact match title / alias
@@ -519,6 +678,8 @@ def retrieve_knowledge(
             print("Query title:", title)
             for x in out:
                 print("Selected:", x.get("title"), "| score =", x.get("score"))
+
+            _set_cached_result(cache_key, out)
             return out
 
         # 3) Préfiltre keyword large
@@ -581,13 +742,12 @@ def retrieve_knowledge(
             print("\n=== RAG VALIDATED RESULTS ===")
             for r in final[:top_k]:
                 print(" -", r.get("title"), "| score =", r.get("score"))
-            return final[:top_k]
 
-        # ─── CORRECTION : return [] supprimé ici ─────────────────────────────
-        # Avant : return [] bloquait l'accès au fallback (code mort)
-        # Maintenant : on tombe dans le fallback si aucun doc validé
+            final = final[:top_k]
+            _set_cached_result(cache_key, final)
+            return final
 
-        # 6) Fallback — résultats par score embedding seul
+        # 6) Fallback — résultats par score
         print("\n=== RAG FALLBACK RESULTS ===")
         print("Query title:", title)
         print("No validated document found. Trying score-based fallback.")
@@ -598,7 +758,9 @@ def retrieve_knowledge(
         for r in final[:top_k]:
             print(" -", r.get("title"), "| score =", r.get("score"))
 
-        return final[:top_k]
+        final = final[:top_k]
+        _set_cached_result(cache_key, final)
+        return final
 
     except Exception as e:
         print(f"⚠️ Erreur retrieve_knowledge: {e}")

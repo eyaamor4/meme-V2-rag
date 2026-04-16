@@ -1,3 +1,0 @@
-**C - Plan de remédiation**
-1. Content Security Policy (CSP) Header Not Set : Ajouter la directive CSP dans les en-têtes HTTP pour renforcer la sécurité contre certains types d'attaques.
-2. Sub Resource Integrity Attribute Missing : Ajouter l'attribut integrity sur les balises script ou link qui sont servies par un serveur externe, afin de prévenir des modifications malveillantes.

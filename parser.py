@@ -58,6 +58,33 @@ def normalize_severity(sev: Optional[str]) -> str:
     }
     return mapping.get(s, s)
 
+def get_owasp_from_source_tags(f: Dict[str, Any]) -> str | None:
+    raw = f.get("raw")
+    if not isinstance(raw, dict):
+        return None
+
+    tags = raw.get("tags")
+    if not isinstance(tags, dict):
+        return None
+
+    mapping = {
+        "OWASP_2021_A01": "A01:2021 - Broken Access Control",
+        "OWASP_2021_A02": "A02:2021 - Cryptographic Failures",
+        "OWASP_2021_A03": "A03:2021 - Injection",
+        "OWASP_2021_A04": "A04:2021 - Insecure Design",
+        "OWASP_2021_A05": "A05:2021 - Security Misconfiguration",
+        "OWASP_2021_A06": "A06:2021 - Vulnerable and Outdated Components",
+        "OWASP_2021_A07": "A07:2021 - Identification and Authentication Failures",
+        "OWASP_2021_A08": "A08:2021 - Software and Data Integrity Failures",
+        "OWASP_2021_A09": "A09:2021 - Security Logging and Monitoring Failures",
+        "OWASP_2021_A10": "A10:2021 - Server-Side Request Forgery",
+    }
+
+    for key, value in mapping.items():
+        if key in tags:
+            return value
+
+    return None
 
 def confidence_rank(conf: Optional[str]) -> int:
     """Higher is better."""
@@ -296,15 +323,15 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
             # ✅ CORRECTION ICI — ajuster priorité selon matched_version
             if matched_version is True:
                 effective_priority = severity_to_priority(sev)
-                note = "✅ Vulnérabilité confirmée sur votre installation"
+                note = "Correspondance module/version détectée — validation manuelle recommandée"
 
             elif matched_version is False:
                 effective_priority = "P4"
-                note = "⚠️ Faux positif probable — version non confirmée"
+                note = "Vulnérabilité potentielle non confirmée — version exacte non vérifiée"
 
             else:  # matched_version = None (absent du JSON)
                 effective_priority = severity_to_priority(sev)
-                note = "ℹ️ Version non vérifiable — traiter selon la severity"
+                note = "Version non vérifiable — analyse complémentaire recommandée"
             # ✅ CORRECTION — avant le item = {...}
             # Convertir module_name liste → string lisible
 
@@ -344,22 +371,36 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
             
 
     # --- Nuclei parsed results ---
+
     for r in safe_list(safe_get(scan, "nuclei_scan", "parsed_results")):
         if not isinstance(r, dict):
             continue
         sev = normalize_severity(r.get("severity"))
-        findings.append(
-            {
-                "source": "nuclei",
-                "title": r.get("name"),
-                "severity": sev,
-                "priority": severity_to_priority(sev),
-                "url": r.get("host"),
-                "evidence": r.get("details"),
-                "kind": classify_finding_kind(sev),
-                "raw": r,
-            }
-        )
+        name = r.get("name") or ""
+        host = r.get("host") or ""
+        details = r.get("details")
+
+        # ✅ CORRECTION : construire un titre unique pour éviter la dédup abusive
+        # Ex: "tls-version:tls12" et "tls-version:tls13" restent 2 findings distincts
+        detail_str = ""
+        if isinstance(details, str) and details.strip():
+            detail_str = details.strip()[:60]
+        elif isinstance(details, list) and details:
+            detail_str = str(details[0]).strip()[:60]
+
+        unique_title = f"{name}:{detail_str}" if detail_str else name
+
+        findings.append({
+            "source": "nuclei",
+            "title": unique_title,       # ✅ clé de dédup unique
+            "display_title": name,       # ✅ titre lisible pour affichage/rapport
+            "severity": sev,
+            "priority": severity_to_priority(sev),
+            "url": host,
+            "evidence": details,
+            "kind": classify_finding_kind(sev),
+            "raw": r,
+        })
 
     # --- ZAP ---
   

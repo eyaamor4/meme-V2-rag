@@ -1,3 +1,4 @@
+
 import json
 import re
 import os
@@ -9,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from groq import Groq
 
 from prompts import REPORT_PROMPT
-from parser import classify_finding_kind, normalize_severity
+from parser import classify_finding_kind, get_owasp_from_source_tags, normalize_severity
 from nvd import enrich_cves
 from owasp import map_owasp
 from rag_vector import retrieve_knowledge
@@ -93,7 +94,7 @@ def ollama_run(prompt: str) -> str:
 
         # Rate limit → attendre et réessayer une fois
         if "rate_limit" in error_msg.lower() or "429" in error_msg:
-            print(f"⚠️ Rate limit Groq atteint — attente 60s puis réessai...")
+            print("⚠️ Rate limit Groq atteint — attente 60s puis réessai...")
             time.sleep(60)
             return ollama_run(prompt)
 
@@ -122,12 +123,42 @@ def _prepare_single_finding(args: tuple) -> tuple:
     shown_title = raw_title if source == "cve" else display_title
     cve_id = f.get("cve_id") or (raw_title if raw_title.upper().startswith("CVE-") else None)
 
-    owasp_category = map_owasp(
+    raw_module = f.get("module_name")
+    if isinstance(raw_module, list):
+        module_name_value = ", ".join(str(x).strip() for x in raw_module if str(x).strip())
+    else:
+        module_name_value = str(raw_module or "").strip() or "Non fourni"
+
+    source_owasp = get_owasp_from_source_tags(f)
+
+    mapped_owasp = map_owasp(
         title=shown_title,
         description=description if description != "Non fourni" else "",
         cwe=f.get("cwe"),
         cve_id=cve_id,
     )
+
+    # ✅ fallback OWASP si map_owasp ne trouve rien
+    if mapped_owasp == "Non fourni":
+        cwe_name = str(f.get("cwe_name") or "").lower()
+        raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
+        cwe_name_raw = str(raw.get("cwe_name") or "").lower()
+        combined = f"{cwe_name} {cwe_name_raw} {description.lower()} {shown_title.lower()}"
+
+        if "sql" in combined or "injection" in combined:
+            mapped_owasp = "A03:2021 - Injection"
+        elif "xss" in combined or "cross-site scripting" in combined or "cross site scripting" in combined:
+            mapped_owasp = "A03:2021 - Injection"
+        elif "csrf" in combined or "cross-site request forgery" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "access control" in combined or "authorization" in combined or "forceful browsing" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "redirect" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "integrity" in combined:
+            mapped_owasp = "A08:2021 - Software and Data Integrity Failures"
+
+    owasp_category = mapped_owasp if mapped_owasp != "Non fourni" else (source_owasp or "Non fourni")
 
     rag_context = {}
     if needs_rag(shown_title, description):
@@ -138,13 +169,33 @@ def _prepare_single_finding(args: tuple) -> tuple:
                 owasp=owasp_category,
                 cwe=str(f.get("cwe") or ""),
                 technology=str(metadata.get("cms") or f.get("source") or ""),
-                component=str(f.get("param") or f.get("kind") or ""),
+                component=module_name_value if module_name_value != "Non fourni" else str(f.get("param") or f.get("kind") or ""),
                 reference=str(f.get("reference") or ""),
-                top_k=1,
+                top_k=3,
                 min_score=0.80,
             )
+
+            is_confirmed_cve = (source == "cve" and f.get("matched_version") is True)
+            module_name_for_filter = module_name_value.lower() if module_name_value != "Non fourni" else ""
+
+            if is_confirmed_cve and rag_docs:
+                filtered = []
+                for doc in rag_docs:
+                    text_blob = json.dumps(doc, ensure_ascii=False).lower()
+
+                    if cve_id and cve_id.lower() in text_blob:
+                        filtered.append(doc)
+                        continue
+
+                    if module_name_for_filter and module_name_for_filter in text_blob:
+                        filtered.append(doc)
+                        continue
+
+                rag_docs = filtered[:1]
+
             if rag_docs:
-                rag_context = _drop_empty_fields(compress_rag_context(rag_docs))
+                rag_context = _drop_empty_fields(compress_rag_context(rag_docs[:1]))
+
         except Exception as e:
             print(f"⚠️ RAG erreur pour '{shown_title}': {e}")
 
@@ -153,13 +204,57 @@ def _prepare_single_finding(args: tuple) -> tuple:
         urls = [u.strip() for u in str(ref).split("\n") if u.strip()]
         ref = urls
 
-    return idx, {
+    row = {
         "title": shown_title,
         "description": description,
         "reference": ref,
         "owasp_category": owasp_category,
         "rag_context": rag_context,
+        "source": f.get("source") or "Non fourni",
+        "module_name": module_name_value,
+        "matched_version": f.get("matched_version"),
+        "matched_module": f.get("matched_module"),
+        "note": f.get("note") or "—",
+        "severity": f.get("severity") or "Non fourni",
+        "priority": f.get("priority") or "P5",
+        "risk": f.get("risk") or "—",
+        "confidence": f.get("confidence") or "—",
+        "param": f.get("param") or "",
+        "alertRef": f.get("alertRef") or "",
+        "cwe": f.get("cwe") or "",
+        "cve_id": cve_id or "",
+        "published": f.get("published") or "",
     }
+
+    # ✅ Délai basé sur la sévérité réelle
+    if source == "cve" and f.get("matched_version") is True:
+        sev = normalize_severity(f.get("severity"))
+        if sev in {"critical"}:
+            remediation_delay = "sous 24h"
+        elif sev in {"high"}:
+            remediation_delay = "7 jours"
+        elif sev == "medium":
+            remediation_delay = "30 jours"
+        else:
+            remediation_delay = "60 jours"
+
+        if module_name_value != "Non fourni":
+            row["forced_recommendation"] = (
+                f"Version confirmée comme vulnérable — correction requise sous {remediation_delay}. "
+                f"Mettre à jour ou corriger le composant {module_name_value} selon le correctif fournisseur."
+            )
+        else:
+            row["forced_recommendation"] = (
+                f"Version confirmée comme vulnérable — correction requise sous {remediation_delay}. "
+                "Mettre à jour le composant affecté selon le correctif fournisseur."
+            )
+        row["remediation_delay"] = remediation_delay
+
+    cvss = f.get("cvss")
+    if cvss not in (None, "", "Non fourni"):
+        row["cvss"] = cvss
+
+    return idx, row
 
 
 def make_llm_rows_parallel(
@@ -187,10 +282,10 @@ def make_llm_rows_parallel(
 
 
 # ============================================================
-#  FONCTIONS UTILITAIRES (identiques à l'original)
+#  FONCTIONS UTILITAIRES
 # ============================================================
 
-def _compact_evidence(ev: Any, max_items: int = 6, max_chars: int = 260) -> str:
+def _compact_evidence(ev: Any, max_items: int = 6, max_chars: int = 6000) -> str:
     if ev is None:
         return "Non fourni"
     if isinstance(ev, list):
@@ -235,23 +330,34 @@ def compute_priority(f: Dict[str, Any]) -> str:
     matched_version = f.get("matched_version")
 
     base_score = 0
-    if sev == "critical":   base_score += 90
-    elif sev == "high":     base_score += 70
-    elif sev == "medium":   base_score += 50
-    elif sev == "low":      base_score += 30
-    else:                   base_score += 10
+    if sev == "critical":
+        base_score += 90
+    elif sev == "high":
+        base_score += 70
+    elif sev == "medium":
+        base_score += 50
+    elif sev == "low":
+        base_score += 30
+    else:
+        base_score += 10
 
-    if conf == "high":      base_score += 15
-    elif conf == "medium":  base_score += 8
+    if conf == "high":
+        base_score += 15
+    elif conf == "medium":
+        base_score += 8
 
     if isinstance(cvss, (int, float)):
         base_score += min(int(cvss), 10)
 
     prio_base = "P5"
-    if base_score >= 90:    prio_base = "P1"
-    elif base_score >= 75:  prio_base = "P2"
-    elif base_score >= 55:  prio_base = "P3"
-    elif base_score >= 35:  prio_base = "P4"
+    if base_score >= 90:
+        prio_base = "P1"
+    elif base_score >= 75:
+        prio_base = "P2"
+    elif base_score >= 55:
+        prio_base = "P3"
+    elif base_score >= 35:
+        prio_base = "P4"
 
     if matched_version is False:
         if prio_base in {"P1", "P2", "P3"}:
@@ -281,11 +387,19 @@ def _fingerprint(f: Dict[str, Any]) -> str:
     cwe = f.get("cwe") or raw.get("cweid")
     alert_ref = f.get("alertRef") or raw.get("alertRef")
 
-    if cve_id:          return f"cve:{cve_id}"
-    if raw_cve_id:      return f"cve:{raw_cve_id}"
+    if cve_id:
+        return f"cve:{cve_id}"
+    if raw_cve_id:
+        return f"cve:{raw_cve_id}"
     if src == "zap" and alert_ref:
-                        return f"zap:{_norm(alert_ref)}"
-    if cwe:             return f"cwe:{_norm(cwe)}:{display_title or title}"
+        return f"zap:{_norm(alert_ref)}"
+    if cwe:
+        return f"cwe:{_norm(cwe)}:{display_title or title}"
+
+    if src == "nuclei":
+        host = _norm(f.get("url") or "")
+        return f"nuclei:{title}:{host}"
+
     return f"title:{display_title or title}"
 
 
@@ -339,9 +453,11 @@ def _llm_item_key(row: Dict[str, Any]) -> str:
     title = row.get("title")
     ref_text = " ".join(str(x) for x in ref if x) if isinstance(ref, list) else str(ref or "")
     m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", ref_text, flags=re.IGNORECASE)
-    if m: return m.group(0).upper()
+    if m:
+        return m.group(0).upper()
     m2 = re.search(r"\bCVE-\d{4}-\d{4,7}\b", str(title or ""), flags=re.IGNORECASE)
-    if m2: return m2.group(0).upper()
+    if m2:
+        return m2.group(0).upper()
     return _norm(title)
 
 
@@ -349,7 +465,8 @@ def dedupe_llm_rows(rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     seen, unique = set(), []
     for row in rows:
         key = _llm_item_key(row) or _norm(json.dumps(row, ensure_ascii=False, sort_keys=True))
-        if key in seen: continue
+        if key in seen:
+            continue
         seen.add(key)
         unique.append(row)
     return unique
@@ -378,10 +495,12 @@ def compress_rag_context(rag_docs):
             selected_titles.append(title)
         for x in doc.get("technical_actions", []) or []:
             x = str(x).strip()
-            if x and x not in technical_actions: technical_actions.append(x)
+            if x and x not in technical_actions:
+                technical_actions.append(x)
         for x in doc.get("verification_steps", []) or []:
             x = str(x).strip()
-            if x and x not in verification_steps: verification_steps.append(x)
+            if x and x not in verification_steps:
+                verification_steps.append(x)
     return {
         "selected_rag_titles": selected_titles[:2],
         "technical_actions": technical_actions[:5],
@@ -395,21 +514,54 @@ def _drop_empty_fields(d: Dict[str, Any]) -> Dict[str, Any]:
 
 def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
     sev = normalize_severity(f.get("severity"))
+
+    priority = f.get("priority")
+    if not priority or priority == "Non fourni":
+        priority = compute_priority(f)
+
     description = f.get("description") or "Non fourni"
     raw_title = f.get("title") or "Non fourni"
     display_title = f.get("display_title") or raw_title
     source = str(f.get("source") or "").strip().lower()
     shown_title = display_title if source == "cve" and display_title != raw_title else display_title
     cve_id = f.get("cve_id") or (raw_title if raw_title.upper().startswith("CVE-") else None)
+    source_owasp = get_owasp_from_source_tags(f)
 
     ref_a = f.get("reference") or f.get("cve_link") or "Non fourni"
     if ref_a and "\n" in str(ref_a):
         ref_a = str(ref_a).split("\n")[0].strip()
 
+    mapped_owasp = map_owasp(
+        title=shown_title,
+        description=description if description != "Non fourni" else "",
+        cwe=f.get("cwe"),
+        cve_id=cve_id,
+    )
+
+    # ✅ même fallback OWASP dans l’annexe
+    if mapped_owasp == "Non fourni":
+        cwe_name = str(f.get("cwe_name") or "").lower()
+        raw = f.get("raw") if isinstance(f.get("raw"), dict) else {}
+        cwe_name_raw = str(raw.get("cwe_name") or "").lower()
+        combined = f"{cwe_name} {cwe_name_raw} {description.lower()} {shown_title.lower()}"
+
+        if "sql" in combined or "injection" in combined:
+            mapped_owasp = "A03:2021 - Injection"
+        elif "xss" in combined or "cross-site scripting" in combined or "cross site scripting" in combined:
+            mapped_owasp = "A03:2021 - Injection"
+        elif "csrf" in combined or "cross-site request forgery" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "access control" in combined or "authorization" in combined or "forceful browsing" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "redirect" in combined:
+            mapped_owasp = "A01:2021 - Broken Access Control"
+        elif "integrity" in combined:
+            mapped_owasp = "A08:2021 - Software and Data Integrity Failures"
+
     row = {
         "title": shown_title,
         "severity": sev,
-        "priority": f.get("priority", "Non fourni"),
+        "priority": priority,
         "risk": f.get("risk") or "—",
         "confidence": f.get("confidence") or "—",
         "source": f.get("source", "Non fourni"),
@@ -418,12 +570,7 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
         "description": description,
         "evidence": _compact_evidence(f.get("evidence") or f.get("param")),
         "reference": ref_a,
-        "owasp_category": map_owasp(
-            title=shown_title,
-            description=description if description != "Non fourni" else "",
-            cwe=f.get("cwe"),
-            cve_id=cve_id,
-        ),
+        "owasp_category": mapped_owasp if mapped_owasp != "Non fourni" else (source_owasp or "Non fourni"),
         "alertRef": f.get("alertRef") or "",
         "note": f.get("note") or "—",
     }
@@ -478,10 +625,12 @@ def inject_cvss_in_section_b(report_text: str, top_findings: List[Dict[str, Any]
         output.append(line)
         for f in top_findings:
             cvss = f.get("cvss")
-            if cvss in (None, "", "Non fourni"): continue
+            if cvss in (None, "", "Non fourni"):
+                continue
             title = f.get("title") or ""
             fid = id(f)
-            if fid in injected: continue
+            if fid in injected:
+                continue
             if title and title in line:
                 indent = re.match(r"^(\s*)", line).group(1)
                 output.append(f"{indent}* Score CVSS : {cvss}")
@@ -496,10 +645,12 @@ def inject_param_in_section_b(report_text: str, top_findings: List[Dict[str, Any
         output.append(line)
         for f in top_findings:
             param = f.get("param")
-            if not param or str(param).strip() in ("—", "", "Non fourni"): continue
+            if not param or str(param).strip() in ("—", "", "Non fourni"):
+                continue
             title = f.get("title") or ""
             fid = id(f)
-            if fid in injected: continue
+            if fid in injected:
+                continue
             if title and title in line:
                 indent = re.match(r"^(\s*)", line).group(1)
                 output.append(f"{indent}* **Paramètre/Ressource affecté(e) :** `{param}`")
@@ -520,33 +671,41 @@ def split_section_b_items(section_b: str) -> List[str]:
     lines, items, current = section_b.splitlines(), [], []
     for line in lines:
         if re.match(r"^\s*\d+\.\s+\*\*.*\*\*", line):
-            if current: items.append("\n".join(current).strip())
+            if current:
+                items.append("\n".join(current).strip())
             current = [line]
         else:
-            if current: current.append(line)
-    if current: items.append("\n".join(current).strip())
+            if current:
+                current.append(line)
+    if current:
+        items.append("\n".join(current).strip())
     return items
 
 
 def _dedup_key_from_llm_item(item: str) -> str:
     m = re.search(r"\bCVE-\d{4}-\d{4,7}\b", item, flags=re.IGNORECASE)
-    if m: return m.group(0).upper()
+    if m:
+        return m.group(0).upper()
     title_match = re.search(r"^\s*\d+\.\s+\*\*(.*?)\*\*", item, flags=re.MULTILINE)
-    if title_match: return _norm(title_match.group(1))
+    if title_match:
+        return _norm(title_match.group(1))
     return _norm(item)
 
 
 def dedupe_section_b(report_text: str) -> str:
     section_b = extract_section_b(report_text)
-    if not section_b: return report_text
+    if not section_b:
+        return report_text
     items = split_section_b_items(section_b)
     seen, unique_items = set(), []
     for item in items:
         key = _dedup_key_from_llm_item(item)
-        if key in seen: continue
+        if key in seen:
+            continue
         seen.add(key)
         unique_items.append(item)
-    if not unique_items: return report_text
+    if not unique_items:
+        return report_text
     header_match = re.match(r"^\*\*B\s*-\s*Vulnérabilités Prioritaires\*\*", section_b, flags=re.IGNORECASE)
     header = header_match.group(0) if header_match else "**B - Vulnérabilités Prioritaires**"
     rebuilt = [header, ""]
@@ -558,23 +717,104 @@ def dedupe_section_b(report_text: str) -> str:
 
 def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
     source = str(f.get("source") or "").strip().lower()
-    if source in {"cve", "nuclei", "cms_scan"}: return True
+    if source in {"cve", "nuclei", "cms_scan"}:
+        return True
     return str(f.get("confidence") or "").strip().lower() in {"high", "medium"}
 
 
-def compute_risk_score(findings: List[Dict[str, Any]]) -> Dict[str, Any]:
-    weights = {"critical": 40, "high": 30, "medium": 15, "low": 5, "info": 0}
-    total = sum(
-        weights.get(normalize_severity(f.get("severity")), 0)
-        for f in findings if f.get("priority") in {"P1", "P2", "P3"}
+def compute_risk_score(findings: List[Dict[str, Any]], source_level: str = "medium") -> Dict[str, Any]:
+    severity_points = {
+        "critical": 40,
+        "high": 22,
+        "medium": 10,
+        "low": 4,
+        "info": 0,
+    }
+
+    def reliability_multiplier(f: Dict[str, Any]) -> float:
+        source = str(f.get("source") or "").strip().lower()
+        severity = normalize_severity(f.get("severity"))
+
+        if source == "cve" and f.get("matched_version") is False:
+            return 0.15
+
+        if source == "cve" and f.get("matched_version") is True:
+            return 1.0
+
+        if severity == "info":
+            return 0.0
+
+        return 1.0
+
+    counts = {"critical": 0, "high": 0, "medium": 0, "low": 0, "info": 0}
+    total = 0.0
+
+    for f in findings:
+        severity = normalize_severity(f.get("severity"))
+        counts[severity] = counts.get(severity, 0) + 1
+
+        if severity == "info":
+            continue
+
+        base = severity_points.get(severity, 0)
+        total += base * reliability_multiplier(f)
+
+    # Bonus léger de densité
+    if counts["medium"] >= 4:
+        total += 5
+    if counts["high"] >= 2:
+        total += 8
+    if counts["critical"] >= 1 and counts["high"] >= 1:
+        total += 10
+
+    score = min(round(total), 100)
+
+    source_level_norm = str(source_level or "").strip().lower()
+
+    # garde-fous
+    if counts["critical"] == 0 and counts["high"] == 0:
+        score = min(score, 60)
+
+    if source_level_norm == "medium" and counts["critical"] == 0 and counts["high"] == 0:
+        score = min(score, 60)
+
+    if counts["critical"] == 0 and counts["high"] == 0 and counts["medium"] == 0:
+        score = min(score, 25)
+
+    # ✅ empêcher CRITIQUE trop facilement
+    has_confirmed_critical = any(
+        normalize_severity(f.get("severity")) == "critical" and f.get("matched_version") is True
+        for f in findings
     )
-    score = min(total, 100)
-    level = "CRITIQUE" if score >= 70 else "ÉLEVÉ" if score >= 50 else "MODÉRÉ" if score >= 30 else "FAIBLE"
-    return {"score": score, "level": level}
+
+    has_confirmed_high = any(
+        normalize_severity(f.get("severity")) == "high" and (
+            str(f.get("source") or "").lower() != "cve" or f.get("matched_version") is True
+        )
+        for f in findings
+    )
+
+    if not has_confirmed_critical and not has_confirmed_high:
+        score = min(score, 84)
+
+    if score >= 85:
+        level = "CRITIQUE"
+    elif score >= 61:
+        level = "ÉLEVÉ"
+    elif score >= 31:
+        level = "MODÉRÉ"
+    else:
+        level = "FAIBLE"
+
+    return {
+        "score": score,
+        "level": level,
+        "counts": counts,
+    }
 
 
 # ============================================================
-#  FONCTION PRINCIPALE (logique métier inchangée)
+#  FONCTION PRINCIPALE
 # ============================================================
 
 def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n: int = 15) -> str:
@@ -598,27 +838,60 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     # ── ÉTAPE 3 : SÉPARATION matched_version ─────────────────────
     unconfirmed_cves, other_findings = [], []
     for f in findings:
-        if str(f.get("source") or "").lower() == "cve" and f.get("matched_version") is False:
+        source = str(f.get("source") or "").lower()
+        is_unconfirmed_cve = source == "cve" and f.get("matched_version") is False
+        sev = normalize_severity(f.get("severity"))
+        # CVEs HIGH/CRITICAL non confirmées → restent dans other_findings pour section B
+        if is_unconfirmed_cve and sev not in {"high", "critical"}:
             unconfirmed_cves.append(f)
         else:
             other_findings.append(f)
 
     # ── ÉTAPE 4 : BASE OFFICIELLE ────────────────────────────────
     reportable_vulns = [f for f in other_findings if normalize_severity(f.get("severity")) != "info"]
-    reportable_info  = [f for f in other_findings if normalize_severity(f.get("severity")) == "info"]
+    reportable_info = [f for f in other_findings if normalize_severity(f.get("severity")) == "info"]
 
     # ── ÉTAPE 5 : COMPTAGES ──────────────────────────────────────
     computed_counts = compute_summary(reportable_vulns)
-    risk_level_map = {"critical": "CRITIQUE", "high": "ÉLEVÉ", "medium": "MODÉRÉ", "low": "FAIBLE"}
-    risk_data = {
-        "score": "—",
-        "level": risk_level_map.get((metadata.get("risk_level") or "medium").lower(), "MODÉRÉ"),
-    }
+    info_count = len(reportable_info)
+
+    risk_data = compute_risk_score(
+        reportable_vulns,
+        source_level=metadata.get("risk_level") or "medium"
+    )
+
+    json_counts = metadata.get("severity_counts") or {}
+    if json_counts:
+        divergence_found = False
+        for sev_key in ["critical", "high", "medium", "low"]:
+            json_val = json_counts.get(sev_key, 0)
+            computed_val = computed_counts.get(sev_key, 0)
+            if json_val != computed_val:
+                if not divergence_found:
+                    print("\n⚠️  DIVERGENCE severity_counts JSON vs Calculé :")
+                    divergence_found = True
+                print(f"   '{sev_key}': JSON={json_val} | Calculé={computed_val}")
+        if not divergence_found:
+            print("✅ severity_counts JSON == Calculé")
 
     # ── ÉTAPE 6 : FILTRAGE SECTION B ─────────────────────────────
+    def _force_section_b(f: Dict[str, Any]) -> bool:
+        """CVE confirmée OU CVE HIGH/CRITICAL non confirmée → toujours dans section B."""
+        source = str(f.get("source") or "").lower()
+        if source != "cve":
+            return False
+        if f.get("matched_version") is True:
+            return True
+        sev = normalize_severity(f.get("severity"))
+        return sev in {"high", "critical"}
+
     prioritized_for_section_b = [
         f for f in reportable_vulns
-        if str(f.get("priority")) in {"P1", "P2", "P3"} and _is_conf_ok_for_section_b(f)
+        if (
+            str(f.get("priority")) in {"P1", "P2", "P3"}
+            and _is_conf_ok_for_section_b(f)
+        )
+        or _force_section_b(f)
     ]
     print(f"\nSection B — après filtre confidence : {len(prioritized_for_section_b)}")
 
@@ -636,16 +909,34 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     annexe_unconfirmed_md = build_annexe_table(annexe_unconfirmed_rows)
     annexe_md = build_annexe_table(all_annexe_rows)
 
+    nb_unconfirmed = len(unconfirmed_cves)
+
+    nb_high_unconfirmed = sum(
+        1 for f in findings
+        if str(f.get("source") or "").lower() == "cve"
+        and f.get("matched_version") is False
+        and normalize_severity(f.get("severity")) in {"high", "critical"}
+    )
+
     print(f"Total findings annexe : {len(all_annexe_rows)} | CVE non confirmées : {len(annexe_unconfirmed_rows)}")
 
-    # ── ÉTAPE 8 : GÉNÉRATION DU PROMPT (identique à l'original) ──
+    # Détecter le secteur depuis l'URL cible
+    target_url = metadata.get("target_url") or ""
+    sector = "Non fourni"
+    regulatory_context = "Non fourni"
+
+    banking_keywords = ["bank", "banque", "credit", "finance", "biat", "stb", "bh ", "bnp", "atb"]
+    if any(kw in target_url.lower() for kw in banking_keywords):
+        sector = "Secteur bancaire / financier"
+        regulatory_context = "BCT (Banque Centrale de Tunisie), circulaire n°2021-05 sur la cybersécurité, PCI-DSS si paiement en ligne"
+
+    # ── ÉTAPE 8 : GÉNÉRATION DU PROMPT ───────────────────────────
     prompt = REPORT_PROMPT.format(
         scan_id=metadata.get("scan_id") or "Non fourni",
         target_url=metadata.get("target_url") or "Non fourni",
         cms=metadata.get("cms") or "Non fourni",
         cms_version=metadata.get("cms_version") or "Non fourni",
         mode=metadata.get("mode") or "Non fourni",
-        risk_level=metadata.get("risk_level") or "Non fourni",
         total_vulnerabilities=len(reportable_vulns),
         created_at=metadata.get("created_at") or "Non fourni",
         scan_time_sec=metadata.get("scan_time_sec") if metadata.get("scan_time_sec") is not None else "Non fourni",
@@ -654,8 +945,13 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         total_findings_extraits=len(reportable_vulns),
         top_findings_json=json.dumps(top_llm_rows, ensure_ascii=False, indent=2),
         nb_prioritaires=len(top_llm_rows),
-        risk_score=risk_data["score"],
+        
         risk_level_computed=risk_data["level"],
+        nb_unconfirmed=nb_unconfirmed,
+        risk_level_source=metadata.get("risk_level") or "Non fourni",
+        nb_high_unconfirmed=nb_high_unconfirmed,
+        sector=sector,
+        regulatory_context=regulatory_context,
     )
 
     with open("debug_prompt.txt", "w", encoding="utf-8") as f:
@@ -664,11 +960,11 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
 
     # ── ÉTAPE 9 : GÉNÉRATION LLM via Groq ────────────────────────
     start_llm = time.time()
-    narrative = ollama_run(prompt)   # même interface, maintenant appelle Groq
+    narrative = ollama_run(prompt)
     llm_seconds = time.time() - start_llm
     print(f"⚡ Temps génération Groq : {llm_seconds:.2f}s ({llm_seconds/60:.2f} min)")
 
-    # ── ÉTAPE 10 : POST-TRAITEMENTS (inchangés) ───────────────────
+    # ── ÉTAPE 10 : POST-TRAITEMENTS ──────────────────────────────
     narrative = strip_llm_cvss_lines(narrative)
     narrative = dedupe_section_b(narrative)
     narrative = inject_cvss_in_section_b(narrative, top_findings)
@@ -677,26 +973,61 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
 
     # ── ÉTAPE 11 : TABLEAU DE SYNTHÈSE ───────────────────────────
     sev = computed_counts
-    summary_table = f"""
-## Tableau de synthèse des vulnérabilités
+    unconfirmed_counts = compute_summary(unconfirmed_cves)
 
-| 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
-|:---:|:---:|:---:|:---:|:---:|
-| {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {len(reportable_info)} |
+    if nb_unconfirmed > 0:
+        summary_table = f"""
+    ## Tableau de synthèse des vulnérabilités
 
-**Éléments techniques listés en annexe :** {len(findings)} | **Vulnérabilités retenues dans le rapport :** {len(reportable_vulns)} | **Prioritaires (section B) :** {len(top_llm_rows)}
-"""
+    > **Note méthodologique :** Ce tableau comptabilise les vulnérabilités retenues dans le rapport principal après déduplication.
+    > Les CVEs à version non confirmée sont séparées en Annexe A. Parmi elles, {nb_high_unconfirmed} vulnérabilité(s) HIGH/CRITICAL
+    > figurent en section B à titre d’alerte, avec validation manuelle recommandée.
 
-    # ── ÉTAPE 12 : RAPPORT FINAL ──────────────────────────────────
-    return (
-        narrative.strip()
-        + "\n\n"
-        + summary_table
-        + "\n\n"
-        + "## Annexe A - Vulnérabilités potentielles détectées mais non retenues dans le total principal (version non confirmée)\n\n"
-        + annexe_unconfirmed_md
-        + "\n\n"
-        + "## Annexe B - Liste complète des findings dédupliqués (TOUS)\n\n"
+    | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
+    |:---:|:---:|:---:|:---:|:---:|
+    | {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
+
+     *En sus : {unconfirmed_counts.get('critical', 0)} critique(s), {nb_high_unconfirmed} élevé(s) et {unconfirmed_counts.get('medium', 0)} moyen(s) potentiels détectés (version non confirmée — voir Annexe A)*
+
+    **Niveau de risque global : {risk_data['level']}**
+
+    **Éléments techniques listés en annexe :** {len(findings)} | **Vulnérabilités retenues dans le rapport :** {len(reportable_vulns)} | **Prioritaires (section B) :** {len(top_llm_rows)}**
+
+    > ℹ️ *Les chiffres ci-dessus sont calculés après déduplication.
+    > Le JSON source peut afficher davantage de CVEs brutes, y compris celles non confirmées en version.*
+    """
+    else:
+        summary_table = f"""
+    ## Tableau de synthèse des vulnérabilités
+
+    > **Note méthodologique :** Ce tableau comptabilise les vulnérabilités retenues dans le rapport principal après déduplication.
+
+    | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
+    |:---:|:---:|:---:|:---:|:---:|
+    | {sev.get('critical', 0)} | {sev.get('high', 0)} | {sev.get('medium', 0)} | {sev.get('low', 0)} | {info_count} |
+
+    
+    **Niveau de risque global : {risk_data['level']}**
+
+    **Éléments techniques listés en annexe :** {len(findings)} | **Vulnérabilités retenues dans le rapport :** {len(reportable_vulns)} | **Prioritaires (section B) :** {len(top_llm_rows)}**
+
+    > ℹ️ *Les chiffres ci-dessus sont calculés après déduplication.*
+    """
+
+    # ── ÉTAPE 12 : RAPPORT FINAL ─────────────────────────────────
+    report = narrative.strip() + "\n\n" + summary_table + "\n\n"
+
+    if nb_unconfirmed > 0:
+        report += (
+            "## Annexe A - Vulnérabilités potentielles détectées mais non retenues dans le total principal (version non confirmée)\n\n"
+            + annexe_unconfirmed_md
+            + "\n\n"
+        )
+
+    report += (
+        "## Annexe B - Liste complète des findings dédupliqués (TOUS)\n\n"
         + annexe_md
         + "\n"
     )
+
+    return report
