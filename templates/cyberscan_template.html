@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>CyberScan Report</title>
+  <style>
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    :root {
+      --primary: #1a3a5c;
+      --primary-dark: #0f2540;
+      --accent: #2563eb;
+      --accent-light: #3b82f6;
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0891b2;
+      --muted: #64748b;
+      --text: #1e293b;
+      --text-light: #475569;
+      --border: #e2e8f0;
+      --bg-light: #f8fafc;
+      --bg-lighter: #ffffff;
+      --confirmed-bg: #f0fdf4;
+      --confirmed-border: #16a34a;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Arial', Helvetica, sans-serif;
+      color: var(--text);
+      font-size: 10.5px;
+      line-height: 1.6;
+      background: white;
+    }
+
+    /* ── COVER PAGE ─────────────────────────────────────────── */
+    .cover-page {
+      width: 210mm;
+      height: 297mm;
+      background: linear-gradient(160deg, var(--primary-dark) 0%, var(--primary) 55%, #1e4d8c 100%);
+      display: flex;
+      flex-direction: column;
+      page-break-after: always;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cover-decoration {
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.04);
+    }
+
+    .cover-decoration-2 {
+      position: absolute;
+      bottom: 60px;
+      left: -60px;
+      width: 200px;
+      height: 200px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .cover-top {
+      padding: 14mm 16mm 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cover-logo-area {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .cover-logo-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .cover-logo-icon svg { width: 28px; height: 28px; }
+
+    .cover-brand-name {
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: 0.5px;
+    }
+
+    .cover-brand-sub {
+      color: rgba(255,255,255,0.6);
+      font-size: 10px;
+      margin-top: 1px;
+    }
+
+    .cover-date {
+      color: rgba(255,255,255,0.55);
+      font-size: 9.5px;
+      text-align: right;
+    }
+
+    .cover-middle {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 16mm;
+    }
+
+    .cover-tag {
+      display: inline-block;
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.8);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.15);
+      margin-bottom: 18px;
+      width: fit-content;
+    }
+
+    .cover-title {
+      color: white;
+      font-size: 32px;
+      font-weight: bold;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+
+    .cover-subtitle {
+      color: rgba(255,255,255,0.65);
+      font-size: 13px;
+      margin-bottom: 32px;
+    }
+
+    .cover-divider {
+      width: 60px;
+      height: 3px;
+      background: var(--accent-light);
+      border-radius: 2px;
+      margin-bottom: 28px;
+    }
+
+    .cover-meta-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-width: 380px;
+    }
+
+    .cover-meta-item {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+
+    .cover-meta-label {
+      color: rgba(255,255,255,0.5);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    .cover-meta-value {
+      color: white;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .cover-risk-box {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+
+    .cover-risk-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .cover-risk-dot.low { background: #4ade80; }
+    .cover-risk-dot.moderate { background: #fbbf24; }
+    .cover-risk-dot.high { background: #fb923c; }
+    .cover-risk-dot.critical { background: #f87171; }
+
+    .cover-risk-label-text {
+      color: rgba(255,255,255,0.6);
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .cover-risk-value {
+      color: white;
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .cover-stats-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .cover-stat {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 8px;
+      padding: 10px 14px;
+      text-align: center;
+      flex: 1;
+    }
+
+    .cover-stat-num {
+      color: white;
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .cover-stat-lbl {
+      color: rgba(255,255,255,0.5);
+      font-size: 8.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+
+    .cover-stat-num.crit { color: #f87171; }
+    .cover-stat-num.high-c { color: #fb923c; }
+    .cover-stat-num.med { color: #fbbf24; }
+    .cover-stat-num.low-c { color: #4ade80; }
+    .cover-stat-num.inf { color: #93c5fd; }
+
+    .cover-bottom {
+      padding: 10mm 16mm;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .cover-bottom-text {
+      color: rgba(255,255,255,0.4);
+      font-size: 9px;
+    }
+
+    .cover-confidential {
+      background: rgba(220,38,38,0.2);
+      border: 1px solid rgba(220,38,38,0.3);
+      color: #fca5a5;
+      font-size: 8.5px;
+      font-weight: bold;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ── CONTENT PAGES ──────────────────────────────────────── */
+    .content-wrap {
+      padding: 12mm 14mm 10mm;
+    }
+
+    .page-header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--primary);
+      margin-bottom: 16px;
+    }
+
+    .page-header-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-header-icon {
+      width: 32px;
+      height: 32px;
+      background: var(--primary);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .page-header-icon svg { width: 18px; height: 18px; }
+
+    .page-header-name {
+      font-size: 14px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .page-header-sub {
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .page-header-meta {
+      text-align: right;
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    /* ── SUMMARY HERO ───────────────────────────────────────── */
+    .summary-hero {
+      background: var(--bg-light);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin-bottom: 18px;
+    }
+
+    .summary-hero-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .summary-hero-left h2 {
+      font-size: 13px;
+      color: var(--primary);
+      margin-bottom: 4px;
+      border: none;
+      padding: 0;
+    }
+
+    .summary-hero-left p {
+      font-size: 10px;
+      color: var(--text-light);
+    }
+
+    .risk-pill {
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+      text-align: center;
+      min-width: 110px;
+    }
+
+    .risk-pill.low { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .risk-pill.moderate { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+    .risk-pill.high { background: #fff7ed; color: #ea580c; border: 1px solid #fed7aa; }
+    .risk-pill.critical { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+
+    .risk-pill-label { font-size: 8px; font-weight: normal; display: block; margin-bottom: 2px; opacity: 0.7; text-transform: uppercase; letter-spacing: 0.5px; }
+
+    .stat-cards {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 8px;
+      text-align: center;
+    }
+
+    .stat-card .s-num {
+      font-size: 20px;
+      font-weight: bold;
+      line-height: 1;
+    }
+
+    .stat-card .s-lbl {
+      font-size: 9px;
+      color: var(--muted);
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .s-num.crit { color: #dc2626; }
+    .s-num.hi { color: #ea580c; }
+    .s-num.med { color: #d97706; }
+    .s-num.lo { color: #16a34a; }
+    .s-num.inf { color: #2563eb; }
+
+    /* ── SECTION HEADINGS ───────────────────────────────────── */
+    h2 {
+      font-size: 13px;
+      color: var(--primary);
+      border-left: 4px solid var(--accent);
+      padding-left: 10px;
+      margin: 20px 0 10px;
+      page-break-after: avoid;
+      line-height: 1.3;
+    }
+
+    h3 {
+      font-size: 11.5px;
+      color: var(--primary);
+      margin: 14px 0 6px;
+      page-break-after: avoid;
+    }
+
+    p { margin: 5px 0; }
+
+    /* ── FINDING CARDS ──────────────────────────────────────── */
+    .finding-card {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 12px 0 16px;
+      page-break-inside: avoid;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+
+    .finding-header {
+      display: flex;
+      align-items: stretch;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .finding-severity-bar {
+      width: 5px;
+      flex-shrink: 0;
+    }
+
+    .sev-medium { background: #d97706; }
+    .sev-low { background: #16a34a; }
+    .sev-high { background: #ea580c; }
+    .sev-critical { background: #dc2626; }
+    .sev-info { background: #2563eb; }
+
+    .finding-header-content {
+      flex: 1;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: var(--bg-light);
+    }
+
+    .finding-title {
+      font-size: 12px;
+      font-weight: bold;
+      color: var(--primary);
+    }
+
+    .finding-badges {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .badge {
+      font-size: 9px;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .badge-confirmed { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+    .badge-priority { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
+    .badge-owasp { background: #f8fafc; color: #64748b; border: 1px solid #e2e8f0; font-weight: normal; }
+
+    .finding-body {
+      padding: 12px 14px;
+    }
+
+    .finding-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: flex-start;
+    }
+
+    .finding-row:last-child { margin-bottom: 0; }
+
+    .finding-key {
+      font-weight: bold;
+      color: var(--text);
+      font-size: 10px;
+      min-width: 110px;
+      flex-shrink: 0;
+    }
+
+    .finding-val {
+      color: var(--text-light);
+      font-size: 10px;
+      flex: 1;
+    }
+
+    .finding-sep {
+      height: 1px;
+      background: var(--border);
+      margin: 8px 0;
+    }
+
+    .finding-footer {
+      background: #f8fafc;
+      border-top: 1px solid var(--border);
+      padding: 8px 14px;
+      font-size: 9.5px;
+      color: var(--muted);
+    }
+
+    .finding-footer strong {
+      color: var(--text);
+    }
+
+    code {
+      font-family: 'Courier New', monospace;
+      background: #f1f5f9;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 9.5px;
+      color: #334155;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      border-radius: 6px;
+      padding: 10px 12px;
+      font-size: 9.5px;
+      font-family: 'Courier New', monospace;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+      margin: 6px 0;
+    }
+
+    /* ── REMEDIATION PLAN ───────────────────────────────────── */
+  .remediation-item {
+  position: relative;
+  padding: 10px 72px 10px 48px;
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  page-break-inside: avoid;
+  break-inside: avoid;
+}
+
+.remediation-num {
+  position: absolute;
+  left: 14px;
+  top: 10px;
+  width: 24px;
+  height: 24px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.remediation-content {
+  display: block;
+}
+
+.remediation-title {
+  font-size: 10.5px;
+  font-weight: bold;
+  color: var(--primary);
+  margin-bottom: 2px;
+}
+
+.remediation-action {
+  font-size: 9.5px;
+  color: var(--text-light);
+}
+
+.remediation-delay {
+  position: absolute;
+  right: 14px;
+  top: 10px;
+  font-size: 9px;
+  font-weight: bold;
+  color: white;
+  background: var(--accent);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+    /* ── TABLES ─────────────────────────────────────────────── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 9.5px;
+      table-layout: fixed;
+    }
+
+    thead { display: table-header-group; }
+    tr { page-break-inside: avoid; }
+
+    th {
+      background: var(--primary);
+      color: white;
+      padding: 7px 8px;
+      text-align: left;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      border: 1px solid #1a3a5c;
+    }
+
+    td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      vertical-align: top;
+      overflow-wrap: break-word;
+      word-wrap: break-word;
+    }
+
+    tr:nth-child(even) td { background: var(--bg-light); }
+    tr:nth-child(odd) td { background: white; }
+
+    .table-synthese {
+      width: 70%;
+      margin: 10px auto;
+    }
+
+    .table-synthese th, .table-synthese td {
+      text-align: center;
+    }
+
+    /* Severity colors in table cells */
+    td.sev-badge-medium { color: #d97706; font-weight: bold; }
+    td.sev-badge-low { color: #16a34a; font-weight: bold; }
+    td.sev-badge-high { color: #ea580c; font-weight: bold; }
+    td.sev-badge-critical { color: #dc2626; font-weight: bold; }
+    td.sev-badge-info { color: #2563eb; }
+
+    /* ── CONCLUSION BOX ─────────────────────────────────────── */
+    .conclusion-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+      border: 1px solid #bfdbfe;
+      border-left: 4px solid var(--accent);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 12px 0;
+    }
+
+    .conclusion-box p { color: var(--text); font-size: 10.5px; margin-bottom: 6px; }
+    .conclusion-box p:last-child { margin-bottom: 0; }
+
+    /* ── NOTE BOX ───────────────────────────────────────────── */
+    .note-box {
+      background: #fffbeb;
+      border: 1px solid #fde68a;
+      border-left: 4px solid #d97706;
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-size: 9.5px;
+      color: #92400e;
+      margin: 8px 0;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    .page-footer {
+      margin-top: 20px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 8.5px;
+      color: var(--muted);
+    }
+
+    .page-break { page-break-before: always; }
+
+    ul, ol {
+      padding-left: 18px;
+      margin: 6px 0;
+    }
+
+    li { margin: 3px 0; font-size: 10px; }
+
+    blockquote {
+      margin: 8px 0;
+      padding: 8px 12px;
+      border-left: 3px solid #93c5fd;
+      background: #eff6ff;
+      color: #1e40af;
+      font-size: 9.5px;
+      border-radius: 0 6px 6px 0;
+    }
+
+    strong { color: var(--text); }
+  </style>
+</head>
+<body>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!--  COVER PAGE                                        -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="cover-page">
+    <div class="cover-decoration"></div>
+    <div class="cover-decoration-2"></div>
+
+    <div class="cover-top">
+      <div class="cover-logo-area">
+        <div class="cover-logo-icon">
+          <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M14 2L4 7V14C4 19.55 8.24 24.74 14 26C19.76 24.74 24 19.55 24 14V7L14 2Z" stroke="white" stroke-width="1.8" fill="rgba(255,255,255,0.1)"/>
+            <circle cx="14" cy="14" r="3.5" fill="white"/>
+            <line x1="14" y1="7" x2="14" y2="10.5" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <line x1="14" y1="17.5" x2="14" y2="21" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div>
+          <div class="cover-brand-name">CyberScan</div>
+          <div class="cover-brand-sub">Analyse automatisée des vulnérabilités web</div>
+        </div>
+      </div>
+      <div class="cover-date">
+        <div>{{ scan_date }}</div>
+        <div style="margin-top:2px; font-size:8.5px;">Rapport confidentiel</div>
+      </div>
+    </div>
+
+    <div class="cover-middle">
+      <div class="cover-tag">Rapport de sécurité applicative</div>
+      <div class="cover-title">Vulnerability<br>Assessment Report</div>
+      <div class="cover-subtitle">{{ target_url }}</div>
+      <div class="cover-divider"></div>
+
+      <div class="cover-risk-box">
+        <div class="cover-risk-dot {{ risk_class }}"></div>
+        <div>
+          <div class="cover-risk-label-text">Niveau de risque global</div>
+          <div class="cover-risk-value">{{ risk_label }}</div>
+        </div>
+      </div>
+
+      <div class="cover-stats-row">
+        <div class="cover-stat">
+          <div class="cover-stat-num crit">{{ critique }}</div>
+          <div class="cover-stat-lbl">Critique</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num high-c">{{ eleve }}</div>
+          <div class="cover-stat-lbl">Élevé</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num med">{{ moyen }}</div>
+          <div class="cover-stat-lbl">Moyen</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num low-c">{{ faible }}</div>
+          <div class="cover-stat-lbl">Faible</div>
+        </div>
+        <div class="cover-stat">
+          <div class="cover-stat-num inf">{{ info }}</div>
+          <div class="cover-stat-lbl">Info</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="cover-bottom-text">Généré automatiquement par CyberScan · {{ scan_date }}</div>
+      <div class="cover-confidential">⚠ Confidentiel</div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════ -->
+  <!--  REPORT CONTENT                                    -->
+  <!-- ══════════════════════════════════════════════════ -->
+  <div class="content-wrap">
+
+    <div class="page-header-bar">
+      <div class="page-header-brand">
+        <div class="page-header-icon">
+          <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M9 1L2 4.5V9C2 12.75 5.16 16.24 9 17C12.84 16.24 16 12.75 16 9V4.5L9 1Z" stroke="white" stroke-width="1.5" fill="rgba(255,255,255,0.2)"/>
+            <circle cx="9" cy="9" r="2" fill="white"/>
+          </svg>
+        </div>
+        <div>
+          <div class="page-header-name">CyberScan Report</div>
+          <div class="page-header-sub">Analyse automatisée des vulnérabilités web</div>
+        </div>
+      </div>
+      <div class="page-header-meta">
+        <div><strong>Cible :</strong> {{ target_url }}</div>
+        <div><strong>Date :</strong> {{ scan_date }}</div>
+      </div>
+    </div>
+
+    <!-- Summary hero -->
+    <div class="summary-hero">
+      <div class="summary-hero-top">
+        <div class="summary-hero-left">
+          <h2 style="margin:0 0 4px; font-size:14px;">Rapport de sécurité applicative</h2>
+          <p>Ce document présente les vulnérabilités retenues après analyse, déduplication et consolidation des résultats du scanner.</p>
+        </div>
+        <div class="risk-pill {{ risk_class }}">
+          <span class="risk-pill-label">Risque global</span>
+          {{ risk_label }}
+        </div>
+      </div>
+      <div class="stat-cards">
+        <div class="stat-card">
+          <div class="s-num crit">{{ critique }}</div>
+          <div class="s-lbl">Critique</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-num hi">{{ eleve }}</div>
+          <div class="s-lbl">Élevé</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-num med">{{ moyen }}</div>
+          <div class="s-lbl">Moyen</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-num lo">{{ faible }}</div>
+          <div class="s-lbl">Faible</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-num inf">{{ info }}</div>
+          <div class="s-lbl">Info</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Dynamic content from markdown -->
+    <div class="markdown-content">
+      {{ content }}
+    </div>
+
+    <div class="page-footer">
+      <span>Généré automatiquement par CyberScan</span>
+      <span>Rapport confidentiel — Ne pas distribuer</span>
+      <span>{{ scan_date }}</span>
+    </div>
+
+  </div>
+
+</body>
+</html>

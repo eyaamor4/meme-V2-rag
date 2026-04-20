@@ -1,0 +1,1296 @@
+{
+  "scan_id": "5bbf6d29-4593-40e5-9098-e57ce8fa07d2",
+  "cms": "drupal",
+  "mode": "light",
+  "risk_level": "high",
+  "severity_counts": {
+    "low": 13,
+    "medium": 20,
+    "high": 3,
+    "critical": 0
+  },
+  "total_vulnerabilities": 36,
+  "scan": {
+    "_id": "69b011371f44014fe0e13b11",
+    "scan_id": "5bbf6d29-4593-40e5-9098-e57ce8fa07d2",
+    "cms_scan": {
+      "detected": true,
+      "cms": "drupal",
+      "cves": [
+        {
+          "cve_id": "CVE-2008-6020",
+          "description": "SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal allows remote attackers to execute arbitrary SQL commands via unspecified vectors related to \"an exposed filter on CCK text fields.\"",
+          "severity": "HIGH",
+          "cvss_score": 7.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-89",
+          "cwe_name": "SQL Injection",
+          "module_name": [
+            "views"
+          ],
+          "published": "2009-02-02T22:00:00.280",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2008-6020",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2011-4113",
+          "description": "SQL injection vulnerability in the Views module before 6.x-2.13 for Drupal allows remote attackers to execute arbitrary SQL commands via vectors related to \"filters/arguments on certain types of views with specific configurations of arguments.\"",
+          "severity": "HIGH",
+          "cvss_score": 7.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-89",
+          "cwe_name": "SQL Injection",
+          "module_name": [
+            "views"
+          ],
+          "published": "2012-02-17T23:55:01.823",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2011-4113",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2024-13254",
+          "description": "Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views allows Forceful Browsing.This issue affects REST Views: from 0.0.0 before 3.0.1.",
+          "severity": "HIGH",
+          "cvss_score": 7.5,
+          "cvss_version": "3.1",
+          "cwe_id": "CWE-94",
+          "cwe_name": "Code Injection (RCE)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2025-01-09T19:15:19.437",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2024-13254",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2010-4519",
+          "description": "Multiple cross-site request forgery (CSRF) vulnerabilities in the Views UI implementation in the Views module 5.x before 5.x-1.8 and 6.x before 6.x-2.11 for Drupal allow remote attackers to hijack the authentication of administrators for requests that (1) enable all Views or (2) disable all Views.",
+          "severity": "MEDIUM",
+          "cvss_score": 6.8,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-352",
+          "cwe_name": "Cross-Site Request Forgery (CSRF)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2010-12-23T18:00:03.307",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4519",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2016-3168",
+          "description": "The System module in Drupal 6.x before 6.38 and 7.x before 7.43 might allow remote attackers to hijack the authentication of site administrators for requests that download and run files with arbitrary JSON-encoded content, aka a \"reflected file download vulnerability.\"",
+          "severity": "MEDIUM",
+          "cvss_score": 6.4,
+          "cvss_version": "3.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "system"
+          ],
+          "published": "2016-04-12T15:59:05.963",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2016-3168",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2024-13287",
+          "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Drupal Views SVG Animation allows Cross-Site Scripting (XSS).This issue affects Views SVG Animation: from 0.0.0 before 1.0.1.",
+          "severity": "MEDIUM",
+          "cvss_score": 5.4,
+          "cvss_version": "3.1",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2025-01-09T20:15:37.687",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2024-13287",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2016-6212",
+          "description": "The Views module 7.x-3.x before 7.x-3.14 in Drupal 7.x and the Views module in Drupal 8.x before 8.1.3 might allow remote authenticated users to bypass intended access restrictions and obtain sensitive Statistics information via unspecified vectors.",
+          "severity": "MEDIUM",
+          "cvss_score": 5.3,
+          "cvss_version": "3.0",
+          "cwe_id": "CWE-284",
+          "cwe_name": "Improper Access Control",
+          "module_name": [
+            "views"
+          ],
+          "published": "2016-09-09T14:05:09.550",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2016-6212",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2009-4533",
+          "description": "The Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal, does not prevent caching of a page that contains token placeholders for a default value, which allows remote attackers to read session variables via unspecified vectors.",
+          "severity": "MEDIUM",
+          "cvss_score": 5.0,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2009-12-31T19:30:00.733",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4533",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2012-2081",
+          "description": "The Organic Groups (OG) module 6.x-2.x before 6.x-2.3 for Drupal does not properly restrict access, which allows remote attackers to obtain sensitive information such as private group titles via a request through the Views module.",
+          "severity": "MEDIUM",
+          "cvss_score": 5.0,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "views"
+          ],
+          "published": "2012-08-14T23:55:01.767",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-2081",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-5490",
+          "description": "The _views_fetch_data method in includes/cache.inc in the Views module 7.x-3.5 through 7.x-3.10 for Drupal does not rebuild the full cache if the static cache is not empty, which allows remote attackers to bypass intended filters and obtain access to hidden content via unspecified vectors.",
+          "severity": "MEDIUM",
+          "cvss_score": 5.0,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "views"
+          ],
+          "published": "2015-08-18T17:59:31.833",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-5490",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-3378",
+          "description": "Open redirect vulnerability in the Views module before 6.x-2.18, 6.x-3.x before 6.x-3.2, and 7.x-3.x before 7.x-3.10 for Drupal, when the Views UI submodule is enabled, allows remote authenticated users to redirect users to arbitrary web sites and conduct phishing attacks via vectors related to the break lock page for edited views.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.9,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "views"
+          ],
+          "published": "2015-04-21T18:59:00.110",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-3378",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2006-3570",
+          "description": "Cross-site scripting (XSS) vulnerability in the webform module in Drupal 4.6 before July 8, 2006 and 4.7 before July 8, 2006 allows remote attackers to inject arbitrary web script or HTML via unspecified vectors.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.3,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2006-07-13T01:05:00.000",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2006-3570",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2009-4207",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module 5.x before 5.x-2.7 and 6.x before 6.x-2.7, a module for Drupal, allows remote attackers to inject arbitrary web script or HTML via a submission.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.3,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2009-12-04T19:30:00.717",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4207",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2010-4520",
+          "description": "Multiple cross-site scripting (XSS) vulnerabilities in the Views module 6.x before 6.x-2.11 for Drupal allow remote attackers to inject arbitrary web script or HTML via (1) a URL or (2) an aggregator feed title.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.3,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2010-12-23T18:00:03.353",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4520",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2010-4521",
+          "description": "Cross-site scripting (XSS) vulnerability in the Views module 6.x before 6.x-2.12 for Drupal allows remote attackers to inject arbitrary web script or HTML via a page path.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.3,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2010-12-23T18:00:03.400",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4521",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2013-2129",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module 6.x-3.x before 6.x-3.19 for Drupal allows remote authenticated users with the \"edit own webform content\" or \"edit all webform content\" permissions to inject arbitrary web script or HTML via a component label.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.3,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2013-06-24T16:55:01.107",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2013-2129",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-3379",
+          "description": "The Views module before 6.x-2.18, 6.x-3.x before 6.x-3.2, and 7.x-3.x before 7.x-3.10 for Drupal does not properly restrict access to the default views configurations, which allows remote authenticated users to obtain sensitive information via unspecified vectors.",
+          "severity": "MEDIUM",
+          "cvss_score": 4.0,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "views"
+          ],
+          "published": "2015-04-21T18:59:01.327",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-3379",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2009-4532",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal, allows remote authenticated users, with webform creation privileges, to inject arbitrary web script or HTML via a field label.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2009-12-31T19:30:00.703",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4532",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2014-8318",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module 6.x-3.x before 6.x-3.20, 7.x-3.x before 7.x-3.20, and 7.x-4.x before 7.x-4.0-beta2 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a field label title, when two fields have the same form_key.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2014-10-17T14:55:03.157",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2014-8318",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-4356",
+          "description": "Cross-site scripting (XSS) vulnerability in the view-based webform results table in the Webform module 7.x-4.x before 7.x-4.4 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a webform.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2015-06-15T14:59:10.810",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4356",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-4357",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module before 6.x-3.22, 7.x-3.x before 7.x-3.22, and 7.x-4.x before 7.x-4.4 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a node title, which is used as the default title of a webform block.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2015-06-15T14:59:11.623",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4357",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2015-4374",
+          "description": "Cross-site scripting (XSS) vulnerability in the Webform module before 6.x-3.23, 7.x-3.x before 7.x-3.23, and 7.x-4.x before 7.x-4.5 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a component name in the recipient (To) address of an email.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2015-06-16T17:59:00.067",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4374",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2012-10004",
+          "description": "A vulnerability was found in backdrop-contrib Basic Cart on Drupal. It has been classified as problematic. Affected is the function basic_cart_checkout_form_submit of the file basic_cart.cart.inc. The manipulation leads to cross site scripting. It is possible to launch the attack remotely. Upgrading to version 1.x-1.1.1 is able to address this issue. The patch is identified as a10424ccd4b3b4b433cf33b73c1ad608b11890b4. It is recommended to upgrade the affected component. VDB-217950 is the identifier assigned to this vulnerability.",
+          "severity": "LOW",
+          "cvss_score": 3.5,
+          "cvss_version": "3.1",
+          "cwe_id": "CWE-Other",
+          "cwe_name": "Uncategorized Vulnerability",
+          "module_name": [
+            "contrib"
+          ],
+          "published": "2023-01-11T07:15:09.917",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-10004",
+          "matched_module": true,
+          "matched_version": true
+        },
+        {
+          "cve_id": "CVE-2012-1660",
+          "description": "Multiple cross-site scripting (XSS) vulnerabilities in components/select.inc in the Webform module 6.x-3.x before 6.x-3.17 and 7.x-3.x before 7.x-3.17 for Drupal, when the \"Select (or other)\" module is enabled, allow remote authenticated users with the create webform content permission to inject arbitrary web script or HTML via vectors related to (1) checkboxes or (2) radios.",
+          "severity": "LOW",
+          "cvss_score": 2.1,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "webform"
+          ],
+          "published": "2012-09-18T20:55:02.193",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-1660",
+          "matched_module": true,
+          "matched_version": false
+        },
+        {
+          "cve_id": "CVE-2013-1887",
+          "description": "Multiple cross-site scripting (XSS) vulnerabilities in the Views module 7.x-3.x before 7.x-3.6 for Drupal allow remote authenticated users with certain permissions to inject arbitrary web script or HTML via certain view configuration fields.",
+          "severity": "LOW",
+          "cvss_score": 2.1,
+          "cvss_version": "2.0",
+          "cwe_id": "CWE-79",
+          "cwe_name": "Cross-Site Scripting (XSS)",
+          "module_name": [
+            "views"
+          ],
+          "published": "2013-03-27T23:55:01.047",
+          "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2013-1887",
+          "matched_module": true,
+          "matched_version": false
+        }
+      ],
+      "plugins": [],
+      "themes": [],
+      "scanned_at": null,
+      "wpprobe_report": null
+    },
+    "cms_type": "drupal",
+    "created_at": "2026-03-10 12:40:23.371000",
+    "mode": "light",
+    "nuclei_scan": {
+      "skipped": true,
+      "source": "nuclei",
+      "parsed_results": []
+    },
+    "preview_only": false,
+    "recon": {
+      "webanalyze": {
+        "hostname": "https://www.biat.com.tn/",
+        "technologies": [
+          {
+            "name": "Debian",
+            "version": ""
+          },
+          {
+            "name": "Drupal",
+            "version": "10"
+          },
+          {
+            "name": "PHP",
+            "version": ""
+          },
+          {
+            "name": "Slick",
+            "version": ""
+          },
+          {
+            "name": "jQuery",
+            "version": ""
+          },
+          {
+            "name": "OWL Carousel",
+            "version": ""
+          },
+          {
+            "name": "jQuery",
+            "version": ""
+          },
+          {
+            "name": "HSTS",
+            "version": ""
+          },
+          {
+            "name": "Bootstrap",
+            "version": ""
+          },
+          {
+            "name": "Apache HTTP Server",
+            "version": "2.4.62"
+          },
+          {
+            "name": "Google Tag Manager",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "risk_level": "high",
+    "scan_time": 63.25,
+    "severity_counts": {
+      "critical": 0,
+      "high": 3,
+      "medium": 20,
+      "low": 13
+    },
+    "source": "scanner_api",
+    "target_url": "https://www.biat.com.tn/",
+    "updated_at": "2026-03-10 12:40:23.371000",
+    "zap_scan": {
+      "target_url": "https://www.biat.com.tn/",
+      "source": "zap-light",
+      "baseurl": "https://www.biat.com.tn",
+      "alerts": [
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "The directive(s): frame-ancestors, form-action is/are among the directives that do not fallback to default-src.",
+          "method": "GET",
+          "evidence": "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; script-src-elem 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; style-src-attr 'self' 'unsafe-inline' 'unsafe-hashes'; img-src 'self' https: http://www.biat.com.tn;",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The Content Security Policy fails to define one of the directives that has no fallback. Missing/excluding them is the same as allowing anything.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: Failure to Define Directive with No Fallback",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: Failure to Define Directive with No Fallback",
+          "risk": "Medium",
+          "id": "1",
+          "alertRef": "10055-13"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "The following directives either allow wildcard sources (or ancestors), are not defined, or are overly broadly defined:\nscript-src, style-src, img-src, connect-src, frame-src, font-src, media-src, object-src, manifest-src, worker-src",
+          "method": "GET",
+          "evidence": "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; script-src-elem 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; style-src-attr 'self' 'unsafe-inline' 'unsafe-hashes'; img-src 'self' https: http://www.biat.com.tn;",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: Wildcard Directive",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: Wildcard Directive",
+          "risk": "Medium",
+          "id": "2",
+          "alertRef": "10055-4"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "script-src includes unsafe-inline.",
+          "method": "GET",
+          "evidence": "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; script-src-elem 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; style-src-attr 'self' 'unsafe-inline' 'unsafe-hashes'; img-src 'self' https: http://www.biat.com.tn;",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: script-src unsafe-inline",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: script-src unsafe-inline",
+          "risk": "Medium",
+          "id": "3",
+          "alertRef": "10055-5"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "style-src includes unsafe-inline.",
+          "method": "GET",
+          "evidence": "default-src 'self' https: data:; script-src 'self' 'unsafe-inline' https:; script-src-elem 'self' https: 'unsafe-inline'; style-src 'self' https: 'unsafe-inline'; style-src-attr 'self' 'unsafe-inline' 'unsafe-hashes'; img-src 'self' https: http://www.biat.com.tn;",
+          "pluginId": "10055",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks. Including (but not limited to) Cross Site Scripting (XSS), and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://www.w3.org/TR/CSP/\nhttps://caniuse.com/#search=content+security+policy\nhttps://content-security-policy.com/\nhttps://github.com/HtmlUnit/htmlunit-csp\nhttps://web.dev/articles/csp#resource-options",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is properly configured to set the Content-Security-Policy header.",
+          "alert": "CSP: style-src unsafe-inline",
+          "param": "Content-Security-Policy",
+          "attack": "",
+          "name": "CSP: style-src unsafe-inline",
+          "risk": "Medium",
+          "id": "4",
+          "alertRef": "10055-6"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://use.fontawesome.com/releases/v5.5.0/js/all.js\" defer crossorigin=\"anonymous\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://use.fontawesome.com/releases/v5.5.0/js/all.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "5",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://use.fontawesome.com/releases/v5.5.0/js/v4-shims.js\" defer crossorigin=\"anonymous\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://use.fontawesome.com/releases/v5.5.0/js/v4-shims.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "6",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "//cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "7",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "//stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "8",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "Apache/2.4.62 (Debian)",
+          "pluginId": "10036",
+          "cweid": "497",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "13",
+          "description": "The web/application server is leaking version information via the \"Server\" HTTP response header. Access to such information may facilitate attackers identifying other vulnerabilities your web/application server is subject to.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "WSTG-v42-INFO-02": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/01-Information_Gathering/02-Fingerprint_Web_Server",
+            "CWE-497": "https://cwe.mitre.org/data/definitions/497.html"
+          },
+          "reference": "https://httpd.apache.org/docs/current/mod/core.html#servertokens\nhttps://learn.microsoft.com/en-us/previous-versions/msp-n-p/ff648552(v=pandp.10)\nhttps://www.troyhunt.com/shhh-dont-let-your-response-headers/",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to suppress the \"Server\" header or provide generic details.",
+          "alert": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+          "param": "",
+          "attack": "",
+          "name": "Server Leaks Version Information via \"Server\" HTTP Response Header Field",
+          "risk": "Low",
+          "id": "10",
+          "alertRef": "10036-2"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://use.fontawesome.com/releases/v5.5.0/js/all.js\" defer crossorigin=\"anonymous\"></script>",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "11",
+          "alertRef": "90003"
+        },
+        {
+          "nodeName": "https://www.biat.com.tn/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://use.fontawesome.com/releases/v5.5.0/js/v4-shims.js\" defer crossorigin=\"anonymous\"></script>",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://www.biat.com.tn/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "12",
+          "alertRef": "90003"
+        }
+      ],
+      "total_alerts": 11
+    },
+    "zap_status": "completed"
+  },
+  "cms_scan": {
+    "detected": true,
+    "cms": "drupal",
+    "cves": [
+      {
+        "cve_id": "CVE-2008-6020",
+        "description": "SQL injection vulnerability in the Views module 6.x before 6.x-2.2 for Drupal allows remote attackers to execute arbitrary SQL commands via unspecified vectors related to \"an exposed filter on CCK text fields.\"",
+        "severity": "HIGH",
+        "cvss_score": 7.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-89",
+        "cwe_name": "SQL Injection",
+        "module_name": [
+          "views"
+        ],
+        "published": "2009-02-02T22:00:00.280",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2008-6020",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2011-4113",
+        "description": "SQL injection vulnerability in the Views module before 6.x-2.13 for Drupal allows remote attackers to execute arbitrary SQL commands via vectors related to \"filters/arguments on certain types of views with specific configurations of arguments.\"",
+        "severity": "HIGH",
+        "cvss_score": 7.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-89",
+        "cwe_name": "SQL Injection",
+        "module_name": [
+          "views"
+        ],
+        "published": "2012-02-17T23:55:01.823",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2011-4113",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2024-13254",
+        "description": "Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views allows Forceful Browsing.This issue affects REST Views: from 0.0.0 before 3.0.1.",
+        "severity": "HIGH",
+        "cvss_score": 7.5,
+        "cvss_version": "3.1",
+        "cwe_id": "CWE-94",
+        "cwe_name": "Code Injection (RCE)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2025-01-09T19:15:19.437",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2024-13254",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2010-4519",
+        "description": "Multiple cross-site request forgery (CSRF) vulnerabilities in the Views UI implementation in the Views module 5.x before 5.x-1.8 and 6.x before 6.x-2.11 for Drupal allow remote attackers to hijack the authentication of administrators for requests that (1) enable all Views or (2) disable all Views.",
+        "severity": "MEDIUM",
+        "cvss_score": 6.8,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-352",
+        "cwe_name": "Cross-Site Request Forgery (CSRF)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2010-12-23T18:00:03.307",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4519",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2016-3168",
+        "description": "The System module in Drupal 6.x before 6.38 and 7.x before 7.43 might allow remote attackers to hijack the authentication of site administrators for requests that download and run files with arbitrary JSON-encoded content, aka a \"reflected file download vulnerability.\"",
+        "severity": "MEDIUM",
+        "cvss_score": 6.4,
+        "cvss_version": "3.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "system"
+        ],
+        "published": "2016-04-12T15:59:05.963",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2016-3168",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2024-13287",
+        "description": "Improper Neutralization of Input During Web Page Generation ('Cross-site Scripting') vulnerability in Drupal Views SVG Animation allows Cross-Site Scripting (XSS).This issue affects Views SVG Animation: from 0.0.0 before 1.0.1.",
+        "severity": "MEDIUM",
+        "cvss_score": 5.4,
+        "cvss_version": "3.1",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2025-01-09T20:15:37.687",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2024-13287",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2016-6212",
+        "description": "The Views module 7.x-3.x before 7.x-3.14 in Drupal 7.x and the Views module in Drupal 8.x before 8.1.3 might allow remote authenticated users to bypass intended access restrictions and obtain sensitive Statistics information via unspecified vectors.",
+        "severity": "MEDIUM",
+        "cvss_score": 5.3,
+        "cvss_version": "3.0",
+        "cwe_id": "CWE-284",
+        "cwe_name": "Improper Access Control",
+        "module_name": [
+          "views"
+        ],
+        "published": "2016-09-09T14:05:09.550",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2016-6212",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2009-4533",
+        "description": "The Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal, does not prevent caching of a page that contains token placeholders for a default value, which allows remote attackers to read session variables via unspecified vectors.",
+        "severity": "MEDIUM",
+        "cvss_score": 5.0,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2009-12-31T19:30:00.733",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4533",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2012-2081",
+        "description": "The Organic Groups (OG) module 6.x-2.x before 6.x-2.3 for Drupal does not properly restrict access, which allows remote attackers to obtain sensitive information such as private group titles via a request through the Views module.",
+        "severity": "MEDIUM",
+        "cvss_score": 5.0,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "views"
+        ],
+        "published": "2012-08-14T23:55:01.767",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-2081",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-5490",
+        "description": "The _views_fetch_data method in includes/cache.inc in the Views module 7.x-3.5 through 7.x-3.10 for Drupal does not rebuild the full cache if the static cache is not empty, which allows remote attackers to bypass intended filters and obtain access to hidden content via unspecified vectors.",
+        "severity": "MEDIUM",
+        "cvss_score": 5.0,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "views"
+        ],
+        "published": "2015-08-18T17:59:31.833",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-5490",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-3378",
+        "description": "Open redirect vulnerability in the Views module before 6.x-2.18, 6.x-3.x before 6.x-3.2, and 7.x-3.x before 7.x-3.10 for Drupal, when the Views UI submodule is enabled, allows remote authenticated users to redirect users to arbitrary web sites and conduct phishing attacks via vectors related to the break lock page for edited views.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.9,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "views"
+        ],
+        "published": "2015-04-21T18:59:00.110",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-3378",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2006-3570",
+        "description": "Cross-site scripting (XSS) vulnerability in the webform module in Drupal 4.6 before July 8, 2006 and 4.7 before July 8, 2006 allows remote attackers to inject arbitrary web script or HTML via unspecified vectors.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.3,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2006-07-13T01:05:00.000",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2006-3570",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2009-4207",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module 5.x before 5.x-2.7 and 6.x before 6.x-2.7, a module for Drupal, allows remote attackers to inject arbitrary web script or HTML via a submission.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.3,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2009-12-04T19:30:00.717",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4207",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2010-4520",
+        "description": "Multiple cross-site scripting (XSS) vulnerabilities in the Views module 6.x before 6.x-2.11 for Drupal allow remote attackers to inject arbitrary web script or HTML via (1) a URL or (2) an aggregator feed title.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.3,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2010-12-23T18:00:03.353",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4520",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2010-4521",
+        "description": "Cross-site scripting (XSS) vulnerability in the Views module 6.x before 6.x-2.12 for Drupal allows remote attackers to inject arbitrary web script or HTML via a page path.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.3,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2010-12-23T18:00:03.400",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2010-4521",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2013-2129",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module 6.x-3.x before 6.x-3.19 for Drupal allows remote authenticated users with the \"edit own webform content\" or \"edit all webform content\" permissions to inject arbitrary web script or HTML via a component label.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.3,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2013-06-24T16:55:01.107",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2013-2129",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-3379",
+        "description": "The Views module before 6.x-2.18, 6.x-3.x before 6.x-3.2, and 7.x-3.x before 7.x-3.10 for Drupal does not properly restrict access to the default views configurations, which allows remote authenticated users to obtain sensitive information via unspecified vectors.",
+        "severity": "MEDIUM",
+        "cvss_score": 4.0,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "views"
+        ],
+        "published": "2015-04-21T18:59:01.327",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-3379",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2009-4532",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module 5.x before 5.x-2.8 and 6.x before 6.x-2.8, a module for Drupal, allows remote authenticated users, with webform creation privileges, to inject arbitrary web script or HTML via a field label.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2009-12-31T19:30:00.703",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2009-4532",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2014-8318",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module 6.x-3.x before 6.x-3.20, 7.x-3.x before 7.x-3.20, and 7.x-4.x before 7.x-4.0-beta2 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a field label title, when two fields have the same form_key.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2014-10-17T14:55:03.157",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2014-8318",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-4356",
+        "description": "Cross-site scripting (XSS) vulnerability in the view-based webform results table in the Webform module 7.x-4.x before 7.x-4.4 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a webform.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2015-06-15T14:59:10.810",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4356",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-4357",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module before 6.x-3.22, 7.x-3.x before 7.x-3.22, and 7.x-4.x before 7.x-4.4 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a node title, which is used as the default title of a webform block.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2015-06-15T14:59:11.623",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4357",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2015-4374",
+        "description": "Cross-site scripting (XSS) vulnerability in the Webform module before 6.x-3.23, 7.x-3.x before 7.x-3.23, and 7.x-4.x before 7.x-4.5 for Drupal allows remote authenticated users with certain permissions to inject arbitrary web script or HTML via a component name in the recipient (To) address of an email.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2015-06-16T17:59:00.067",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2015-4374",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2012-10004",
+        "description": "A vulnerability was found in backdrop-contrib Basic Cart on Drupal. It has been classified as problematic. Affected is the function basic_cart_checkout_form_submit of the file basic_cart.cart.inc. The manipulation leads to cross site scripting. It is possible to launch the attack remotely. Upgrading to version 1.x-1.1.1 is able to address this issue. The patch is identified as a10424ccd4b3b4b433cf33b73c1ad608b11890b4. It is recommended to upgrade the affected component. VDB-217950 is the identifier assigned to this vulnerability.",
+        "severity": "LOW",
+        "cvss_score": 3.5,
+        "cvss_version": "3.1",
+        "cwe_id": "CWE-Other",
+        "cwe_name": "Uncategorized Vulnerability",
+        "module_name": [
+          "contrib"
+        ],
+        "published": "2023-01-11T07:15:09.917",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-10004",
+        "matched_module": true,
+        "matched_version": true
+      },
+      {
+        "cve_id": "CVE-2012-1660",
+        "description": "Multiple cross-site scripting (XSS) vulnerabilities in components/select.inc in the Webform module 6.x-3.x before 6.x-3.17 and 7.x-3.x before 7.x-3.17 for Drupal, when the \"Select (or other)\" module is enabled, allow remote authenticated users with the create webform content permission to inject arbitrary web script or HTML via vectors related to (1) checkboxes or (2) radios.",
+        "severity": "LOW",
+        "cvss_score": 2.1,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "webform"
+        ],
+        "published": "2012-09-18T20:55:02.193",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2012-1660",
+        "matched_module": true,
+        "matched_version": false
+      },
+      {
+        "cve_id": "CVE-2013-1887",
+        "description": "Multiple cross-site scripting (XSS) vulnerabilities in the Views module 7.x-3.x before 7.x-3.6 for Drupal allow remote authenticated users with certain permissions to inject arbitrary web script or HTML via certain view configuration fields.",
+        "severity": "LOW",
+        "cvss_score": 2.1,
+        "cvss_version": "2.0",
+        "cwe_id": "CWE-79",
+        "cwe_name": "Cross-Site Scripting (XSS)",
+        "module_name": [
+          "views"
+        ],
+        "published": "2013-03-27T23:55:01.047",
+        "nvd_reference": "https://nvd.nist.gov/vuln/detail/CVE-2013-1887",
+        "matched_module": true,
+        "matched_version": false
+      }
+    ],
+    "plugins": [],
+    "themes": [],
+    "scanned_at": null,
+    "wpprobe_report": null
+  },
+  "nuclei_scan": {
+    "skipped": true,
+    "source": "nuclei",
+    "parsed_results": []
+  },
+  "zap_scan": null
+}

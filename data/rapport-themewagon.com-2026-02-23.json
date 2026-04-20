@@ -1,0 +1,747 @@
+{
+  "scan_id": "beab2f16-8d87-417d-a738-5a9fca4e05ba",
+  "cms": "wordpress",
+  "mode": "light",
+  "risk_level": "medium",
+  "severity_counts": {
+    "low": 19,
+    "medium": 4,
+    "high": 0,
+    "critical": 0
+  },
+  "total_vulnerabilities": 23,
+  "scan": {
+    "_id": "699c51d304aaa5e9d66c57eb",
+    "scan_id": "beab2f16-8d87-417d-a738-5a9fca4e05ba",
+    "cms_scan": {
+      "detected": true,
+      "cms": "wordpress",
+      "cves": [
+        {
+          "source": "wpprobe",
+          "plugin": "automattic-for-agencies-client",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "blaze-ads",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "contact-form-7",
+          "plugin_version": "6.1.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "duracelltomi-google-tag-manager",
+          "plugin_version": "1.22.1",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "if-menu",
+          "plugin_version": "0.19.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "jetpack",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "jetpack-search",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "mainichi-shopify-products-connect",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "redirection",
+          "plugin_version": "5.5.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "schema-and-structured-data-for-wp",
+          "plugin_version": "1.51",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "w3-total-cache",
+          "plugin_version": "2.8.14",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "woo-custom-related-products",
+          "plugin_version": "1.3.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "woocommerce",
+          "plugin_version": "10.2.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "woocommerce-gateway-stripe",
+          "plugin_version": "9.6.0",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wordpress-seo",
+          "plugin_version": "26.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wp-ses",
+          "plugin_version": "1.7.2",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        },
+        {
+          "source": "wpprobe",
+          "plugin": "wp-store-lite",
+          "plugin_version": "unknown",
+          "title": "N/A",
+          "cve": null,
+          "cve_link": "N/A",
+          "severity": "low",
+          "cvss_score": 0,
+          "cvss_vector": "N/A",
+          "auth_type": "Unknown"
+        }
+      ],
+      "plugins": [],
+      "themes": [],
+      "scanned_at": null,
+      "wpprobe_report": null
+    },
+    "cms_type": "wordpress",
+    "created_at": "2026-02-23 13:10:43.448000",
+    "mode": "light",
+    "nuclei_scan": {
+      "skipped": true,
+      "source": "nuclei",
+      "parsed_results": []
+    },
+    "preview_only": false,
+    "recon": {
+      "webanalyze": {
+        "hostname": "https://themewagon.com/",
+        "technologies": [
+          {
+            "name": "Yoast SEO Premium",
+            "version": ""
+          },
+          {
+            "name": "WooCommerce",
+            "version": "10.3.0"
+          },
+          {
+            "name": "HTTP/3",
+            "version": ""
+          },
+          {
+            "name": "Yoast SEO",
+            "version": ""
+          },
+          {
+            "name": "WordPress",
+            "version": ""
+          },
+          {
+            "name": "YouTube",
+            "version": ""
+          },
+          {
+            "name": "HSTS",
+            "version": ""
+          },
+          {
+            "name": "W3 Total Cache",
+            "version": ""
+          },
+          {
+            "name": "Google Tag Manager",
+            "version": ""
+          },
+          {
+            "name": "Cloudflare",
+            "version": ""
+          },
+          {
+            "name": "WordPress",
+            "version": "6.8.3"
+          },
+          {
+            "name": "PHP",
+            "version": ""
+          },
+          {
+            "name": "MySQL",
+            "version": ""
+          },
+          {
+            "name": "reCAPTCHA",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "risk_level": "medium",
+    "scan_time": 159.22,
+    "severity_counts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 4,
+      "low": 19
+    },
+    "source": "scanner_api",
+    "target_url": "https://themewagon.com/",
+    "updated_at": "2026-02-23 13:10:43.448000",
+    "zap_scan": {
+      "target_url": "https://themewagon.com/",
+      "source": "zap-light",
+      "baseurl": "https://themewagon.com",
+      "alerts": [
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "",
+          "pluginId": "10038",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+          "alert": "Content Security Policy (CSP) Header Not Set",
+          "param": "",
+          "attack": "",
+          "name": "Content Security Policy (CSP) Header Not Set",
+          "risk": "Medium",
+          "id": "1",
+          "alertRef": "10038-1"
+        },
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script type='text/javascript' src='https://widget.freshworks.com/widgets/69000001641.js' async defer></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://widget.freshworks.com/widgets/69000001641.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "2",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://www.google.com/recaptcha/api.js?render=6LfZh9kcAAAAABp4W7P0fD6yb0TYCnHkbWvhiIHt&amp;ver=3.0\" id=\"google-recaptcha-js\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://www.google.com/recaptcha/api.js?render=6LfZh9kcAAAAABp4W7P0fD6yb0TYCnHkbWvhiIHt&ver=3.0",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "3",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<link href=\"https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700;800;900&family=Nunito:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap\" rel=\"stylesheet\">",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "6",
+          "alertRef": "90003"
+        },
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script type='text/javascript' src='https://widget.freshworks.com/widgets/69000001641.js' async defer></script>",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "7",
+          "alertRef": "90003"
+        },
+        {
+          "nodeName": "https://themewagon.com/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://www.google.com/recaptcha/api.js?render=6LfZh9kcAAAAABp4W7P0fD6yb0TYCnHkbWvhiIHt&amp;ver=3.0\" id=\"google-recaptcha-js\"></script>",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 1,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "1",
+          "inputVector": "",
+          "url": "https://themewagon.com/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "8",
+          "alertRef": "90003"
+        }
+      ],
+      "total_alerts": 6
+    },
+    "zap_status": "completed"
+  },
+  "cms_scan": {
+    "detected": true,
+    "cms": "wordpress",
+    "cves": [
+      {
+        "source": "wpprobe",
+        "plugin": "automattic-for-agencies-client",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "blaze-ads",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "contact-form-7",
+        "plugin_version": "6.1.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "duracelltomi-google-tag-manager",
+        "plugin_version": "1.22.1",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "if-menu",
+        "plugin_version": "0.19.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "jetpack",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "jetpack-search",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "mainichi-shopify-products-connect",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "redirection",
+        "plugin_version": "5.5.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "schema-and-structured-data-for-wp",
+        "plugin_version": "1.51",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "w3-total-cache",
+        "plugin_version": "2.8.14",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "woo-custom-related-products",
+        "plugin_version": "1.3.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "woocommerce",
+        "plugin_version": "10.2.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "woocommerce-gateway-stripe",
+        "plugin_version": "9.6.0",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wordpress-seo",
+        "plugin_version": "26.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wp-ses",
+        "plugin_version": "1.7.2",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      },
+      {
+        "source": "wpprobe",
+        "plugin": "wp-store-lite",
+        "plugin_version": "unknown",
+        "title": "N/A",
+        "cve": null,
+        "cve_link": "N/A",
+        "severity": "low",
+        "cvss_score": 0,
+        "cvss_vector": "N/A",
+        "auth_type": "Unknown"
+      }
+    ],
+    "plugins": [],
+    "themes": [],
+    "scanned_at": null,
+    "wpprobe_report": null
+  },
+  "nuclei_scan": {
+    "skipped": true,
+    "source": "nuclei",
+    "parsed_results": []
+  },
+  "zap_scan": null
+}

@@ -1,0 +1,676 @@
+{
+  "scan_id": "649450a3-76d8-4597-b520-6f742895b647",
+  "cms": "inconnu",
+  "mode": "light",
+  "risk_level": "medium",
+  "severity_counts": {
+    "low": 5,
+    "medium": 4,
+    "high": 0,
+    "critical": 0
+  },
+  "total_vulnerabilities": 9,
+  "scan": {
+    "_id": "6981fe1dbbea05d8dfa37e23",
+    "scan_id": "649450a3-76d8-4597-b520-6f742895b647",
+    "target_url": "https://cloud.projectdiscovery.io/",
+    "cms_type": "inconnu",
+    "preview_only": false,
+    "cms_scan": null,
+    "nuclei_scan": {
+      "target_url": "https://cloud.projectdiscovery.io/",
+      "cms": "inconnu",
+      "nuclei_stdout": "[missing-sri] [http] [info] https://cloud.projectdiscovery.io/ [\"https://uptime.betterstack.com/widgets/announcement.js\"]\n[tls-version] [ssl] [info] cloud.projectdiscovery.io:443 [\"tls12\"]\n[tls-version] [ssl] [info] cloud.projectdiscovery.io:443 [\"tls13\"]\n[http-missing-security-headers:permissions-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-frame-options] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-content-type-options] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:clear-site-data] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-opener-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:strict-transport-security] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:content-security-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-permitted-cross-domain-policies] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:referrer-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-embedder-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-resource-policy] [http] [info] https://cloud.projectdiscovery.io/\n[nameserver-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"ns2.vercel-dns-3.com.\",\"ns3.vercel-dns-3.com.\",\"ns4.vercel-dns-3.com.\",\"ns1.vercel-dns-3.com.\"]\n[txt-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"\"google-site-verification=vdVEp47uMe4lAR2ml1tPq3ANqWecZ-qhk9Novyffkuc\"\"]\n[caa-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"globalsign.com\",\"letsencrypt.org\",\"pki.goog\",\"sectigo.com\"]\n[dns-saas-service-detection] [dns] [info] cloud.projectdiscovery.io [\"cname.vercel-dns.com\"]\n[ssl-issuer] [ssl] [info] cloud.projectdiscovery.io:443 [\"Let's Encrypt\"]\n[ssl-dns-names] [ssl] [info] cloud.projectdiscovery.io:443 [\"cloud.projectdiscovery.io\"]\n",
+      "nuclei_stderr": "",
+      "returncode": 0,
+      "source": "nuclei",
+      "parsed_results": [
+        {
+          "name": "missing-sri",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": "https://uptime.betterstack.com/widgets/announcement.js"
+        },
+        {
+          "name": "tls-version",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io:443",
+          "details": "tls12"
+        },
+        {
+          "name": "tls-version",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io:443",
+          "details": "tls13"
+        },
+        {
+          "name": "http-missing-security-headers:permissions-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:x-frame-options",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:x-content-type-options",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:clear-site-data",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-opener-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:strict-transport-security",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:content-security-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:x-permitted-cross-domain-policies",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:referrer-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-embedder-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "http-missing-security-headers:cross-origin-resource-policy",
+          "protocol": "http",
+          "severity": "info",
+          "host": "https://cloud.projectdiscovery.io/",
+          "details": []
+        },
+        {
+          "name": "nameserver-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io",
+          "details": [
+            "ns2.vercel-dns-3.com.",
+            "ns3.vercel-dns-3.com.",
+            "ns4.vercel-dns-3.com.",
+            "ns1.vercel-dns-3.com."
+          ]
+        },
+        {
+          "name": "txt-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io",
+          "details": [
+            "\"\"google-site-verification=vdVEp47uMe4lAR2ml1tPq3ANqWecZ-qhk9Novyffkuc\"\""
+          ]
+        },
+        {
+          "name": "caa-fingerprint",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io",
+          "details": [
+            "globalsign.com",
+            "letsencrypt.org",
+            "pki.goog",
+            "sectigo.com"
+          ]
+        },
+        {
+          "name": "dns-saas-service-detection",
+          "protocol": "dns",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io",
+          "details": "cname.vercel-dns.com"
+        },
+        {
+          "name": "ssl-issuer",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io:443",
+          "details": "Let's Encrypt"
+        },
+        {
+          "name": "ssl-dns-names",
+          "protocol": "ssl",
+          "severity": "info",
+          "host": "cloud.projectdiscovery.io:443",
+          "details": "cloud.projectdiscovery.io"
+        }
+      ]
+    },
+    "recon": {
+      "webanalyze": {
+        "hostname": "https://cloud.projectdiscovery.io/",
+        "technologies": [
+          {
+            "name": "Vercel",
+            "version": ""
+          },
+          {
+            "name": "HSTS",
+            "version": ""
+          }
+        ]
+      },
+      "httpx": {
+        "error": "Expecting value: line 1 column 1 (char 0)"
+      }
+    },
+    "scan_time": 31.29,
+    "mode": "light",
+    "source": "scanner_api",
+    "zap_scan": {
+      "alerts": [
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "",
+          "pluginId": "10020",
+          "cweid": "1021",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "15",
+          "description": "The response does not protect against 'ClickJacking' attacks. It should include either Content-Security-Policy with 'frame-ancestors' directive or X-Frame-Options.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "CWE-1021": "https://cwe.mitre.org/data/definitions/1021.html",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "WSTG-v42-CLNT-09": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/11-Client-side_Testing/09-Testing_for_Clickjacking",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options",
+          "solution": "Modern Web browsers support the Content-Security-Policy and X-Frame-Options HTTP headers. Ensure one of them is set on all web pages returned by your site/app.\nIf you expect the page to be framed only by pages on your server (e.g. it's part of a FRAMESET) then you'll want to use SAMEORIGIN, otherwise if you never expect the page to be framed, you should use DENY. Alternatively consider implementing Content Security Policy's \"frame-ancestors\" directive.",
+          "alert": "Missing Anti-clickjacking Header",
+          "param": "x-frame-options",
+          "attack": "",
+          "name": "Missing Anti-clickjacking Header",
+          "risk": "Medium",
+          "id": "6874",
+          "alertRef": "10020-1"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "public, max-age=0, must-revalidate",
+          "pluginId": "10015",
+          "cweid": "525",
+          "confidence": "Low",
+          "sourceMessageId": 764,
+          "wascid": "13",
+          "description": "The cache-control header has not been set properly or is missing, allowing the browser and proxies to cache content. For static assets like css, js, or image files this might be intended, however, the resources should be reviewed to ensure that no sensitive content will be cached.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "CWE-525": "https://cwe.mitre.org/data/definitions/525.html",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "WSTG-v42-ATHN-06": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses"
+          },
+          "reference": "https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#web-content-caching\nhttps://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Cache-Control\nhttps://grayduck.mn/2021/09/13/cache-control-recommendations/",
+          "solution": "For secure content, ensure the cache-control HTTP header is set with \"no-cache, no-store, must-revalidate\". If an asset should be cached consider setting the directives \"public, max-age, immutable\".",
+          "alert": "Re-examine Cache-control Directives",
+          "param": "cache-control",
+          "attack": "",
+          "name": "Re-examine Cache-control Directives",
+          "risk": "Informational",
+          "id": "6875",
+          "alertRef": "10015"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "",
+          "pluginId": "10038",
+          "cweid": "693",
+          "confidence": "High",
+          "sourceMessageId": 764,
+          "wascid": "15",
+          "description": "Content Security Policy (CSP) is an added layer of security that helps to detect and mitigate certain types of attacks, including Cross Site Scripting (XSS) and data injection attacks. These attacks are used for everything from data theft to site defacement or distribution of malware. CSP provides a set of standard HTTP headers that allow website owners to declare approved sources of content that browsers should be allowed to load on that page — covered types are JavaScript, CSS, HTML frames, fonts, images and embeddable objects such as Java applets, ActiveX, audio and video files.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP\nhttps://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html\nhttps://www.w3.org/TR/CSP/\nhttps://w3c.github.io/webappsec-csp/\nhttps://web.dev/articles/csp\nhttps://caniuse.com/#feat=contentsecuritypolicy\nhttps://content-security-policy.com/",
+          "solution": "Ensure that your web server, application server, load balancer, etc. is configured to set the Content-Security-Policy header.",
+          "alert": "Content Security Policy (CSP) Header Not Set",
+          "param": "",
+          "attack": "",
+          "name": "Content Security Policy (CSP) Header Not Set",
+          "risk": "Medium",
+          "id": "6876",
+          "alertRef": "10038-1"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "The CORS misconfiguration on the web server permits cross-domain read requests from arbitrary third party domains, using unauthenticated APIs on this domain. Web browser implementations do not permit arbitrary third parties to read the response from authenticated APIs, however. This reduces the risk somewhat. This misconfiguration could be used by an attacker to access data that is available in an unauthenticated manner, but which uses some other form of security, such as IP address white-listing.",
+          "method": "GET",
+          "evidence": "Access-Control-Allow-Origin: *",
+          "pluginId": "10098",
+          "cweid": "264",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "14",
+          "description": "Web browser data loading may be possible, due to a Cross Origin Resource Sharing (CORS) misconfiguration on the web server.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "OWASP_2021_A01": "https://owasp.org/Top10/A01_2021-Broken_Access_Control/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A05": "https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control.html",
+            "CWE-264": "https://cwe.mitre.org/data/definitions/264.html"
+          },
+          "reference": "https://vulncat.fortify.com/en/detail?category=HTML5&subcategory=Overly%20Permissive%20CORS%20Policy",
+          "solution": "Ensure that sensitive data is not available in an unauthenticated manner (using IP address white-listing, for instance).\nConfigure the \"Access-Control-Allow-Origin\" HTTP header to a more restrictive set of domains, or remove all CORS headers entirely, to allow the web browser to enforce the Same Origin Policy (SOP) in a more restrictive manner.",
+          "alert": "Cross-Domain Misconfiguration",
+          "param": "",
+          "attack": "",
+          "name": "Cross-Domain Misconfiguration",
+          "risk": "Medium",
+          "id": "6877",
+          "alertRef": "10098"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://uptime.betterstack.com/widgets/announcement.js\" data-id=\"143167\" async=\"\" type=\"text/javascript\"></script>",
+          "pluginId": "10017",
+          "cweid": "829",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "15",
+          "description": "The page includes one or more script files from a third-party domain.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2021_A08": "https://owasp.org/Top10/A08_2021-Software_and_Data_Integrity_Failures/",
+            "CWE-829": "https://cwe.mitre.org/data/definitions/829.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "Ensure JavaScript source files are loaded from only trusted sources, and the sources can't be controlled by end users of the application.",
+          "alert": "Cross-Domain JavaScript Source File Inclusion",
+          "param": "https://uptime.betterstack.com/widgets/announcement.js",
+          "attack": "",
+          "name": "Cross-Domain JavaScript Source File Inclusion",
+          "risk": "Low",
+          "id": "6878",
+          "alertRef": "10017"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "No links have been found while there are scripts, which is an indication that this is a modern web application.",
+          "method": "GET",
+          "evidence": "<script src=\"/_next/static/chunks/7cff742a97d6bce9.js?dpl=dpl_feK7qKhmR3TERGdT9A1qE2DqMgEp\" async=\"\"></script>",
+          "pluginId": "10109",
+          "cweid": "-1",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "-1",
+          "description": "The application appears to be a modern web application. If you need to explore it automatically then the Ajax Spider may well be more effective than the standard one.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "",
+          "solution": "This is an informational alert and so no changes are required.",
+          "alert": "Modern Web Application",
+          "param": "",
+          "attack": "",
+          "name": "Modern Web Application",
+          "risk": "Informational",
+          "id": "6879",
+          "alertRef": "10109"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "The presence of the 'Age' header indicates that a HTTP/1.1 compliant caching server is in use.",
+          "method": "GET",
+          "evidence": "Age: 1553876",
+          "pluginId": "10050",
+          "cweid": "525",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "-1",
+          "description": "The content was retrieved from a shared cache. If the response data is sensitive, personal or user-specific, this may result in sensitive information being leaked. In some cases, this may even result in a user gaining complete control of the session of another user, depending on the configuration of the caching components in use in their environment. This is primarily an issue where caching servers such as \"proxy\" caches are configured on the local network. This configuration is typically found in corporate or educational environments, for instance.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "CWE-525": "https://cwe.mitre.org/data/definitions/525.html",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "WSTG-v42-ATHN-06": "https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/04-Authentication_Testing/06-Testing_for_Browser_Cache_Weaknesses"
+          },
+          "reference": "https://datatracker.ietf.org/doc/html/rfc7234\nhttps://datatracker.ietf.org/doc/html/rfc7231\nhttps://www.rfc-editor.org/rfc/rfc9110.html",
+          "solution": "Validate that the response does not contain sensitive, personal or user-specific information. If it does, consider the use of the following HTTP response headers, to limit, or prevent the content being stored and retrieved from the cache by another user:\nCache-Control: no-cache, no-store, must-revalidate, private\nPragma: no-cache\nExpires: 0\nThis configuration directs both HTTP 1.0 and HTTP 1.1 compliant caching servers to not store the response, and to not retrieve the response (without validation) from the cache, in response to a similar request.",
+          "alert": "Retrieved from Cache",
+          "param": "",
+          "attack": "",
+          "name": "Retrieved from Cache",
+          "risk": "Informational",
+          "id": "6880",
+          "alertRef": "10050-2"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "",
+          "method": "GET",
+          "evidence": "<script src=\"https://uptime.betterstack.com/widgets/announcement.js\" data-id=\"143167\" async=\"\" type=\"text/javascript\"></script>",
+          "pluginId": "90003",
+          "cweid": "345",
+          "confidence": "High",
+          "sourceMessageId": 764,
+          "wascid": "15",
+          "description": "The integrity attribute is missing on a script or link tag served by an external server. The integrity tag prevents an attacker who have gained access to this server from injecting a malicious content.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "CWE-345": "https://cwe.mitre.org/data/definitions/345.html",
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html",
+            "POLICY_DEV_STD": ""
+          },
+          "reference": "https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity",
+          "solution": "Provide a valid integrity attribute to the tag.",
+          "alert": "Sub Resource Integrity Attribute Missing",
+          "param": "",
+          "attack": "",
+          "name": "Sub Resource Integrity Attribute Missing",
+          "risk": "Medium",
+          "id": "6881",
+          "alertRef": "90003"
+        },
+        {
+          "nodeName": "https://cloud.projectdiscovery.io/",
+          "sourceid": "3",
+          "other": "This issue still applies to error type pages (401, 403, 500, etc.) as those pages are often still affected by injection issues, in which case there is still concern for browsers sniffing pages away from their actual content type.\nAt \"High\" threshold this scan rule will not alert on client or server error responses.",
+          "method": "GET",
+          "evidence": "",
+          "pluginId": "10021",
+          "cweid": "693",
+          "confidence": "Medium",
+          "sourceMessageId": 764,
+          "wascid": "15",
+          "description": "The Anti-MIME-Sniffing header X-Content-Type-Options was not set to 'nosniff'. This allows older versions of Internet Explorer and Chrome to perform MIME-sniffing on the response body, potentially causing the response body to be interpreted and displayed as a content type other than the declared content type. Current (early 2014) and legacy versions of Firefox will use the declared content type (if one is set), rather than performing MIME-sniffing.",
+          "messageId": "764",
+          "inputVector": "",
+          "url": "https://cloud.projectdiscovery.io/",
+          "tags": {
+            "OWASP_2021_A05": "https://owasp.org/Top10/A05_2021-Security_Misconfiguration/",
+            "POLICY_QA_STD": "",
+            "POLICY_PENTEST": "",
+            "SYSTEMIC": "https://www.zaproxy.org/docs/desktop/addons/common-library/alerttags/#systemic",
+            "CWE-693": "https://cwe.mitre.org/data/definitions/693.html",
+            "OWASP_2017_A06": "https://owasp.org/www-project-top-ten/2017/A6_2017-Security_Misconfiguration.html"
+          },
+          "reference": "https://learn.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/compatibility/gg622941(v=vs.85)\nhttps://owasp.org/www-community/Security_Headers",
+          "solution": "Ensure that the application/web server sets the Content-Type header appropriately, and that it sets the X-Content-Type-Options header to 'nosniff' for all web pages.\nIf possible, ensure that the end user uses a standards-compliant and modern web browser that does not perform MIME-sniffing at all, or that can be directed by the web application/web server to not perform MIME-sniffing.",
+          "alert": "X-Content-Type-Options Header Missing",
+          "param": "x-content-type-options",
+          "attack": "",
+          "name": "X-Content-Type-Options Header Missing",
+          "risk": "Low",
+          "id": "6882",
+          "alertRef": "10021"
+        }
+      ],
+      "total_alerts": 9,
+      "scan_time": 0,
+      "source": "zap-light"
+    },
+    "severity_counts": {
+      "low": 5,
+      "medium": 4,
+      "high": 0,
+      "critical": 0
+    },
+    "risk_level": "medium",
+    "created_at": "2026-02-03 13:54:37.184000"
+  },
+  "cms_scan": {},
+  "nuclei_scan": {
+    "target_url": "https://cloud.projectdiscovery.io/",
+    "cms": "inconnu",
+    "nuclei_stdout": "[missing-sri] [http] [info] https://cloud.projectdiscovery.io/ [\"https://uptime.betterstack.com/widgets/announcement.js\"]\n[tls-version] [ssl] [info] cloud.projectdiscovery.io:443 [\"tls12\"]\n[tls-version] [ssl] [info] cloud.projectdiscovery.io:443 [\"tls13\"]\n[http-missing-security-headers:permissions-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-frame-options] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-content-type-options] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:clear-site-data] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-opener-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:strict-transport-security] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:content-security-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:x-permitted-cross-domain-policies] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:referrer-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-embedder-policy] [http] [info] https://cloud.projectdiscovery.io/\n[http-missing-security-headers:cross-origin-resource-policy] [http] [info] https://cloud.projectdiscovery.io/\n[nameserver-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"ns2.vercel-dns-3.com.\",\"ns3.vercel-dns-3.com.\",\"ns4.vercel-dns-3.com.\",\"ns1.vercel-dns-3.com.\"]\n[txt-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"\"google-site-verification=vdVEp47uMe4lAR2ml1tPq3ANqWecZ-qhk9Novyffkuc\"\"]\n[caa-fingerprint] [dns] [info] cloud.projectdiscovery.io [\"globalsign.com\",\"letsencrypt.org\",\"pki.goog\",\"sectigo.com\"]\n[dns-saas-service-detection] [dns] [info] cloud.projectdiscovery.io [\"cname.vercel-dns.com\"]\n[ssl-issuer] [ssl] [info] cloud.projectdiscovery.io:443 [\"Let's Encrypt\"]\n[ssl-dns-names] [ssl] [info] cloud.projectdiscovery.io:443 [\"cloud.projectdiscovery.io\"]\n",
+    "nuclei_stderr": "",
+    "returncode": 0,
+    "source": "nuclei",
+    "parsed_results": [
+      {
+        "name": "missing-sri",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": "https://uptime.betterstack.com/widgets/announcement.js"
+      },
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io:443",
+        "details": "tls12"
+      },
+      {
+        "name": "tls-version",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io:443",
+        "details": "tls13"
+      },
+      {
+        "name": "http-missing-security-headers:permissions-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-frame-options",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-content-type-options",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:clear-site-data",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-opener-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:strict-transport-security",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:content-security-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:x-permitted-cross-domain-policies",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:referrer-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-embedder-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "http-missing-security-headers:cross-origin-resource-policy",
+        "protocol": "http",
+        "severity": "info",
+        "host": "https://cloud.projectdiscovery.io/",
+        "details": []
+      },
+      {
+        "name": "nameserver-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io",
+        "details": [
+          "ns2.vercel-dns-3.com.",
+          "ns3.vercel-dns-3.com.",
+          "ns4.vercel-dns-3.com.",
+          "ns1.vercel-dns-3.com."
+        ]
+      },
+      {
+        "name": "txt-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io",
+        "details": [
+          "\"\"google-site-verification=vdVEp47uMe4lAR2ml1tPq3ANqWecZ-qhk9Novyffkuc\"\""
+        ]
+      },
+      {
+        "name": "caa-fingerprint",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io",
+        "details": [
+          "globalsign.com",
+          "letsencrypt.org",
+          "pki.goog",
+          "sectigo.com"
+        ]
+      },
+      {
+        "name": "dns-saas-service-detection",
+        "protocol": "dns",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io",
+        "details": "cname.vercel-dns.com"
+      },
+      {
+        "name": "ssl-issuer",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io:443",
+        "details": "Let's Encrypt"
+      },
+      {
+        "name": "ssl-dns-names",
+        "protocol": "ssl",
+        "severity": "info",
+        "host": "cloud.projectdiscovery.io:443",
+        "details": "cloud.projectdiscovery.io"
+      }
+    ]
+  },
+  "zap_scan": null
+}

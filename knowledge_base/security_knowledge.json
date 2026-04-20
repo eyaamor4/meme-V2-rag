@@ -1,0 +1,1653 @@
+[
+  {
+    "id": "kb_001",
+    "title": "CSP: Failure to Define Directive with No Fallback",
+    "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "missing directive", "fallback", "security header"],
+    "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
+    "verification": "Vérifier dans l’en-tête Content-Security-Policy que les directives form-action, frame-ancestors, base-uri et object-src sont présentes avec des valeurs restrictives adaptées.",
+    "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+    "technical_actions": [
+      "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+    "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+    "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+    ],
+    "implementation_examples": {
+      "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
+      "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
+      "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+    },
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+    "Contrôler dans les outils navigateur que les violations CSP sont bien remontées.",
+    "Tester les formulaires métiers, les iframes éventuelles et les redirections."
+],
+    "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP."
+  },
+  {
+    "id": "kb_002",
+    "title": "CSP: Wildcard Directive",
+    "description": "Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "wildcard", "misconfiguration"],
+    "recommendation": "Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.",
+    "verification": "Contrôler que les directives CSP n’utilisent plus de joker '*' ni de schéma trop permissif comme https: lorsqu’une liste d’hôtes précise peut être définie.",
+    "recommendation_summary": "Réduire la surface autorisée par la CSP en supprimant les jokers et schémas trop larges.",
+    "technical_actions": [
+      "Remplacer * par une liste précise d’hôtes de confiance.",
+      "Éviter les schémas génériques comme https: quand les domaines réels sont connus.",
+      "Séparer les besoins par type de ressource : script-src, style-src, img-src, font-src, connect-src, frame-src.",
+      "Supprimer les doublons et les domaines non utilisés."
+    ],
+    "implementation_examples": {
+      "generic": "Remplacer img-src * data: https: par img-src 'self' data: https://cdn.example.com si seul ce CDN est nécessaire.",
+      "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
+    },
+    "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Comparer la CSP déployée avec l'inventaire réel des ressources chargées.",
+    "Supprimer progressivement les sources non justifiées puis tester les parcours applicatifs.",
+    "Relancer le scan pour confirmer la disparition des alertes CSP wildcard."
+],
+    "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique."
+  },
+  {
+    "id": "kb_003",
+    "title": "CSP: script-src unsafe-inline",
+    "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "unsafe-inline", "script-src", "xss"],
+    "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
+    "verification": "Vérifier dans l’en-tête Content-Security-Policy que script-src ne contient plus 'unsafe-inline' et que les scripts inline nécessaires utilisent un nonce ou un hash.",
+    "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+    "technical_actions": [
+      "Identifier tous les scripts inline présents dans les templates HTML.",
+      "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
+      "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
+      "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+    ],
+    "implementation_examples": {
+      "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
+      "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
+      "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+    },
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que script-src ne contient plus unsafe-inline.",
+    "Contrôler dans le HTML que les scripts inline restants portent un nonce ou hash valide.",
+    "Tester les principales pages pour détecter les régressions JavaScript."
+],
+    "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP."
+  },
+  {
+    "id": "kb_004",
+    "title": "CSP: style-src unsafe-inline",
+    "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "unsafe-inline", "style-src","css-injection"],
+    "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
+    "verification": "Vérifier que style-src ne contient plus 'unsafe-inline' et que les styles requis proviennent de fichiers CSS approuvés ou de hashes explicites.",
+    "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",
+    "technical_actions": [
+      "Identifier les styles inline dans les templates et composants front-end.",
+      "Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.",
+      "Conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.",
+      "Nettoyer les librairies ou widgets qui injectent du style inline non indispensable."
+    ],
+    "implementation_examples": {
+      "generic": "style-src 'self' https://fonts.googleapis.com;",
+      "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
+    },
+    "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que style-src ne contient plus unsafe-inline.",
+    "Contrôler le rendu visuel des pages après externalisation des styles.",
+    "Surveiller les erreurs CSP et corriger les blocs inline restants."
+],
+    "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP."
+  },
+  {
+    "id": "kb_005",
+    "title": "CSP: script-src unsafe-eval",
+    "description": "La directive script-src autorise unsafe-eval, ce qui permet certaines formes d’exécution dynamique dangereuse.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "unsafe-eval", "script-src"],
+    "recommendation": "Supprimer 'unsafe-eval' de script-src et refactoriser les bibliothèques ou fonctions JavaScript qui dépendent de eval, new Function ou mécanismes similaires.",
+    "verification": "Vérifier que script-src ne contient plus 'unsafe-eval' et tester le fonctionnement de l’application pour confirmer qu’aucun composant ne dépend encore de eval ou new Function.",
+    "recommendation_summary": "Éliminer les mécanismes d’exécution dynamique non sûrs côté navigateur.",
+    "technical_actions": [
+      "Rechercher dans le code et les dépendances les usages de eval, new Function, setTimeout avec chaîne ou équivalent.",
+      "Refactoriser les composants front-end concernés pour éviter l’exécution dynamique de code.",
+      "Mettre à jour ou remplacer les bibliothèques incompatibles avec une CSP stricte."
+    ],
+    "implementation_examples": {
+      "generic": "Remplacer eval(payload) par un parseur contrôlé ou une structure de données JSON validée.",
+      "csp": "script-src 'self' https://cdn.example.com;"
+    },
+  "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Vérifier que script-src ne contient plus unsafe-eval.",
+    "Tester les fonctionnalités front-end dynamiques susceptibles d'utiliser eval.",
+    "Contrôler la console navigateur pour détecter les blocages CSP."
+],
+    "report_template": "Supprimer l’autorisation 'unsafe-eval' de la directive script-src et éliminer les usages applicatifs ou bibliothèques qui reposent sur eval, new Function ou mécanismes similaires. Cette mesure réduit la surface d’exploitation côté client et doit être accompagnée d’une validation fonctionnelle complète des scripts de l’application."
+  },
+  {
+    "id": "kb_006",
+    "title": "Sub Resource Integrity Attribute Missing",
+    "aliases": [
+    "Subresource Integrity Attribute Missing",
+    "SRI Missing",
+    "Missing Subresource Integrity",
+    "Missing integrity attribute",
+    "Missing SRI attribute"
+  ],
+    "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+    "owasp": "A08:2021 - Software and Data Integrity Failures",
+    "cwe": "CWE-345",
+    "tags": ["sri", "integrity", "external script", "cdn"],
+    "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+    "verification": "Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.",
+    "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+    "technical_actions": [
+      "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+      "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+      "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+      "Réduire le nombre de dépendances tierces non indispensables."
+    ],
+    "implementation_examples": {
+      "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+      "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+    },
+   "verification_steps": [
+    "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+    "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+    "Recalculer le hash en cas de mise à jour de la dépendance.",
+    "Relancer le scan pour confirmer la disparition de l'alerte."
+],
+    "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié."
+  },
+  {
+    "id": "kb_007",
+    "title": "Cross-Domain JavaScript Source File Inclusion",
+    "description": "Des scripts JavaScript sont chargés depuis un domaine tiers, ce qui introduit un risque de chaîne d’approvisionnement.",
+    "owasp": "A08:2021 - Software and Data Integrity Failures",
+    "cwe": "CWE-829",
+    "tags": ["external javascript", "cdn", "third-party script"],
+    "recommendation": "Limiter les scripts tiers aux fournisseurs strictement nécessaires, préférer l’hébergement local pour les dépendances critiques et ajouter SRI pour les ressources externes conservées.",
+    "verification": "Vérifier que chaque script tiers est justifié, que les dépendances critiques sont hébergées localement quand possible, et que les scripts externes restants utilisent SRI.",
+    "recommendation_summary": "Réduire le risque de supply chain introduit par les scripts tiers.",
+    "technical_actions": [
+      "Établir un inventaire des scripts externes chargés au runtime.",
+      "Supprimer les inclusions non nécessaires ou redondantes.",
+      "Héberger localement les bibliothèques critiques ou fortement exposées.",
+      "Conserver SRI et une CSP restrictive pour les scripts tiers restants."
+    ],
+    "implementation_examples": {
+      "generic": "Remplacer un chargement direct CDN par une version locale servie depuis /assets/vendor/ si la librairie est critique.",
+      "csp": "script-src 'self' https://trusted-cdn.example.com;"
+    },
+    "verification_steps": [
+      "Lister les domaines tiers réellement contactés au chargement de la page.",
+      "Vérifier que chaque inclusion a une justification métier.",
+      "Confirmer qu’aucun script tiers critique n’est chargé sans contrôle d’intégrité."
+    ],
+    "report_template": "Réduire les inclusions JavaScript cross-domain au strict nécessaire et privilégier l’hébergement local pour les dépendances critiques. Les ressources tierces conservées doivent être limitées à des fournisseurs approuvés, encadrées par une CSP adaptée et, lorsque possible, protégées par Subresource Integrity."
+  },
+  {
+    "id": "kb_008",
+    "title": "Strict-Transport-Security Header Not Set",
+     "aliases": [
+    "HSTS Header Not Set",
+    "Missing HSTS Header",
+    "Strict Transport Security Header Missing",
+    "Missing Strict-Transport-Security",
+    "HSTS missing"
+  ],
+    "description": "Le site n’envoie pas l’en-tête HSTS, ce qui laisse la porte ouverte à certains scénarios de downgrade ou d’interception.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-319",
+    "tags": ["hsts", "strict transport security", "https"],
+    "recommendation": "Configurer l’en-tête Strict-Transport-Security avec une durée adaptée, inclure includeSubDomains si pertinent, et activer preload seulement après validation complète du périmètre.",
+    "verification": "Vérifier la présence de l’en-tête Strict-Transport-Security dans les réponses HTTPS et contrôler ses directives max-age, includeSubDomains et éventuellement preload.",
+    "recommendation_summary": "Forcer les clients à utiliser HTTPS uniquement pour réduire les risques de downgrade.",
+    "technical_actions": [
+      "Ajouter l’en-tête Strict-Transport-Security sur toutes les réponses HTTPS.",
+      "Définir un max-age cohérent, par exemple 31536000 pour une politique durable.",
+      "Ajouter includeSubDomains uniquement si tous les sous-domaines sont servis en HTTPS.",
+      "Activer preload seulement après audit complet de l’ensemble du périmètre."
+    ],
+    "implementation_examples": {
+      "nginx": "add_header Strict-Transport-Security \"max-age=31536000; includeSubDomains\" always;",
+      "apache": "Header always set Strict-Transport-Security \"max-age=31536000; includeSubDomains\"",
+      "iis": "Ajouter Strict-Transport-Security dans HTTP Response Headers ou web.config."
+    },
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i strict-transport-security",
+    "Vérifier que HSTS n'est pas renvoyé sur HTTP non chiffré.",
+    "Tester aussi les pages d'erreur et routes d'authentification."
+],
+    "report_template": "Mettre en place l’en-tête HTTP Strict-Transport-Security sur toutes les réponses HTTPS afin d’imposer l’utilisation du canal chiffré côté navigateur. Une valeur max-age durable est recommandée, avec includeSubDomains uniquement si tous les sous-domaines sont correctement servis en HTTPS. La configuration doit être validée sur les routes applicatives, pages sensibles et réponses d’erreur."
+  },
+  {
+    "id": "kb_009",
+    "title": "weak-cipher-suites",
+    "aliases": [
+  
+  "Vulnérabilité TLS : weak-cipher-suites"
+],
+    "description": "Le serveur accepte des suites cryptographiques faibles sur des protocoles TLS anciens.",
+    "owasp": "A02:2021 - Cryptographic Failures",
+    "cwe": "CWE-327",
+    "tags": ["tls", "cipher suites", "crypto"],
+    "recommendation": "Désactiver les suites cryptographiques faibles et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+    "verification": "Vérifier avec un scanner TLS que les suites faibles ne sont plus proposées et que seules des suites modernes restent activées.",
+    "recommendation_summary": "Renforcer la configuration cryptographique du serveur TLS.",
+    "technical_actions": [
+      "Supprimer les suites CBC anciennes ou faibles lorsque la compatibilité n’est pas requise.",
+      "Conserver uniquement les suites recommandées pour TLS 1.2 et TLS 1.3.",
+      "Appliquer la configuration au niveau du serveur web, du reverse proxy ou du load balancer selon le point de terminaison TLS."
+    ],
+    "implementation_examples": {
+      "nginx": "ssl_protocols TLSv1.2 TLSv1.3; ssl_ciphers 'ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256';",
+      "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+    },
+    "verification_steps": [
+      "Relancer un scan TLS après correction.",
+      "Vérifier que les suites faibles ne sont plus proposées.",
+      "Confirmer que les clients métiers compatibles TLS 1.2+ continuent de se connecter."
+    ],
+    "report_template": "Durcir la configuration cryptographique en supprimant les suites faibles ou obsolètes et en ne conservant que des suites robustes compatibles avec TLS 1.2 et TLS 1.3. La configuration doit être appliquée sur le composant qui termine réellement TLS et confirmée par un nouveau scan SSL/TLS."
+  },
+  {
+    "id": "kb_010",
+    "title": "deprecated-tls",
+    "aliases": [
+  "Protocole déprécié activé : TLS 1.0",
+  "Protocole déprécié activé : TLS 1.1",
+  "Protocole déprécié activé : SSLv2",
+  "Protocole déprécié activé : SSLv3",
+  "TLS 1.0",
+  "TLS 1.1",
+  "SSLv2",
+  "SSLv3"
+],
+    "description": "Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes.",
+    "owasp": "A02:2021 - Cryptographic Failures",
+    "cwe": "CWE-327",
+    "tags": ["tls 1.0", "tls 1.1", "deprecated tls"],
+    "recommendation": "Désactiver TLS 1.0 et TLS 1.1 sur le serveur et conserver uniquement TLS 1.2 et TLS 1.3.",
+    "verification": "Vérifier via un scan SSL/TLS que TLS 1.0 et TLS 1.1 ne sont plus négociables et que TLS 1.2 ou TLS 1.3 restent disponibles.",
+    "recommendation_summary": "Supprimer les protocoles TLS obsolètes exposés par le service.",
+    "technical_actions": [
+      "Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.",
+      "Conserver uniquement TLS 1.2 et TLS 1.3.",
+      "Vérifier les dépendances applicatives et clients legacy avant mise en production."
+    ],
+    "implementation_examples": {
+      "nginx": "ssl_protocols TLSv1.2 TLSv1.3;",
+      "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+    },
+    "verification_steps": [
+      "Scanner le service TLS après changement.",
+      "Contrôler que seules TLS 1.2 et TLS 1.3 restent disponibles.",
+      "Tester la compatibilité des clients métiers."
+    ],
+    "report_template": "Désactiver les protocoles TLS 1.0 et TLS 1.1, devenus obsolètes, et limiter le service aux versions TLS 1.2 et TLS 1.3. La mesure doit être appliquée sur le serveur ou le composant réseau terminant HTTPS, puis validée par un nouveau contrôle SSL/TLS."
+  },
+  {
+    "id": "kb_011",
+    "title": "Cross-Domain Misconfiguration",
+    "aliases": [
+    "CORS Misconfiguration",
+    "Cross-Origin Resource Sharing Misconfiguration",
+    "Access-Control-Allow-Origin Misconfiguration",
+    "Permissive CORS",
+    "Misconfigured CORS"
+  ],
+    "description": "La politique CORS autorise des origines trop larges ou arbitraires.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-264",
+    "tags": ["cors", "access-control-allow-origin", "cross-domain"],
+    "recommendation": "Restreindre Access-Control-Allow-Origin aux domaines applicatifs explicitement autorisés et éviter l’utilisation de '*' pour les ressources sensibles ou métier.",
+    "verification": "Vérifier dans les réponses HTTP que Access-Control-Allow-Origin contient uniquement les origines prévues et qu’aucune ressource sensible n’est exposée avec une politique trop permissive.",
+    "recommendation_summary": "Limiter les accès cross-origin aux seuls consommateurs réellement autorisés.",
+    "technical_actions": [
+      "Identifier les endpoints réellement destinés à un accès cross-origin.",
+      "Remplacer Access-Control-Allow-Origin: * par une liste blanche contrôlée.",
+      "Désactiver Access-Control-Allow-Credentials si non nécessaire.",
+      "Limiter aussi les méthodes, headers et origines autorisées."
+    ],
+    "implementation_examples": {
+      "generic": "Retourner dynamiquement l’origine uniquement si elle appartient à une liste blanche approuvée.",
+      "nginx": "Ajouter Access-Control-Allow-Origin uniquement pour les domaines attendus, jamais de manière globale si les données sont sensibles."
+    },
+    "verification_steps": [
+      "Tester les endpoints depuis une origine autorisée et une origine non autorisée.",
+      "Vérifier qu’une origine arbitraire ne reçoit plus de réponse CORS valide.",
+      "Contrôler les endpoints contenant des données métiers ou identifiants."
+    ],
+    "report_template": "Revoir la configuration CORS afin de ne permettre l’accès cross-origin qu’aux domaines explicitement approuvés. L’utilisation de l’origine générique '*' doit être supprimée pour les ressources métier ou sensibles. Les méthodes, en-têtes et éventuels accès avec credentials doivent également être restreints au strict besoin fonctionnel."
+  },
+  {
+    "id": "kb_012",
+    "title": "Server Leaks Version Information via Server HTTP Response Header Field",
+      "aliases": [
+    "Server Header Leaks Version",
+    "Server Version Disclosure",
+    "Information Disclosure via Server Header",
+    "Server header exposes version",
+    "Server header information leakage"
+  ]
+,
+    "description": "Le serveur expose sa version logicielle dans l’en-tête Server.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-497",
+    "tags": ["server header", "information disclosure", "apache", "nginx"],
+    "recommendation": "Configurer le serveur web pour masquer ou généraliser l’en-tête Server afin de limiter l’exposition d’informations de fingerprinting.",
+    "verification": "Vérifier dans les réponses HTTP que l’en-tête Server est absent ou qu’il ne révèle plus de version précise du composant.",
+    "recommendation_summary": "Réduire les informations de fingerprinting exposées aux clients.",
+    "technical_actions": [
+      "Désactiver l’exposition de la version logicielle du serveur.",
+      "Configurer des tokens serveur minimaux ou génériques.",
+      "Appliquer aussi la mesure sur les reverse proxies et load balancers si nécessaire."
+    ],
+    "implementation_examples": {
+      "apache": "ServerTokens Prod\nServerSignature Off",
+      "nginx": "server_tokens off;"
+    },
+    "verification_steps": [
+      "Vérifier les réponses HTTP après modification.",
+      "Contrôler qu’aucune version exacte n’est exposée dans Server.",
+      "Tester également les pages d’erreur."
+    ],
+    "report_template": "Réduire les informations de fingerprinting exposées par l’infrastructure en supprimant la version logicielle détaillée de l’en-tête Server. La configuration doit être appliquée au niveau du serveur HTTP ou du reverse proxy et validée sur plusieurs réponses, y compris les erreurs."
+  },
+  {
+    "id": "kb_013",
+    "title": "Information Disclosure - Suspicious Comments",
+    "description": "Des commentaires dans le code client exposent des indices techniques pouvant aider un attaquant.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-615",
+    "tags": ["comments", "information disclosure", "frontend"],
+    "recommendation": "Supprimer les commentaires de développement, messages de debug et indications techniques inutiles des réponses HTTP et des ressources front-end publiées.",
+    "verification": "Vérifier le code source rendu côté client et les fichiers JavaScript/CSS pour confirmer l’absence de commentaires sensibles ou d’indices de debug.",
+    "recommendation_summary": "Nettoyer les artefacts de développement visibles côté client.",
+    "technical_actions": [
+      "Retirer les commentaires métier, techniques ou de debug du HTML rendu.",
+      "Désactiver les builds front-end non minifiés en production si non justifiés.",
+      "Supprimer les messages révélant la structure interne, l’origine des données ou les contournements temporaires."
+    ],
+    "implementation_examples": {
+      "generic": "Activer minification/obfuscation raisonnable en production et retirer les commentaires source.",
+      "pipeline": "Ajouter une étape de build de production qui supprime commentaires et traces de debug."
+    },
+    "verification_steps": [
+      "Afficher le code source et les assets JS/CSS publiés.",
+      "Rechercher des commentaires contenant TODO, debug, internal, secret, bypass ou indications similaires.",
+      "Vérifier qu’aucune information sensible n’est encore exposée."
+    ],
+    "report_template": "Supprimer des réponses HTTP et des ressources front-end tous les commentaires de développement, messages de debug et indices techniques pouvant faciliter l’analyse d’un attaquant. Cette mesure doit être intégrée dans le pipeline de build ou dans la phase de publication des assets."
+  },
+  {
+    "id": "kb_014",
+    "title": "Retrieved from Cache",
+    "description": "Une réponse a été servie depuis un cache partagé, ce qui peut être problématique si le contenu est sensible.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-525",
+    "tags": ["cache", "proxy cache", "shared cache"],
+    "recommendation": "Pour les contenus sensibles ou liés à une session, définir Cache-Control: no-store, no-cache, must-revalidate, private ainsi que Pragma: no-cache et Expires: 0 si nécessaire.",
+    "verification": "Vérifier les en-têtes de cache sur les réponses sensibles et confirmer qu’un proxy partagé ne peut plus réutiliser ces contenus pour un autre utilisateur.",
+    "recommendation_summary": "Empêcher le recyclage de contenus sensibles via des caches partagés.",
+    "technical_actions": [
+      "Identifier les pages liées à une session, des données personnelles ou des actions sensibles.",
+      "Positionner Cache-Control: private, no-store, no-cache, must-revalidate selon le cas.",
+      "Ajouter Pragma: no-cache et Expires: 0 si une compatibilité plus ancienne est requise.",
+      "Vérifier la configuration des reverse proxies, CDN et caches intermédiaires."
+    ],
+    "implementation_examples": {
+      "php": "header('Cache-Control: no-store, no-cache, must-revalidate, private'); header('Pragma: no-cache'); header('Expires: 0');",
+      "nginx": "add_header Cache-Control \"no-store, no-cache, must-revalidate, private\" always;"
+    },
+    "verification_steps": [
+      "Inspecter les en-têtes des pages sensibles.",
+      "Tester avec plusieurs utilisateurs ou sessions.",
+      "Vérifier qu’un contenu privé n’est plus servi depuis un cache partagé."
+    ],
+    "report_template": "Appliquer une politique de cache restrictive sur les contenus sensibles, authentifiés ou personnalisés afin d’éviter leur réutilisation depuis un cache partagé. Les réponses concernées doivent renvoyer des en-têtes Cache-Control cohérents, complétés si nécessaire par Pragma et Expires."
+  },
+  {
+    "id": "kb_015",
+    "title": "Re-examine Cache-control Directives",
+    "description": "La politique de cache mérite une revue afin d’éviter la conservation non voulue de contenus sensibles.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-525",
+    "tags": ["cache-control", "browser cache"],
+    "recommendation": "Adapter les directives Cache-Control selon la nature de chaque ressource, en empêchant explicitement le cache des contenus authentifiés, sensibles ou personnalisés.",
+    "verification": "Vérifier que les ressources sensibles utilisent une politique de cache restrictive et que les contenus statiques non sensibles disposent d’une politique cohérente.",
+    "recommendation_summary": "Différencier clairement les politiques de cache selon le type de contenu servi.",
+    "technical_actions": [
+      "Classer les réponses en contenu statique public, contenu métier public, contenu authentifié et contenu sensible.",
+      "Définir une stratégie de cache différente pour chaque catégorie.",
+      "Utiliser immutable et max-age long uniquement pour les assets versionnés.",
+      "Empêcher la mise en cache des pages de compte, panier, session ou administration."
+    ],
+    "implementation_examples": {
+      "static": "Cache-Control: public, max-age=31536000, immutable",
+      "sensitive": "Cache-Control: no-store, private, must-revalidate"
+    },
+    "verification_steps": [
+      "Vérifier les en-têtes sur les principales catégories de pages.",
+      "Tester la navigation authentifiée et la déconnexion.",
+      "Confirmer que les assets statiques bénéficient d’un cache optimisé sans exposer de données privées."
+    ],
+    "report_template": "Revoir la stratégie Cache-Control en distinguant clairement les ressources statiques versionnées des contenus authentifiés ou sensibles. Les premiers peuvent être mis en cache de manière agressive lorsqu’ils sont immuables, tandis que les seconds doivent être explicitement exclus des caches navigateur et intermédiaires."
+  },
+  {
+    "id": "kb_016",
+    "title": "google-calendar-exposure",
+    "description": "Une URL d’agenda Google est exposée publiquement dans le contenu ou les ressources du site.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-200",
+    "tags": ["google calendar", "information exposure", "public calendar"],
+    "recommendation": "Vérifier que l’agenda exposé est destiné à être public, supprimer les identifiants d’agenda non nécessaires et restreindre les agendas qui ne doivent pas être accessibles publiquement.",
+    "verification": "Vérifier que l’URL d’agenda exposée ne donne accès qu’à des événements publics approuvés et qu’aucune information interne n’y apparaît.",
+    "recommendation_summary": "Contrôler la publication des agendas exposés via le site.",
+    "technical_actions": [
+      "Identifier l’agenda Google embarqué ou référencé.",
+      "Vérifier son niveau de partage côté Google Workspace ou Google Calendar.",
+      "Retirer l’intégration si elle n’est pas nécessaire.",
+      "Créer un agenda séparé strictement public si un partage externe est requis."
+    ],
+    "implementation_examples": {
+      "generic": "Ne jamais réutiliser un agenda interne partagé comme source d’un widget public.",
+      "html": "Supprimer l’URL d’embed si le calendrier n’est pas destiné au public."
+    },
+    "verification_steps": [
+      "Ouvrir l’URL d’agenda depuis un contexte non authentifié.",
+      "Contrôler le détail des événements exposés.",
+      "Vérifier qu’aucune métadonnée interne n’est visible."
+    ],
+    "report_template": "Vérifier que l’agenda Google exposé par le site a bien vocation à être public et qu’il ne contient aucune information interne, opérationnelle ou sensible. Si ce n’est pas le cas, l’intégration doit être supprimée ou remplacée par un agenda spécifiquement créé pour la publication externe."
+  },
+  {
+    "id": "kb_017",
+    "title": "SQL Injection",
+    "aliases": [
+  "SQL injection vulnerability in the Views module",
+  "Drupal Views SQL Injection",
+  "Views module SQL injection",
+  "CVE-2008-6020",
+  "CVE-2011-4113"
+],
+    "description": "Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs.",
+    "owasp": "A03:2021 - Injection",
+    "cwe": "CWE-89",
+    "tags": ["sql injection", "sqli", "database"],
+    "recommendation": "Remplacer la concaténation SQL dynamique par des requêtes préparées ou paramétrées et valider strictement les entrées attendues côté serveur.",
+    "verification": "Vérifier dans le code que les requêtes utilisent des paramètres liés et rejouer le scénario de test pour confirmer qu’aucune injection SQL n’est encore possible.",
+    "recommendation_summary": "Supprimer toute construction SQL basée sur de la concaténation de données utilisateur.",
+    "technical_actions": [
+      "Identifier les requêtes construites dynamiquement avec concaténation.",
+      "Utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.",
+      "Valider côté serveur le type, format et domaine de chaque entrée.",
+      "Éviter de concaténer dynamiquement les clauses ORDER BY, LIMIT ou noms de colonnes sans liste blanche."
+    ],
+    "implementation_examples": {
+      "python": "cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
+      "php_pdo": "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email'); $stmt->execute(['email' => $email]);"
+    },
+    "verification_steps": [
+      "Rechercher les usages de concaténation SQL dans le code.",
+      "Tester les paramètres identifiés avec payloads d’injection.",
+      "Vérifier aussi les accès indirects via filtres, tri et recherche."
+    ],
+    "report_template": "Remplacer toutes les requêtes SQL construites dynamiquement à partir d’entrées utilisateur par des requêtes préparées ou paramétrées. Les paramètres métier doivent en complément être validés côté serveur selon leur type attendu. Une nouvelle campagne de tests doit confirmer qu’aucune injection SQL n’est encore possible sur les points d’entrée affectés."
+  },
+  {
+    "id": "kb_018",
+    "title": "Cross-Site Scripting",
+    "description": "Une entrée contrôlée par l’utilisateur est restituée dans une page web sans neutralisation adaptée au contexte HTML, attribut, URL ou JavaScript.",
+    "owasp": "A03:2021 - Injection",
+    "cwe": "CWE-79",
+    "tags": ["xss", "cross-site scripting"],
+    "recommendation": "Appliquer un encodage de sortie contextuel sur les données affichées, valider les entrées et éviter toute insertion directe de contenu non fiable dans le DOM.",
+    "verification": "Vérifier que les données utilisateur sont encodées selon leur contexte de rendu et rejouer les charges utiles XSS pour confirmer qu’elles ne s’exécutent plus.",
+    "recommendation_summary": "Neutraliser les données non fiables selon leur contexte exact de rendu.",
+    "technical_actions": [
+      "Identifier le contexte de rendu : HTML, attribut, JavaScript, URL, CSS.",
+      "Appliquer un encodage de sortie adapté au contexte.",
+      "Éviter innerHTML et fonctions DOM dangereuses sur des données non fiables.",
+      "Filtrer/valider les entrées riches si un sous-ensemble HTML est autorisé.",
+      "Compléter par une CSP stricte pour limiter l’impact d’une injection résiduelle."
+    ],
+    "implementation_examples": {
+      "javascript": "Préférer textContent à innerHTML pour afficher une donnée utilisateur.",
+      "server": "Utiliser les helpers d’échappement HTML du framework au moment du rendu."
+    },
+    "verification_steps": [
+      "Rejouer les payloads XSS sur les champs concernés.",
+      "Contrôler la sortie rendue dans le navigateur.",
+      "Vérifier les scripts inline et la CSP si présente."
+    ],
+    "report_template": "Corriger la faille XSS en appliquant un encodage de sortie contextuel sur toutes les données non fiables au moment du rendu. Les insertions DOM dangereuses doivent être supprimées ou remplacées par des API sûres, et les entrées riches doivent être filtrées strictement lorsque leur usage est nécessaire. La correction doit être validée par des tests XSS ciblés."
+  },
+  {
+    "id": "kb_019",
+    "title": "CSRF",
+    "aliases": [
+  "Multiple cross-site request forgery vulnerabilities in the Views UI implementation",
+  "Drupal Views CSRF",
+  "Views UI CSRF",
+  "CVE-2010-4519"
+],
+    "description": "Une action sensible peut être déclenchée depuis le navigateur d’un utilisateur authentifié sans preuve d’intention explicite.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-352",
+    "tags": ["csrf", "cross-site request forgery"],
+    "recommendation": "Ajouter des jetons anti-CSRF sur les opérations sensibles, vérifier l’origine des requêtes et utiliser SameSite sur les cookies lorsque possible.",
+    "verification": "Vérifier la présence et le contrôle des jetons anti-CSRF sur les formulaires et endpoints sensibles, puis confirmer qu’une requête forgée externe est rejetée.",
+    "recommendation_summary": "Assurer une preuve d’intention sur les opérations sensibles.",
+    "technical_actions": [
+      "Générer un jeton CSRF unique par session ou requête selon le framework.",
+      "Vérifier ce jeton côté serveur sur tous les endpoints d’écriture ou d’action.",
+      "Activer SameSite sur les cookies de session.",
+      "Vérifier aussi Origin et/ou Referer sur les opérations critiques."
+    ],
+    "implementation_examples": {
+      "generic": "Inclure un champ caché _csrf dans les formulaires et valider sa valeur côté serveur.",
+      "api": "Pour les appels AJAX authentifiés par cookie, exiger un token CSRF dans un header dédié."
+    },
+    "verification_steps": [
+      "Tester les formulaires et endpoints POST/PUT/PATCH/DELETE.",
+      "Vérifier qu’une requête cross-site sans token valide est rejetée.",
+      "Contrôler les cookies SameSite après correction."
+    ],
+    "report_template": "Ajouter une protection anti-CSRF sur tous les traitements modifiant l’état de l’application en exigeant un jeton vérifié côté serveur. La correction doit être complétée par un paramétrage SameSite cohérent sur les cookies de session et, pour les opérations critiques, par une validation de l’origine des requêtes."
+  },
+  {
+    "id": "kb_020",
+    "title": "Improper Access Control",
+    "description": "Une ressource, une fonctionnalité ou une donnée n’est pas correctement protégée par des contrôles d’autorisation côté serveur.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-284",
+    "tags": ["access control", "authorization", "broken access control"],
+    "recommendation": "Appliquer des vérifications d’autorisation côté serveur pour chaque ressource et action sensible, sans se reposer sur l’interface ou le rôle affiché côté client.",
+    "verification": "Vérifier avec plusieurs profils utilisateurs que les ressources protégées renvoient bien un refus d’accès lorsqu’un utilisateur non autorisé tente d’y accéder.",
+    "recommendation_summary": "Recentrer les contrôles d’accès côté serveur sur chaque objet et chaque action.",
+    "technical_actions": [
+      "Vérifier l’autorisation à chaque accès à une ressource métier.",
+      "Mettre en œuvre des contrôles par rôle, permission et/ou propriété de l’objet.",
+      "Ne jamais déduire les droits à partir du front-end ou de paramètres modifiables côté client.",
+      "Journaliser les refus d’accès utiles pour audit."
+    ],
+    "implementation_examples": {
+      "generic": "Contrôler user.can('read_invoice', invoice_id) avant tout renvoi de ressource.",
+      "api": "Retourner 403 ou 404 selon la stratégie d’exposition retenue."
+    },
+    "verification_steps": [
+      "Tester avec comptes autorisés et non autorisés.",
+      "Contrôler l’accès direct par URL ou ID manipulé.",
+      "Vérifier l’accès aux endpoints API et export."
+    ],
+    "report_template": "Renforcer les contrôles d’autorisation côté serveur sur chaque ressource et chaque action sensible. Les permissions doivent être évaluées à partir du contexte authentifié et non de l’interface cliente. Des tests croisés entre profils autorisés et non autorisés doivent confirmer l’impossibilité d’accéder aux ressources protégées."
+  },
+  {
+    "id": "kb_021",
+    "title": "Open Redirect",
+    "description": "Une redirection s’appuie sur une entrée contrôlable par l’utilisateur sans validation stricte de la destination.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-601",
+    "tags": ["open redirect", "redirect", "phishing"],
+    "recommendation": "Remplacer les redirections dynamiques par des destinations internes prédéfinies ou valider strictement les URLs autorisées via une liste blanche.",
+    "verification": "Vérifier qu’une URL externe arbitraire fournie en paramètre n’entraîne plus de redirection vers un domaine non autorisé.",
+    "recommendation_summary": "Empêcher la redirection vers des destinations arbitraires pilotées par l’utilisateur.",
+    "technical_actions": [
+      "Supprimer les paramètres de redirection libre quand cela est possible.",
+      "Utiliser des identifiants internes ou chemins applicatifs au lieu d’URLs complètes.",
+      "Si une URL externe est nécessaire, valider son domaine via une liste blanche stricte."
+    ],
+    "implementation_examples": {
+      "generic": "Remplacer ?next=https://evil.example par ?next=dashboard puis résoudre côté serveur.",
+      "server": "N’autoriser que des chemins relatifs internes commençant par /app/."
+    },
+    "verification_steps": [
+      "Tester des URLs externes, protocoles alternatifs et encodages.",
+      "Vérifier qu’aucune redirection non autorisée n’est effectuée.",
+      "Contrôler les redirections post-login et post-logout."
+    ],
+    "report_template": "Supprimer les redirections pilotées par une URL utilisateur non validée et les remplacer par des destinations internes contrôlées ou une liste blanche stricte de domaines autorisés. La correction doit être testée avec plusieurs formats de destination externes afin de confirmer l’absence de contournement."
+  },
+  {
+    "id": "kb_022",
+    "title": "Sensitive Information Exposure via Caching",
+    "description": "Des données de session ou informations sensibles peuvent être réutilisées depuis le cache.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-200",
+    "tags": ["session", "cache", "exposure"],
+    "recommendation": "Désactiver le cache des pages contenant des données liées à l’utilisateur, des jetons ou des valeurs de session, et contrôler les en-têtes de cache applicatifs et proxy.",
+    "verification": "Vérifier que les pages sensibles renvoient des en-têtes empêchant le cache partagé et qu’aucune donnée utilisateur n’est restituée à un autre client.",
+    "recommendation_summary": "Éviter l’exposition indirecte des données sensibles via les couches de cache.",
+    "technical_actions": [
+      "Identifier les pages avec session, jeton CSRF, données personnelles ou données d’administration.",
+      "Définir Cache-Control: no-store, private sur ces réponses.",
+      "Contrôler le comportement du CDN, reverse proxy et navigateur.",
+      "Purger les caches existants après correction si nécessaire."
+    ],
+    "implementation_examples": {
+      "generic": "Appliquer une politique no-store sur toutes les pages authentifiées et personnalisées.",
+      "proxy": "Exclure les chemins /account, /checkout, /admin, /profile du cache partagé."
+    },
+    "verification_steps": [
+      "Comparer le contenu servi entre plusieurs sessions.",
+      "Vérifier les headers Cache-Control et Vary.",
+      "Contrôler la purge effective côté cache intermédiaire."
+    ],
+    "report_template": "Empêcher la réutilisation des pages contenant des données sensibles ou liées à une session en appliquant une politique de cache stricte au niveau applicatif et sur les composants intermédiaires. Les réponses concernées doivent être exclues des caches partagés et validées avec plusieurs sessions distinctes."
+  },
+  {
+    "id": "kb_023",
+    "title": "Reflected File Download",
+    "aliases": [
+  "reflected file download vulnerability",
+  "Drupal System module reflected file download",
+  "System module RFD",
+  "CVE-2016-3168"
+],
+    "description": "Une réponse contrôlable permet le téléchargement d’un fichier interprétable contenant un contenu malveillant.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-Other",
+    "tags": ["reflected file download", "download", "json"],
+    "recommendation": "Éviter les réponses téléchargeables construites à partir d’entrées non fiables, définir un Content-Type approprié et empêcher l’injection de contenu interprétable dans les fichiers téléchargés.",
+    "verification": "Vérifier qu’un paramètre contrôlé par l’utilisateur ne peut plus produire un téléchargement contenant du contenu exécutable ou trompeur.",
+    "recommendation_summary": "Empêcher la génération de fichiers téléchargeables manipulables par l’utilisateur.",
+    "technical_actions": [
+      "Neutraliser les entrées utilisateur réinjectées dans les noms ou contenus de fichiers.",
+      "Forcer un Content-Type correct et un nom de fichier maîtrisé.",
+      "Éviter de concaténer directement des paramètres dans des exports téléchargeables.",
+      "Valider les caractères autorisés dans les noms ou contenus exportés."
+    ],
+    "implementation_examples": {
+      "generic": "Ne pas refléter un paramètre brut dans Content-Disposition ou dans un fichier exporté.",
+      "header": "Content-Type: application/json; charset=UTF-8"
+    },
+    "verification_steps": [
+      "Tester les paramètres d’export avec contenu injecté.",
+      "Vérifier les headers Content-Type et Content-Disposition.",
+      "Contrôler le comportement du fichier téléchargé sous Windows et navigateur."
+    ],
+    "report_template": "Sécuriser les réponses téléchargeables en supprimant toute réinjection non contrôlée d’entrées utilisateur dans le contenu ou les métadonnées du fichier. Les réponses d’export doivent utiliser un type MIME cohérent, un nom de fichier maîtrisé et une validation stricte des données exportées."
+  },
+  {
+    "id": "kb_024",
+    "title": "Permissions-Policy Header Missing",
+    "aliases": [
+    "Permissions Policy Header Missing",
+    "Missing Permissions-Policy Header",
+    "Permissions-Policy Header Not Set",
+    "Permissions Policy Not Set"
+  ],
+    "description": "L’absence de Permissions-Policy laisse des fonctionnalités du navigateur disponibles sans restriction explicite.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["permissions-policy", "security headers"],
+    "recommendation": "Définir un en-tête Permissions-Policy limitant explicitement l’usage des fonctionnalités navigateur non nécessaires comme camera, microphone, geolocation ou fullscreen.",
+    "verification": "Vérifier la présence de l’en-tête Permissions-Policy et confirmer que seules les fonctionnalités strictement utiles sont autorisées.",
+    "recommendation_summary": "Réduire les capacités navigateur accessibles aux pages de l’application.",
+    "technical_actions": [
+      "Lister les API navigateur réellement utilisées.",
+      "Désactiver explicitement les capacités non nécessaires.",
+      "Appliquer une politique par défaut restrictive."
+    ],
+    "implementation_examples": {
+      "generic": "Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=()",
+      "nginx": "add_header Permissions-Policy \"geolocation=(), microphone=(), camera=()\" always;"
+    },
+    "verification_steps": [
+      "Vérifier la présence de Permissions-Policy.",
+      "Tester les fonctionnalités métier ayant besoin d’une capacité navigateur.",
+      "Confirmer que les autres capacités sont bien bloquées."
+    ],
+    "report_template": "Définir un en-tête Permissions-Policy restrictif afin de limiter explicitement les fonctionnalités navigateur accessibles depuis l’application. Seules les capacités métier réellement nécessaires doivent être autorisées, les autres devant être désactivées par défaut."
+  },
+  {
+    "id": "kb_025",
+    "title": "Cross-Origin-Opener-Policy Header Missing",
+    "aliases": [
+    "COOP Header Missing",
+    "Missing Cross-Origin-Opener-Policy Header",
+    "Cross-Origin-Opener-Policy Header Not Set",
+    "Missing COOP Header"
+  ],
+    "description": "L’absence de COOP ne protège pas l’isolation du contexte de navigation.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["coop", "cross-origin-opener-policy"],
+    "recommendation": "Ajouter l’en-tête Cross-Origin-Opener-Policy avec une valeur adaptée, par exemple same-origin, pour isoler le contexte de navigation lorsque l’application le permet.",
+    "verification": "Vérifier que l’en-tête Cross-Origin-Opener-Policy est présent avec une valeur cohérente sur les réponses HTML.",
+    "recommendation_summary": "Améliorer l’isolation du contexte navigateur de l’application.",
+    "technical_actions": [
+      "Ajouter COOP sur les réponses HTML principales.",
+      "Utiliser same-origin quand l’application n’a pas besoin d’échanges de contexte inter-origine.",
+      "Tester les cas d’ouverture de fenêtres et intégrations externes."
+    ],
+    "implementation_examples": {
+      "generic": "Cross-Origin-Opener-Policy: same-origin"
+    },
+    "verification_steps": [
+      "Vérifier les réponses HTML avec curl ou navigateur.",
+      "Tester les flux métiers ouvrant de nouvelles fenêtres.",
+      "Contrôler la compatibilité avec les intégrations externes."
+    ],
+    "report_template": "Ajouter l’en-tête Cross-Origin-Opener-Policy sur les réponses HTML afin d’isoler le contexte de navigation et de réduire certains risques cross-origin. La valeur same-origin est généralement recommandée sous réserve de compatibilité avec les besoins fonctionnels."
+  },
+  {
+    "id": "kb_026",
+    "title": "Cross-Origin-Embedder-Policy Header Missing",
+    "aliases": [
+    "COEP Header Missing",
+    "Missing Cross-Origin-Embedder-Policy Header",
+    "Cross-Origin-Embedder-Policy Header Not Set",
+    "Missing COEP Header"
+  ],
+    "description": "L’absence de COEP réduit l’isolation cross-origin pour certaines ressources embarquées.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["coep", "cross-origin-embedder-policy"],
+    "recommendation": "Ajouter l’en-tête Cross-Origin-Embedder-Policy avec une valeur adaptée, généralement require-corp, après validation de compatibilité avec les ressources embarquées.",
+    "verification": "Vérifier la présence de Cross-Origin-Embedder-Policy et contrôler que les ressources externes requises restent compatibles avec la politique définie.",
+    "recommendation_summary": "Renforcer l’isolation cross-origin des ressources embarquées.",
+    "technical_actions": [
+      "Ajouter COEP sur les réponses HTML lorsque l’application vise une isolation renforcée.",
+      "Utiliser require-corp si les ressources tierces sont compatibles.",
+      "Vérifier que les ressources externes renvoient les headers CORP/CORS nécessaires."
+    ],
+    "implementation_examples": {
+      "generic": "Cross-Origin-Embedder-Policy: require-corp"
+    },
+    "verification_steps": [
+      "Vérifier la présence du header sur les pages HTML.",
+      "Tester le chargement des ressources externes.",
+      "Contrôler les éventuelles régressions côté navigateur."
+    ],
+    "report_template": "Mettre en place l’en-tête Cross-Origin-Embedder-Policy afin d’améliorer l’isolation des ressources embarquées. La valeur require-corp peut être retenue sous réserve de compatibilité avec les ressources externes effectivement utilisées par l’application."
+  },
+  {
+    "id": "kb_027",
+    "title": "Cross-Origin-Resource-Policy Header Missing",
+    "aliases": [
+    "CORP Header Missing",
+    "Missing Cross-Origin-Resource-Policy Header",
+    "Cross-Origin-Resource-Policy Header Not Set",
+    "Missing CORP Header"
+  ],
+    "description": "L’absence de CORP laisse les ressources sans politique explicite de partage cross-origin.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["corp", "cross-origin-resource-policy"],
+    "recommendation": "Définir Cross-Origin-Resource-Policy selon le besoin réel de partage des ressources, par exemple same-origin ou same-site.",
+    "verification": "Vérifier que les réponses sensibles ou internes incluent un en-tête Cross-Origin-Resource-Policy cohérent avec leur exposition attendue.",
+    "recommendation_summary": "Spécifier explicitement qui peut charger les ressources servies.",
+    "technical_actions": [
+      "Déterminer quelles ressources sont internes seulement et lesquelles sont partagées.",
+      "Appliquer same-origin ou same-site sur les ressources non destinées à une consommation externe.",
+      "Vérifier les usages cross-origin légitimes."
+    ],
+    "implementation_examples": {
+      "generic": "Cross-Origin-Resource-Policy: same-origin"
+    },
+    "verification_steps": [
+      "Contrôler les assets et réponses sensibles.",
+      "Tester un chargement cross-origin non autorisé.",
+      "Vérifier l’absence de régression sur les usages attendus."
+    ],
+    "report_template": "Ajouter l’en-tête Cross-Origin-Resource-Policy afin de contrôler explicitement quelles origines peuvent charger les ressources servies. Une valeur restrictive comme same-origin ou same-site est recommandée pour les contenus internes ou sensibles."
+  },
+  {
+    "id": "kb_028",
+    "title": "Clear-Site-Data Header Missing",
+    "aliases": [
+    "Missing Clear-Site-Data Header",
+    "Clear-Site-Data Header Not Set"
+  ],
+    "description": "Le site ne fournit pas de mécanisme explicite pour purger les données côté client lors de certains événements sensibles.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["clear-site-data", "logout", "browser data"],
+    "recommendation": "Ajouter Clear-Site-Data sur les flux appropriés comme la déconnexion ou certaines opérations sensibles lorsque la purge du cache, stockage ou cookies est nécessaire.",
+    "verification": "Vérifier la présence de Clear-Site-Data sur les réponses ciblées et contrôler que les données navigateur attendues sont bien purgées.",
+    "recommendation_summary": "Prévoir une purge explicite des données navigateur sur les flux sensibles.",
+    "technical_actions": [
+      "Identifier les événements nécessitant une purge locale : logout, révocation de session, changement de compte.",
+      "Ajouter Clear-Site-Data sur les réponses concernées.",
+      "Valider l’effet réel sur cookies, cache et storage."
+    ],
+    "implementation_examples": {
+      "generic": "Clear-Site-Data: \"cache\", \"cookies\", \"storage\""
+    },
+    "verification_steps": [
+      "Tester la déconnexion et la réouverture du navigateur.",
+      "Vérifier l’effacement des données attendues.",
+      "Contrôler l’absence de régression fonctionnelle."
+    ],
+    "report_template": "Mettre en œuvre l’en-tête Clear-Site-Data sur les flux de déconnexion ou autres opérations sensibles lorsque l’effacement du cache, du stockage local ou des cookies est requis. Cette mesure doit être testée dans les principaux navigateurs supportés."
+  },
+  {
+    "id": "kb_029",
+    "title": "X-Permitted-Cross-Domain-Policies Header Missing",
+    "aliases": [
+    "Missing X-Permitted-Cross-Domain-Policies Header",
+    "X Permitted Cross Domain Policies Header Missing",
+    "X-Permitted-Cross-Domain-Policies Not Set"
+  ],
+    "description": "L’absence de cet en-tête laisse ouverte l’interprétation des politiques cross-domain par certains plugins anciens.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["x-permitted-cross-domain-policies", "legacy plugins"],
+    "recommendation": "Ajouter l’en-tête X-Permitted-Cross-Domain-Policies avec la valeur none si aucun partage cross-domain via plugins legacy n’est requis.",
+    "verification": "Vérifier que l’en-tête X-Permitted-Cross-Domain-Policies est présent avec une valeur restrictive adaptée.",
+    "recommendation_summary": "Bloquer par défaut les politiques cross-domain héritées non nécessaires.",
+    "technical_actions": [
+      "Ajouter X-Permitted-Cross-Domain-Policies: none sauf besoin métier explicite.",
+      "Vérifier qu’aucun composant legacy Flash/Adobe n’en dépend."
+    ],
+    "implementation_examples": {
+      "generic": "X-Permitted-Cross-Domain-Policies: none"
+    },
+    "verification_steps": [
+      "Contrôler l’en-tête sur les réponses HTML et éventuellement assets concernés.",
+      "Valider l’absence de dépendance à des plugins legacy."
+    ],
+    "report_template": "Ajouter l’en-tête X-Permitted-Cross-Domain-Policies avec une valeur restrictive, idéalement 'none', afin de réduire les risques liés aux mécanismes cross-domain hérités lorsque ceux-ci ne sont pas utilisés par l’application."
+  },
+  {
+    "id": "kb_030",
+    "title": "Drupal Module Vulnerability",
+    "description": "Un module Drupal détecté correspond à une version vulnérable référencée par CVE.",
+    "owasp": "A06:2021 - Vulnerable and Outdated Components",
+    "cwe": "CWE-1104",
+    "tags": ["drupal", "module", "cve", "outdated component"],
+    "recommendation": "Mettre à jour le module Drupal concerné vers la version corrigée indiquée par le bulletin de sécurité ou le correctif officiel du projet.",
+    "verification": "Vérifier la version réellement installée du module Drupal et confirmer qu’elle est supérieure ou égale à la version corrigée mentionnée dans la référence officielle.",
+    "recommendation_summary": "Corriger la vulnérabilité par mise à jour du composant Drupal affecté.",
+    "technical_actions": [
+      "Identifier précisément le module et la version installée.",
+      "Consulter le bulletin Drupal ou la référence CVE pour la version corrigée.",
+      "Mettre à jour le module via Composer ou le processus de déploiement standard.",
+      "Appliquer les correctifs de sécurité complémentaires si requis.",
+      "Désactiver ou retirer le module si sa mise à jour n’est pas possible rapidement."
+    ],
+    "implementation_examples": {
+      "composer": "composer update drupal/views --with-dependencies",
+      "generic": "Vérifier ensuite les changements de schéma, cache et compatibilité applicative."
+    },
+    "verification_steps": [
+      "Contrôler la version du module après déploiement.",
+      "Vider les caches Drupal si nécessaire.",
+      "Relancer le scan de vulnérabilités et vérifier la disparition de la CVE."
+    ],
+    "report_template": "Mettre à jour le module Drupal concerné vers une version corrigée conformément au bulletin de sécurité ou à la référence CVE associée. La version réellement déployée doit être confirmée après publication, puis validée par un nouveau scan et par des tests fonctionnels sur les fonctionnalités dépendantes."
+  },
+  {
+    "id": "kb_031",
+    "title": "REST Views Sensitive Information Exposure",
+    "aliases": [
+  "Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views",
+  "Drupal REST Views Forceful Browsing",
+  "REST Views sensitive information exposure",
+  "CVE-2024-13254"
+],
+    "description": "Une vue REST peut exposer des données sensibles ou permettre un accès non prévu aux ressources.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-200",
+    "tags": ["drupal", "rest views", "sensitive information", "forceful browsing"],
+    "recommendation": "Restreindre les permissions d’accès aux vues REST concernées, limiter les champs exposés et désactiver les endpoints non nécessaires.",
+    "verification": "Vérifier que les vues REST sensibles exigent les permissions attendues et qu’un utilisateur non autorisé ne peut plus consulter les données exposées.",
+    "recommendation_summary": "Réduire l’exposition des endpoints REST Drupal et des champs publiés.",
+    "technical_actions": [
+      "Inventorier les vues REST exposées publiquement.",
+      "Limiter les permissions sur les displays REST de Views.",
+      "Retirer les champs sensibles, identifiants internes ou métadonnées non nécessaires.",
+      "Désactiver les endpoints inutilisés."
+    ],
+    "implementation_examples": {
+      "drupal": "Revoir les permissions liées au display REST dans Views et dans les rôles Drupal.",
+      "generic": "Restreindre les réponses aux champs strictement requis."
+    },
+    "verification_steps": [
+      "Tester l’accès anonyme et authentifié aux endpoints REST.",
+      "Vérifier les champs renvoyés.",
+      "Contrôler qu’un utilisateur non autorisé reçoit un refus."
+    ],
+    "report_template": "Revoir les vues REST Drupal exposées afin de limiter l’accès aux seuls rôles autorisés et de supprimer les champs non strictement nécessaires. Les endpoints inutiles doivent être désactivés et les contrôles d’autorisation vérifiés par des tests multi-profils."
+  },
+  {
+    "id": "kb_032",
+    "title": "Webform Session Variable Exposure",
+    "aliases": [
+  "The Webform module does not prevent caching of a page that contains token placeholders",
+  "Drupal Webform session exposure",
+  "Webform cache session variables",
+  "CVE-2009-4533"
+],
+    "description": "Le module Webform peut exposer des variables de session via une mise en cache inadéquate.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-200",
+    "tags": ["webform", "session", "cache", "drupal"],
+    "recommendation": "Mettre à jour le module Webform vers une version corrigée et désactiver la mise en cache des pages contenant des placeholders ou données liées à la session.",
+    "verification": "Vérifier que la version de Webform est corrigée et qu’aucune page avec données de session n’est servie depuis le cache pour un autre utilisateur.",
+    "recommendation_summary": "Corriger l’exposition indirecte de données de session dans Webform.",
+    "technical_actions": [
+      "Mettre à jour Webform vers la version corrigée.",
+      "Désactiver ou adapter le cache des pages contenant des placeholders dépendant de la session.",
+      "Tester les formulaires et pages dynamiques avec plusieurs sessions."
+    ],
+    "implementation_examples": {
+      "drupal": "Vérifier les paramètres de cache Drupal et la configuration du module Webform.",
+      "generic": "Empêcher la mise en cache partagée des pages personnalisées."
+    },
+    "verification_steps": [
+      "Contrôler la version déployée du module.",
+      "Tester l’affichage avec plusieurs utilisateurs ou sessions.",
+      "Vérifier qu’aucune variable de session n’est partagée."
+    ],
+    "report_template": "Mettre à jour le module Webform vers une version corrigée et revoir la stratégie de cache des pages ou composants dépendant de la session. Les formulaires et pages concernées doivent être testés avec plusieurs sessions afin de confirmer l’absence de fuite d’informations."
+  },
+  {
+    "id": "kb_033",
+    "title": "OG Access Restriction Failure",
+    "aliases": [
+  "The Organic Groups module does not properly restrict access",
+  "Drupal OG access restriction",
+  "Organic Groups access issue",
+  "CVE-2012-2081"
+],
+    "description": "Le module Organic Groups n’applique pas correctement les restrictions d’accès sur certaines données privées.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-284",
+    "tags": ["organic groups", "og", "access restriction", "drupal"],
+    "recommendation": "Mettre à jour le module Organic Groups vers une version corrigée et revoir les permissions d’accès aux vues ou contenus exposant des informations de groupes privés.",
+    "verification": "Vérifier qu’un utilisateur non autorisé ne peut plus consulter les titres ou métadonnées de groupes privés via les vues concernées.",
+    "recommendation_summary": "Restaurer des contrôles d’accès corrects sur les contenus liés aux groupes privés.",
+    "technical_actions": [
+      "Mettre à jour Organic Groups vers une version corrigée.",
+      "Revoir les permissions par rôle et les displays Views associés.",
+      "Contrôler les accès indirects via recherche, vue ou endpoint."
+    ],
+    "implementation_examples": {
+      "drupal": "Vérifier les permissions OG et les accès exposés via Views."
+    },
+    "verification_steps": [
+      "Tester les accès avec plusieurs rôles.",
+      "Vérifier les métadonnées et contenus privés.",
+      "Relancer le scan ou les tests manuels."
+    ],
+    "report_template": "Mettre à jour Organic Groups et revoir les autorisations appliquées aux vues et contenus liés aux groupes privés. La correction doit être validée par des tests multi-profils confirmant qu’aucune information de groupe privé n’est encore visible par un utilisateur non autorisé."
+  },
+  {
+    "id": "kb_034",
+    "title": "Views Access Restriction Bypass",
+    "aliases": [
+  "The _views_fetch_data method in includes/cache.inc",
+  "Views access restriction bypass",
+  "Drupal Views hidden content exposure",
+  "CVE-2015-5490",
+  "CVE-2016-6212"
+],
+    "description": "Le module Views permet un contournement de filtres ou une exposition de contenus cachés.",
+    "owasp": "A01:2021 - Broken Access Control",
+    "cwe": "CWE-284",
+    "tags": ["views", "access bypass", "hidden content", "drupal"],
+    "recommendation": "Mettre à jour le module Views vers une version corrigée et revoir les filtres, permissions et caches influençant l’exposition du contenu.",
+    "verification": "Vérifier qu’un utilisateur non autorisé ne peut plus accéder au contenu caché ni contourner les filtres applicatifs via les vues concernées.",
+    "recommendation_summary": "Empêcher les contournements de filtres ou de règles d’accès dans Views.",
+    "technical_actions": [
+      "Mettre à jour Views à une version corrigée.",
+      "Revoir les filtres exposés, permissions et displays affectés.",
+      "Contrôler les interactions entre cache, filtres et visibilité du contenu.",
+      "Tester l’accès direct par URL et paramètres manipulés."
+    ],
+    "implementation_examples": {
+      "drupal": "Auditer les displays Views publics, leurs filtres et leurs règles d’accès."
+    },
+    "verification_steps": [
+      "Tester les vues avec plusieurs rôles.",
+      "Manipuler les paramètres exposés et filtres.",
+      "Vérifier l’absence d’accès au contenu caché."
+    ],
+    "report_template": "Mettre à jour le module Views et réviser les filtres, permissions et mécanismes de cache pouvant conduire à une exposition non prévue du contenu. Une campagne de tests fonctionnels et de contrôle d’accès doit confirmer l’impossibilité de contourner les restrictions applicatives."
+  },
+  {
+    "id": "kb_035",
+    "title": "Basic Cart XSS",
+    "description": "Le composant Basic Cart présente une faille XSS sur le traitement d’entrée côté formulaire.",
+    "owasp": "A03:2021 - Injection",
+    "cwe": "CWE-79",
+    "tags": ["basic cart", "xss", "drupal", "backdrop"],
+    "recommendation": "Mettre à jour le composant Basic Cart vers la version corrigée et appliquer un encodage de sortie sur les champs manipulés par le formulaire concerné.",
+    "verification": "Vérifier que la version corrigée est déployée et rejouer la charge XSS sur le formulaire pour confirmer l’absence d’exécution.",
+    "recommendation_summary": "Corriger la vulnérabilité XSS au niveau du composant panier.",
+    "technical_actions": [
+      "Mettre à jour le composant vers la version corrigée.",
+      "Identifier les champs rendus sans échappement.",
+      "Appliquer un encodage contextuel côté rendu.",
+      "Contrôler les validations et nettoyages d’entrée."
+    ],
+    "implementation_examples": {
+      "generic": "Utiliser les helpers d’échappement HTML du framework au moment du rendu des champs."
+    },
+    "verification_steps": [
+      "Contrôler la version déployée du composant.",
+      "Rejouer les payloads XSS sur les formulaires concernés.",
+      "Vérifier la neutralisation de la sortie."
+    ],
+    "report_template": "Mettre à jour le composant Basic Cart vers une version corrigée et corriger le rendu des champs affectés en appliquant un encodage de sortie adapté. La remédiation doit être validée par des tests XSS ciblés sur les formulaires concernés."
+  },
+  {
+    "id": "kb_036",
+    "title": "Missing Security Headers Generic",
+    "aliases": [
+    "Missing Security Headers",
+    "HTTP Security Headers Missing",
+    "Missing Common Security Headers",
+    "Multiple Security Headers Missing"
+  ],
+    "description": "Plusieurs en-têtes de sécurité HTTP peuvent manquer ou être incomplets.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["security headers", "http headers"],
+    "recommendation": "Définir une politique explicite d’en-têtes de sécurité HTTP incluant au minimum CSP, HSTS, Permissions-Policy, X-Content-Type-Options et les en-têtes cross-origin adaptés au besoin métier.",
+    "verification": "Vérifier les réponses HTTP principales avec un scanner d’en-têtes pour confirmer la présence et la cohérence des en-têtes de sécurité définis.",
+    "recommendation_summary": "Mettre en place un socle cohérent et homogène d’en-têtes de sécurité.",
+    "technical_actions": [
+      "Définir une baseline d’en-têtes de sécurité au niveau reverse proxy ou serveur web.",
+      "Appliquer cette baseline à toutes les réponses HTML et pages sensibles.",
+      "Prévoir des exceptions limitées et documentées si certaines pages ont des besoins spécifiques."
+    ],
+    "implementation_examples": {
+      "generic": "CSP, HSTS, X-Content-Type-Options, Referrer-Policy, Permissions-Policy, COOP, COEP, CORP selon le contexte.",
+      "nginx": "Centraliser les add_header dans un include commun de sécurité."
+    },
+    "verification_steps": [
+      "Scanner les headers sur plusieurs pages.",
+      "Vérifier la cohérence entre homepage, login, pages d’erreur et administration.",
+      "Contrôler les éventuelles exceptions."
+    ],
+    "report_template": "Définir et déployer une baseline homogène d’en-têtes de sécurité HTTP sur l’ensemble de l’application afin de réduire les erreurs de configuration récurrentes. Cette baseline doit être centralisée au niveau du serveur ou du reverse proxy et validée sur les principales surfaces exposées."
+  },
+  {
+    "id": "kb_037",
+    "title": "CSP Generic Hardening",
+    "description": "La politique CSP doit limiter strictement les sources autorisées pour réduire la surface d’attaque côté navigateur.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-693",
+    "tags": ["csp", "hardening"],
+    "recommendation": "Construire une CSP minimale par type de ressource, supprimer les directives permissives, définir object-src 'none', base-uri 'self' et limiter les domaines tiers strictement nécessaires.",
+    "verification": "Vérifier que la CSP finale reflète les seules sources réellement utilisées et qu’aucune directive permissive inutile ne subsiste.",
+    "recommendation_summary": "Mettre en place une CSP réellement minimale et pilotée par l’inventaire des ressources.",
+    "technical_actions": [
+      "Inventorier les ressources externes et internes réellement utilisées.",
+      "Construire la politique par directive plutôt qu’avec des autorisations globales.",
+      "Supprimer unsafe-inline, unsafe-eval, jokers et schémas trop larges si non requis.",
+      "Déployer si besoin en mode Report-Only avant enforcement."
+    ],
+    "implementation_examples": {
+      "generic": "default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com;"
+    },
+    "verification_steps": [
+      "Comparer la politique CSP avec les ressources réellement chargées.",
+      "Contrôler les rapports de violation CSP.",
+      "Valider le fonctionnement des parcours métier."
+    ],
+    "report_template": "Durcir la politique CSP en partant d’un inventaire réel des ressources chargées par l’application et en définissant une stratégie minimale par type de ressource. Les directives permissives inutiles doivent être supprimées et la politique validée fonctionnellement avant généralisation."
+  },
+  {
+    "id": "kb_038",
+    "title": "XSS in Webform",
+    "aliases": [
+  "Cross-site scripting vulnerability in the Webform module",
+  "Drupal Webform XSS",
+  "CVE-2006-3570",
+  "CVE-2009-4207",
+  "CVE-2013-2129",
+  "CVE-2014-8318",
+  "CVE-2015-4356",
+  "CVE-2015-4357",
+  "CVE-2015-4374",
+  "CVE-2012-1660"
+],
+    "description": "Le module Webform présente une faille XSS sur certains champs ou composants.",
+    "owasp": "A03:2021 - Injection",
+    "cwe": "CWE-79",
+    "tags": ["webform", "xss", "drupal"],
+    "recommendation": "Mettre à jour Webform vers la version corrigée et appliquer un encodage contextuel sur les labels, titres, soumissions ou composants rendus côté client.",
+    "verification": "Vérifier la version installée de Webform et rejouer les payloads XSS sur les champs affectés pour confirmer qu’ils sont neutralisés.",
+    "recommendation_summary": "Corriger l’injection côté rendu dans les composants Webform.",
+    "technical_actions": [
+      "Mettre à jour le module Webform.",
+      "Identifier les champs, labels ou valeurs réinjectés dans le HTML.",
+      "Appliquer un encodage contextuel côté sortie.",
+      "Réviser les permissions de modification des champs si des utilisateurs non privilégiés peuvent définir des contenus affichés."
+    ],
+    "implementation_examples": {
+      "drupal": "Utiliser les APIs de rendu Drupal qui appliquent l’échappement approprié."
+    },
+    "verification_steps": [
+      "Contrôler la version du module.",
+      "Tester les formulaires avec payloads XSS.",
+      "Vérifier que le contenu est affiché sans exécution."
+    ],
+    "report_template": "Mettre à jour Webform vers une version corrigée et corriger les points de rendu exposés aux entrées non fiables en appliquant un encodage contextuel adapté. La correction doit être validée par des tests XSS sur les champs et composants concernés."
+  },
+  {
+    "id": "kb_039",
+    "title": "XSS in Views",
+    "aliases": [
+  "Multiple cross-site scripting vulnerabilities in the Views module",
+  "Cross-site scripting vulnerability in the Views module",
+  "Drupal Views XSS",
+  "CVE-2010-4520",
+  "CVE-2010-4521",
+  "CVE-2013-1887",
+  "CVE-2024-13287"
+],
+    "description": "Le module Views présente une faille XSS sur certains chemins, URLs, titres ou champs de configuration.",
+    "owasp": "A03:2021 - Injection",
+    "cwe": "CWE-79",
+    "tags": ["views", "xss", "drupal"],
+    "recommendation": "Mettre à jour Views vers la version corrigée et neutraliser systématiquement les données contrôlables avant leur rendu dans les chemins, titres de flux, paramètres ou champs de configuration.",
+    "verification": "Vérifier la version installée de Views et rejouer les scénarios XSS sur les points d’entrée affectés pour confirmer la correction.",
+    "recommendation_summary": "Corriger les vecteurs XSS liés aux champs et paramètres de Views.",
+    "technical_actions": [
+      "Mettre à jour le module Views.",
+      "Identifier les champs de configuration ou paramètres exposés réinjectés dans la sortie HTML.",
+      "Appliquer l’échappement contextuel adapté.",
+      "Restreindre si nécessaire les permissions sur les écrans d’administration pouvant définir ces contenus."
+    ],
+    "implementation_examples": {
+      "drupal": "Privilégier les APIs de rendu et d’échappement natives Drupal au lieu d’un affichage brut."
+    },
+    "verification_steps": [
+      "Contrôler la version corrigée installée.",
+      "Rejouer les payloads XSS sur les chemins, titres et paramètres concernés.",
+      "Vérifier l’absence d’exécution dans le navigateur."
+    ],
+    "report_template": "Mettre à jour le module Views vers une version corrigée et sécuriser le rendu des données contrôlables utilisées dans les chemins, titres ou paramètres de configuration. La correction doit être confirmée par des tests XSS ciblés sur les points d’entrée identifiés."
+  },
+  {
+    "id": "kb_040",
+    "title": "Generic Recommendation for Vulnerable Component",
+    "description": "Un composant logiciel vulnérable ou obsolète a été détecté.",
+    "owasp": "A06:2021 - Vulnerable and Outdated Components",
+    "cwe": "CWE-1104",
+    "tags": ["component", "update", "patch"],
+    "recommendation": "Mettre à jour le composant affecté vers la version corrigée référencée, ou le désinstaller s’il n’est plus nécessaire au fonctionnement de l’application.",
+    "verification": "Vérifier l’inventaire logiciel déployé, confirmer la version corrigée en production et rejouer le scan pour s’assurer que la vulnérabilité n’est plus détectée.",
+    "recommendation_summary": "Traiter le risque par mise à jour, retrait ou isolement du composant concerné.",
+    "technical_actions": [
+      "Identifier précisément le composant et sa version déployée.",
+      "Comparer avec la version corrigée disponible.",
+      "Planifier la mise à jour ou le retrait si le composant n’est plus requis.",
+      "Mettre en place une mesure compensatoire temporaire si la correction immédiate est impossible."
+    ],
+    "implementation_examples": {
+      "generic": "Mettre à jour via le gestionnaire de dépendances natif ou retirer le composant du build si inutilisé.",
+      "compensating": "Restreindre temporairement l’accès ou désactiver la fonctionnalité exposée."
+    },
+    "verification_steps": [
+      "Contrôler la version réellement déployée.",
+      "Vérifier l’inventaire des dépendances.",
+      "Relancer le scan pour confirmer la disparition de la détection."
+    ],
+    "report_template": "Traiter le composant vulnérable en le mettant à jour vers la version corrigée ou en le retirant s’il n’est plus nécessaire. Si la correction ne peut pas être appliquée immédiatement, une mesure compensatoire documentée doit être mise en place jusqu’au déploiement du correctif."
+  },{
+  "id": "kb_clickjacking_001",
+  "title": "Missing Anti-clickjacking Header",
+  "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+  "aliases": [
+    "X-Frame-Options Header Missing",
+    "Missing X-Frame-Options",
+    "Anti-clickjacking Header Missing",
+    "Clickjacking protection missing"
+  ],
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-693",
+  "tags": ["clickjacking", "x-frame-options", "frame-ancestors", "security headers"],
+  "keywords": ["clickjacking", "anti-clickjacking", "x-frame-options", "frame-ancestors", "iframe"],
+  "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+  "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+  "technical_actions": [
+    "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+    "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+  ],
+  "implementation_examples": {
+    "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+    "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+    "csp": "Content-Security-Policy: frame-ancestors 'self';"
+  },
+  "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i x-frame-options",
+    "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+    "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+]
+},{
+  "id": "kb_csp_missing_001",
+  "title": "Content Security Policy (CSP) Header Not Set",
+  "aliases": [
+    "CSP Header Not Set",
+    "Content-Security-Policy Header Not Set",
+    "Missing CSP Header",
+    "Content Security Policy Header Missing",
+    "CSP missing"
+  ],
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-693",
+  "tags": ["csp", "content security policy", "security headers"],
+  "keywords": ["csp", "content security policy", "header missing", "missing csp"],
+  "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+  "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+  "technical_actions": [
+    "Définir une politique CSP de base avec default-src 'self'.",
+    "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+    "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+  ],
+  "implementation_examples": {
+    "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+    "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+  },
+  "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i content-security-policy",
+    "Contrôler la présence de l'en-tête Content-Security-Policy.",
+    "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+]
+},
+{
+  "id": "kb_drupal_001",
+  "title": "Drupal Module Detected but Version Unconfirmed",
+  "description": "Un module Drupal est détecté comme potentiellement vulnérable, mais la version exacte installée n’est pas confirmée.",
+  "owasp": "A06:2021 - Vulnerable and Outdated Components",
+  "cwe": "CWE-1104",
+  "tags": ["drupal", "version", "cve", "unconfirmed"],
+  "recommendation": "Vérifier la version exacte du module Drupal installé, puis comparer avec les versions corrigées référencées. Si la version vulnérable est confirmée, appliquer la mise à jour vers la version corrigée.",
+  "verification": "Identifier la version réelle du module en production et vérifier si elle correspond à une version vulnérable connue.",
+  "technical_actions": [
+    "Identifier la version exacte du module via l’interface Drupal ou en ligne de commande.",
+    "Comparer avec les versions vulnérables listées dans les bulletins de sécurité.",
+    "Mettre à jour si nécessaire.",
+    "Documenter le statut si la version n’est pas vulnérable."
+  ]
+},
+{
+  "id": "kb_drupal_002",
+  "title": "Drupal Views Module Vulnerability",
+  "description": "Le module Views de Drupal est vulnérable et peut exposer des données ou permettre un contournement des contrôles.",
+  "owasp": "A01:2021 - Broken Access Control",
+  "cwe": "CWE-284",
+  "tags": ["drupal", "views", "access control"],
+  "recommendation": "Mettre à jour le module Views vers une version corrigée et vérifier les filtres, permissions et contenus exposés par les vues.",
+  "verification": "Vérifier la version installée du module Views et tester l’accès aux contenus via différents profils utilisateurs.",
+  "technical_actions": [
+    "Mettre à jour Views vers la version corrigée.",
+    "Revoir les filtres exposés.",
+    "Vérifier les permissions associées aux vues.",
+    "Tester les accès directs par URL."
+  ]
+},{
+  "id": "kb_drupal_003",
+  "title": "Drupal Webform Module Vulnerability",
+  "description": "Le module Webform peut exposer des données sensibles ou des variables de session.",
+  "owasp": "A01:2021 - Broken Access Control",
+  "cwe": "CWE-200",
+  "tags": ["drupal", "webform", "session", "cache"],
+  "recommendation": "Mettre à jour Webform vers la version corrigée et désactiver le cache des pages contenant des données de session.",
+  "verification": "Tester les formulaires avec plusieurs sessions et vérifier qu’aucune donnée utilisateur n’est partagée.",
+  "technical_actions": [
+    "Mettre à jour Webform.",
+    "Désactiver le cache sur les pages sensibles.",
+    "Tester avec plusieurs utilisateurs.",
+    "Vérifier les placeholders dynamiques."
+  ]
+},{
+  "id": "kb_drupal_004",
+  "title": "Drupal System Module Reflected File Download",
+  "description": "Le module System de Drupal est vulnérable à une attaque de type Reflected File Download.",
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-Other",
+  "tags": ["drupal", "rfd", "download"],
+  "recommendation": "Mettre à jour le module System vers une version corrigée et contrôler les réponses de téléchargement pour éviter toute injection de contenu.",
+  "verification": "Tester les endpoints de téléchargement avec des entrées manipulées pour vérifier l’absence d’injection.",
+  "technical_actions": [
+    "Mettre à jour le module System.",
+    "Valider les entrées utilisées dans les téléchargements.",
+    "Contrôler Content-Type et Content-Disposition.",
+    "Tester les fichiers générés."
+  ]
+},{
+  "id": "kb_drupal_005",
+  "title": "Drupal Organic Groups Access Restriction Issue",
+  "description": "Le module Organic Groups peut exposer des informations privées à des utilisateurs non autorisés.",
+  "owasp": "A01:2021 - Broken Access Control",
+  "cwe": "CWE-284",
+  "tags": ["drupal", "og", "access control"],
+  "recommendation": "Mettre à jour le module Organic Groups et revoir les permissions d’accès aux contenus et vues associées.",
+  "verification": "Tester les accès avec différents rôles utilisateurs.",
+  "technical_actions": [
+    "Mettre à jour le module.",
+    "Revoir les permissions.",
+    "Tester l’accès aux contenus privés.",
+    "Vérifier les vues exposées."
+  ]
+},{
+  "id": "kb_drupal_006",
+  "title": "Drupal Views SVG Animation XSS",
+  "description": "Une vulnérabilité XSS est présente dans le module Views SVG Animation.",
+  "owasp": "A03:2021 - Injection",
+  "cwe": "CWE-79",
+  "tags": ["drupal", "xss", "views"],
+  "recommendation": "Mettre à jour le module vers la version corrigée et appliquer un encodage des données affichées.",
+  "verification": "Tester avec des payloads XSS pour vérifier qu’aucun script ne s’exécute.",
+  "technical_actions": [
+    "Mettre à jour le module.",
+    "Identifier les champs vulnérables.",
+    "Appliquer un encodage HTML.",
+    "Tester avec des payloads XSS."
+  ]
+},
+  {
+    "id": "kb_cookie_001",
+    "title": "Cookie No HttpOnly Flag",
+    "aliases": [
+      "Cookie Without HttpOnly Flag",
+      "Cookies Without HttpOnly",
+      "Cookie No HttpOnly",
+      "HttpOnly Flag Missing",
+      "Missing HttpOnly Flag"
+    ],
+    "description": "Un cookie de session ou applicatif est défini sans l'attribut HttpOnly, ce qui permet à un script JavaScript malveillant d'en lire la valeur en cas de XSS.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-1004",
+    "tags": ["cookie", "httponly", "session", "xss"],
+    "keywords": ["httponly", "cookie no httponly", "cookies without httponly"],
+    "recommendation": "Ajouter l'attribut HttpOnly sur tous les cookies sensibles, notamment les cookies de session, pour empêcher leur lecture via JavaScript.",
+    "recommendation_summary": "Protéger les cookies sensibles contre l'accès JavaScript non autorisé.",
+    "technical_actions": [
+      "Identifier tous les cookies définis par l'application.",
+      "Ajouter l'attribut HttpOnly sur les cookies de session et les cookies sensibles.",
+      "Vérifier la configuration du framework ou du serveur pour appliquer HttpOnly par défaut.",
+      "Ne pas exposer les valeurs de cookies via des endpoints JavaScript ou API."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['httponly' => true]);",
+      "nginx": "proxy_cookie_path / \"/; HttpOnly; Secure; SameSite=Strict\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ $1;HttpOnly;Secure",
+      "generic": "Configurer HttpOnly=true dans le framework applicatif pour tous les cookies de session."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut HttpOnly pour tous les cookies sensibles.",
+  "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i set-cookie",
+    "Vérifier que chaque cookie de session contient HttpOnly.",
+    "Tenter d'accéder au cookie via document.cookie dans la console navigateur."
+],
+    "report_template": "Ajouter l'attribut HttpOnly sur tous les cookies sensibles afin d'empêcher leur lecture par des scripts JavaScript malveillants en cas d'injection XSS. La correction doit être appliquée au niveau du framework ou du serveur et validée en vérifiant les en-têtes Set-Cookie sur les réponses applicatives."
+  },
+  {
+    "id": "kb_cookie_002",
+    "title": "Cookie Without Secure Flag",
+    "aliases": [
+      "Cookie Without Secure",
+      "Cookies Without Secure Flag",
+      "Missing Secure Flag on Cookie",
+      "Cookie Secure Flag Missing",
+      "Secure Flag Missing"
+    ],
+    "description": "Un cookie est transmis sans l'attribut Secure, ce qui permet sa transmission sur des connexions HTTP non chiffrées et expose sa valeur à une interception réseau.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-614",
+    "tags": ["cookie", "secure", "https", "session"],
+    "keywords": ["cookie without secure", "cookies without secure", "secure flag"],
+    "recommendation": "Ajouter l'attribut Secure sur tous les cookies pour garantir leur transmission uniquement via HTTPS.",
+    "recommendation_summary": "Empêcher la transmission des cookies sur des canaux non chiffrés.",
+    "technical_actions": [
+      "Ajouter l'attribut Secure sur tous les cookies définis par l'application.",
+      "Vérifier que le site est accessible uniquement en HTTPS avant d'activer Secure.",
+      "Configurer le framework ou le serveur pour appliquer Secure par défaut sur les cookies de session.",
+      "Combiner avec HttpOnly et SameSite pour une protection complète."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['secure' => true, 'httponly' => true, 'samesite' => 'Strict']);",
+      "nginx": "proxy_cookie_path / \"/; Secure; HttpOnly; SameSite=Strict\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ $1;Secure;HttpOnly",
+      "generic": "Configurer Secure=true dans les paramètres de session du framework applicatif."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut Secure pour tous les cookies sensibles.",
+   "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i set-cookie",
+    "Vérifier que chaque cookie sensible contient l'attribut Secure.",
+    "Tenter d'accéder au site en HTTP et confirmer que les cookies ne sont pas transmis."
+],
+    "report_template": "Ajouter l'attribut Secure sur tous les cookies applicatifs afin de garantir qu'ils ne sont transmis que sur des connexions HTTPS chiffrées. La correction doit être appliquée au niveau du framework ou de la configuration serveur et validée en inspectant les en-têtes Set-Cookie sur les réponses HTTPS."
+  },
+  {
+    "id": "kb_cookie_003",
+    "title": "Cookie without SameSite Attribute",
+    "aliases": [
+      "Cookie Without SameSite",
+      "Missing Cookie SameSite",
+      "Cookie SameSite Attribute Missing",
+      "SameSite Attribute Missing",
+      "missing-cookie-samesite-strict",
+      "Cookie without SameSite Attribute"
+    ],
+    "description": "Un cookie est défini sans l'attribut SameSite, ce qui peut permettre son envoi dans des requêtes cross-site et faciliter des attaques CSRF.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-1275",
+    "tags": ["cookie", "samesite", "csrf", "session"],
+    "keywords": ["samesite", "cookie without samesite", "missing cookie samesite"],
+    "recommendation": "Ajouter l'attribut SameSite=Strict ou SameSite=Lax sur tous les cookies pour limiter leur envoi dans les requêtes cross-site.",
+    "recommendation_summary": "Réduire le risque CSRF en limitant l'envoi des cookies aux requêtes same-site.",
+    "technical_actions": [
+      "Ajouter SameSite=Strict sur les cookies de session si aucun besoin cross-site n'est requis.",
+      "Utiliser SameSite=Lax si des liens entrants depuis des sites tiers doivent être supportés.",
+      "Éviter SameSite=None sauf si une intégration cross-site est indispensable — dans ce cas, Secure est obligatoire.",
+      "Combiner avec HttpOnly et Secure pour une protection complète."
+    ],
+    "implementation_examples": {
+      "php": "session_set_cookie_params(['samesite' => 'Strict', 'secure' => true, 'httponly' => true]);",
+      "nginx": "proxy_cookie_path / \"/; SameSite=Strict; Secure; HttpOnly\";",
+      "apache": "Header edit Set-Cookie ^(.*)$ \"$1; SameSite=Strict\"",
+      "generic": "Configurer SameSite=Strict dans les paramètres de session du framework."
+    },
+    "verification": "Vérifier dans les réponses HTTP que l'en-tête Set-Cookie contient l'attribut SameSite avec une valeur restrictive.",
+    "verification_steps": [
+      "Inspecter les en-têtes Set-Cookie dans les réponses HTTP.",
+      "Vérifier que chaque cookie sensible contient SameSite=Strict ou SameSite=Lax.",
+      "Tester les formulaires cross-site pour confirmer que les cookies ne sont plus envoyés dans les requêtes cross-origin."
+    ],
+    "report_template": "Ajouter l'attribut SameSite sur tous les cookies applicatifs afin de limiter leur envoi aux requêtes same-site et réduire le risque d'attaques CSRF. La valeur Strict est recommandée par défaut sauf besoin fonctionnel cross-site avéré. La correction doit être validée en inspectant les en-têtes Set-Cookie et en testant les flux cross-site."
+  },
+  {
+    "id": "kb_header_001",
+    "title": "X-Content-Type-Options Header Missing",
+    "aliases": [
+      "X-Content-Type-Options Header Not Set",
+      "Missing X-Content-Type-Options",
+      "X Content Type Options Missing",
+      "X-Content-Type-Options Missing"
+    ],
+    "description": "L'absence de l'en-tête X-Content-Type-Options laisse le navigateur interpréter librement le type MIME des réponses, ce qui peut permettre du MIME sniffing et des attaques associées.",
+    "owasp": "A05:2021 - Security Misconfiguration",
+    "cwe": "CWE-16",
+    "tags": ["x-content-type-options", "mime sniffing", "security headers"],
+    "keywords": ["x-content-type-options", "mime sniffing", "content type options"],
+    "recommendation": "Ajouter l'en-tête X-Content-Type-Options: nosniff sur toutes les réponses HTTP pour empêcher le MIME sniffing par le navigateur.",
+    "recommendation_summary": "Empêcher le navigateur d'interpréter le contenu avec un type MIME différent de celui déclaré.",
+    "technical_actions": [
+      "Ajouter X-Content-Type-Options: nosniff sur toutes les réponses HTTP.",
+      "Appliquer la configuration au niveau du serveur web ou du reverse proxy.",
+      "Vérifier aussi les pages d'erreur et les réponses d'API."
+    ],
+    "implementation_examples": {
+      "nginx": "add_header X-Content-Type-Options \"nosniff\" always;",
+      "apache": "Header always set X-Content-Type-Options \"nosniff\"",
+      "iis": "Ajouter X-Content-Type-Options dans HTTP Response Headers.",
+      "generic": "Configurer nosniff dans le middleware de sécurité du framework applicatif."
+    },
+    "verification": "Vérifier que l'en-tête X-Content-Type-Options: nosniff est présent dans les réponses HTTP.",
+    "verification_steps": [
+      "Exécuter curl -I sur plusieurs pages et vérifier la présence de X-Content-Type-Options: nosniff.",
+      "Vérifier aussi les réponses d'erreur 404 et 500.",
+      "Contrôler les réponses des endpoints API."
+    ],
+    "report_template": "Ajouter l'en-tête X-Content-Type-Options: nosniff sur toutes les réponses HTTP afin d'empêcher le navigateur d'interpréter les ressources avec un type MIME différent de celui déclaré. La configuration doit être appliquée au niveau du serveur ou du reverse proxy et validée sur les principales routes applicatives."
+  },{
+  "id": "kb_header_002",
+  "title": "Referrer-Policy Header Missing",
+  "aliases": ["Missing Referrer-Policy", "Referrer-Policy Header Not Set"],
+  "description": "L'absence de Referrer-Policy expose les URLs visitées dans l'en-tête Referer lors de navigations cross-origin.",
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-693",
+  "tags": ["referrer-policy", "security headers", "privacy"],
+  "recommendation": "Ajouter l'en-tête Referrer-Policy avec une valeur restrictive comme no-referrer ou strict-origin-when-cross-origin.",
+  "technical_actions": [
+    "Ajouter Referrer-Policy: no-referrer-when-downgrade ou strict-origin-when-cross-origin.",
+    "Appliquer au niveau du serveur web ou reverse proxy.",
+    "Vérifier les pages sensibles comme login et paiement."
+  ],
+  "implementation_examples": {
+    "nginx": "add_header Referrer-Policy \"strict-origin-when-cross-origin\" always;",
+    "apache": "Header always set Referrer-Policy \"strict-origin-when-cross-origin\""
+  },
+ "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i referrer-policy",
+    "Contrôler la valeur sur les pages sensibles comme login et paiement."
+]
+},
+{
+  "id": "kb_header_003",
+  "title": "Server Leaks Information via X-Powered-By HTTP Response Header",
+  "aliases": [
+    "Server Leaks Information via X-Powered-By",
+    "X-Powered-By Header Disclosure",
+    "X-Powered-By Information Leakage"
+  ],
+  "description": "Le serveur expose le langage ou framework utilisé via l'en-tête X-Powered-By, ce qui facilite le fingerprinting et le ciblage d'attaques spécifiques.",
+  "owasp": "A05:2021 - Security Misconfiguration",
+  "cwe": "CWE-497",
+  "tags": ["x-powered-by", "information disclosure", "fingerprinting"],
+  "recommendation": "Supprimer ou masquer l'en-tête X-Powered-By dans la configuration du serveur ou du framework.",
+  "technical_actions": [
+    "Désactiver l'en-tête X-Powered-By au niveau du framework applicatif.",
+    "Configurer le serveur web pour supprimer cet en-tête.",
+    "Vérifier aussi les proxies intermédiaires."
+  ],
+  "implementation_examples": {
+    "php": "header_remove('X-Powered-By'); ou expose_php = Off dans php.ini",
+    "nginx": "proxy_hide_header X-Powered-By;",
+    "express": "app.disable('x-powered-by');"
+  },
+  "verification_steps": [
+    "Exécuter curl -I https://[site] | grep -i x-powered-by",
+    "Vérifier que l'en-tête X-Powered-By est absent de la réponse.",
+    "Tester aussi les pages d'erreur et routes d'API."
+  ]
+},{
+  "id": "kb_tls_001",
+  "title": "Vulnérabilité TLS : SWEET32",
+  "aliases": ["SWEET32", "sweet32"],
+  "description": "Vulnérabilité liée à l’utilisation de chiffrements à bloc 64 bits, pouvant affaiblir la confidentialité des échanges chiffrés lors de sessions longues.",
+  "owasp": "A02:2021 - Cryptographic Failures",
+  "cwe": "CWE-327",
+  "tags": ["tls", "sweet32", "3des", "cipher"],
+  "recommendation": "Supprimer les suites 3DES et autres chiffrements à bloc 64 bits, et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+  "verification": "Vérifier via un scan SSL/TLS qu’aucune suite 3DES ou équivalente n’est encore proposée.",
+  "recommendation_summary": "Retirer les suites 64 bits vulnérables de la configuration TLS.",
+  "technical_actions": [
+    "Désactiver 3DES et toute suite à bloc 64 bits.",
+    "Conserver uniquement des suites modernes pour TLS 1.2 et TLS 1.3.",
+    "Valider la compatibilité des clients métiers après durcissement."
+  ],
+  "verification_steps": [
+    "Relancer un scan TLS.",
+    "Vérifier qu’aucune suite 3DES n’est proposée.",
+    "Tester les connexions clientes métier."
+  ],
+  "report_template": "Supprimer les suites cryptographiques vulnérables de type 3DES et autres chiffrements à bloc 64 bits afin de réduire le risque de compromission partielle des échanges chiffrés. La configuration doit être revalidée par un nouveau scan TLS."
+},{
+  "id": "kb_tls_002",
+  "title": "Vulnérabilité TLS : LUCKY13",
+  "aliases": ["LUCKY13", "lucky13"],
+  "description": "Vulnérabilité affectant certains chiffrements CBC, pouvant permettre une attaque par canal auxiliaire sur les communications TLS selon l’implémentation côté serveur.",
+  "owasp": "A02:2021 - Cryptographic Failures",
+  "cwe": "CWE-203",
+  "tags": ["tls", "lucky13", "cbc", "cipher"],
+  "recommendation": "Désactiver les suites CBC anciennes ou faibles lorsque la compatibilité n’est pas requise, et vérifier l’état des correctifs sur le composant terminant TLS.",
+  "verification": "Contrôler via un scan SSL/TLS les suites CBC exposées et confirmer l’application des correctifs côté serveur ou reverse proxy.",
+  "recommendation_summary": "Réduire l’exposition aux suites CBC vulnérables.",
+  "technical_actions": [
+    "Réduire ou supprimer les suites CBC lorsque possible.",
+    "Vérifier les correctifs appliqués au composant TLS.",
+    "Favoriser les suites AEAD modernes."
+  ],
+  "verification_steps": [
+    "Lister les suites CBC encore exposées.",
+    "Relancer un scan TLS après correction.",
+    "Valider la compatibilité applicative."
+  ],
+  "report_template": "Réduire l’exposition aux chiffrements CBC anciens et privilégier des suites modernes de type AEAD. Une validation de la configuration TLS et de l’état des correctifs est nécessaire après remédiation."
+},
+{
+  "id": "kb_tls_003",
+  "title": "Vulnérabilité TLS : BEAST",
+  "aliases": ["BEAST", "beast"],
+  "description": "Vulnérabilité historique liée à l’usage de TLS ancien et de certains chiffrements CBC, réduisant le niveau de sécurité des communications chiffrées legacy.",
+  "owasp": "A02:2021 - Cryptographic Failures",
+  "cwe": "CWE-327",
+  "tags": ["tls", "beast", "cbc", "tls1.0"],
+  "recommendation": "Supprimer TLS 1.0 et limiter l’usage des suites CBC anciennes afin de réduire l’exposition aux attaques connues sur protocoles legacy.",
+  "verification": "Vérifier que TLS 1.0 n’est plus exposé et que les suites CBC anciennes ont été retirées ou fortement réduites.",
+  "recommendation_summary": "Supprimer l’exposition legacy favorisant BEAST.",
+  "technical_actions": [
+    "Désactiver TLS 1.0.",
+    "Réduire les suites CBC anciennes.",
+    "Conserver TLS 1.2 et TLS 1.3."
+  ],
+  "verification_steps": [
+    "Relancer un scan TLS.",
+    "Contrôler la disparition de TLS 1.0.",
+    "Vérifier les suites restantes."
+  ],
+  "report_template": "Supprimer les protocoles et suites legacy favorisant l’exploitation de BEAST, en particulier TLS 1.0 et les chiffrements CBC anciens. La remédiation doit être confirmée par un nouveau contrôle TLS."
+},
+{
+  "id": "kb_tls_004",
+  "title": "Vulnérabilité TLS : BREACH",
+  "aliases": ["BREACH", "breach"],
+  "description": "Risque lié à la compression HTTP sur des réponses contenant potentiellement des données sensibles, pouvant faciliter certaines attaques d’exfiltration indirecte.",
+  "owasp": "A02:2021 - Cryptographic Failures",
+  "cwe": "CWE-200",
+  "tags": ["tls", "breach", "compression", "http"],
+  "recommendation": "Limiter ou désactiver la compression sur les réponses sensibles et éviter l’exposition de secrets réfléchis dans des pages compressées.",
+  "verification": "Contrôler la compression HTTP sur les contenus sensibles et confirmer qu’aucune donnée exploitable n’est exposée dans les réponses compressées.",
+  "recommendation_summary": "Réduire l’impact potentiel de la compression sur les contenus sensibles.",
+  "technical_actions": [
+    "Identifier les pages sensibles compressées.",
+    "Désactiver ou limiter la compression sur ces contenus.",
+    "Éviter l’inclusion de secrets réfléchis dans les réponses."
+  ],
+  "verification_steps": [
+    "Tester les réponses sensibles avec compression activée.",
+    "Contrôler les en-têtes de compression.",
+    "Valider le comportement après correction."
+  ],
+  "report_template": "Réduire l’exposition au risque BREACH en limitant la compression HTTP sur les contenus sensibles et en évitant l’inclusion de secrets exploitables dans les réponses compressées. La mesure doit être vérifiée sur les pages contenant des informations métiers ou de session."
+}
+]

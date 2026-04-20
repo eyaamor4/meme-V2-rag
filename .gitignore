@@ -1,0 +1,13 @@
+venv/
+.vscode/
+__pycache__/
+*.pyc
+
+cache/
+.cache/
+.cache_nvd/
+
+debug_output.txt
+debug_prompt.txt
+
+reports/*.html

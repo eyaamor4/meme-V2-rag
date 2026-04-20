@@ -1,0 +1,671 @@
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>CyberScan Report</title>
+  <style>
+    @page { size: A4; margin: 10mm; }
+
+    :root{
+      --primary:#173a5e;
+      --accent:#2563eb;
+      --border:#dbe3ee;
+      --bg:#f8fafc;
+      --text:#1f2937;
+      --muted:#64748b;
+      --success:#16a34a;
+      --warning:#d97706;
+      --danger:#dc2626;
+      --info:#0891b2;
+    }
+
+    *{ box-sizing:border-box; }
+    body{
+      font-family: Arial, Helvetica, sans-serif;
+      color:var(--text);
+      font-size:10.5px;
+      line-height:1.55;
+      margin:0;
+      padding:0;
+    }
+
+    .cover{
+      page-break-after:always;
+      background:linear-gradient(145deg,#0f2540 0%, #173a5e 55%, #1e4d8c 100%);
+      color:white;
+      border-radius:16px;
+      padding:18mm;
+      min-height:270mm;
+      position:relative;
+      overflow:hidden;
+    }
+
+    .cover .tag{
+      display:inline-block;
+      padding:5px 12px;
+      border:1px solid rgba(255,255,255,.2);
+      border-radius:20px;
+      font-size:9px;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      opacity:.9;
+    }
+
+    .cover h1{
+      margin:18px 0 6px;
+      font-size:30px;
+      line-height:1.15;
+    }
+
+    .cover .subtitle{
+      opacity:.8;
+      font-size:13px;
+      margin-bottom:24px;
+    }
+
+    .risk-box{
+      display:inline-block;
+      padding:10px 14px;
+      border-radius:10px;
+      background:rgba(255,255,255,.12);
+      border:1px solid rgba(255,255,255,.2);
+      margin-bottom:16px;
+    }
+
+    .stats-grid{
+      display:grid;
+      grid-template-columns:repeat(5,1fr);
+      gap:10px;
+      margin-top:18px;
+    }
+
+    .stat{
+      background:rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius:10px;
+      padding:10px;
+      text-align:center;
+    }
+
+    .stat strong{
+      display:block;
+      font-size:20px;
+      color:white;
+    }
+
+    .stat span{
+      font-size:8.5px;
+      text-transform:uppercase;
+      opacity:.7;
+    }
+
+    .content{
+      padding:0;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      border-bottom:2px solid var(--primary);
+      padding-bottom:8px;
+      margin-bottom:14px;
+    }
+
+    .topbar .brand{
+      font-size:15px;
+      font-weight:bold;
+      color:var(--primary);
+    }
+
+    .topbar .meta{
+      font-size:9px;
+      color:var(--muted);
+      text-align:right;
+    }
+
+    h2{
+      color:var(--primary);
+      border-left:4px solid var(--accent);
+      padding-left:10px;
+      margin:20px 0 10px;
+      font-size:13px;
+      page-break-after:avoid;
+    }
+
+    p{ margin:0 0 7px; }
+
+    .box{
+      background:var(--bg);
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:12px 14px;
+    }
+
+    .finding-card{
+      border:1px solid var(--border);
+      border-radius:10px;
+      overflow:hidden;
+      margin:12px 0 16px;
+      page-break-inside:avoid;
+      background:white;
+    }
+
+    .finding-card.potential{
+      border-style:dashed;
+    }
+
+    .finding-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      padding:10px 14px;
+      background:#f8fafc;
+      border-left:6px solid var(--accent);
+    }
+
+    .finding-top.sev-critical{ border-left-color:var(--danger); }
+    .finding-top.sev-high{ border-left-color:#ea580c; }
+    .finding-top.sev-medium{ border-left-color:var(--warning); }
+    .finding-top.sev-low{ border-left-color:var(--success); }
+    .finding-top.sev-info{ border-left-color:var(--info); }
+
+    .finding-title{
+      font-weight:bold;
+      color:var(--primary);
+      font-size:11.5px;
+    }
+
+    .badge{
+      border-radius:999px;
+      padding:4px 8px;
+      font-size:8.5px;
+      font-weight:bold;
+      text-transform:uppercase;
+      white-space:nowrap;
+      border:1px solid transparent;
+    }
+
+    .badge.sev-critical{ background:#fef2f2; color:var(--danger); border-color:#fecaca; }
+    .badge.sev-high{ background:#fff7ed; color:#ea580c; border-color:#fed7aa; }
+    .badge.sev-medium{ background:#fffbeb; color:var(--warning); border-color:#fde68a; }
+    .badge.sev-low{ background:#f0fdf4; color:var(--success); border-color:#bbf7d0; }
+    .badge.sev-info{ background:#ecfeff; color:var(--info); border-color:#a5f3fc; }
+    .badge-potential{ background:#fff7ed; color:#ea580c; border:1px solid #fed7aa; }
+
+    .finding-body{
+      padding:12px 14px;
+    }
+
+    .kv{
+      display:flex;
+      gap:10px;
+      margin-bottom:8px;
+      align-items:flex-start;
+    }
+
+    .k{
+      min-width:130px;
+      font-weight:bold;
+      color:var(--text);
+    }
+
+    .v{
+      flex:1;
+      color:#475569;
+    }
+
+    .refs-box{
+      margin-top:10px;
+      padding-top:8px;
+      border-top:1px solid var(--border);
+      font-size:9.2px;
+      color:var(--muted);
+    }
+
+    .refs-box a{
+      color:var(--accent);
+      text-decoration:none;
+      word-break:break-all;
+    }
+
+    pre, code{
+      font-family:"Courier New", monospace;
+    }
+
+    pre{
+      white-space:pre-wrap;
+      overflow-wrap:anywhere;
+      background:#0f172a;
+      color:#e2e8f0;
+      padding:8px 10px;
+      border-radius:6px;
+      margin:0;
+      font-size:9px;
+    }
+
+    code{
+      background:#eef2f7;
+      padding:1px 4px;
+      border-radius:4px;
+    }
+
+    .empty-box{
+      background:#f8fafc;
+      border:1px dashed var(--border);
+      border-radius:10px;
+      padding:12px 14px;
+      color:var(--muted);
+      font-style:italic;
+    }
+
+    .rem-item{
+      position:relative;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px 80px 10px 46px;
+      margin-bottom:10px;
+      page-break-inside:avoid;
+      background:white;
+    }
+
+    .rem-item .num{
+      position:absolute;
+      top:10px;
+      left:12px;
+      width:24px;
+      height:24px;
+      border-radius:50%;
+      background:var(--primary);
+      color:white;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:10px;
+      font-weight:bold;
+    }
+
+    .rem-title{
+      font-weight:bold;
+      color:var(--primary);
+      margin-bottom:4px;
+    }
+
+    .rem-action{
+      color:#475569;
+    }
+
+    .delay{
+      position:absolute;
+      right:12px;
+      top:10px;
+      background:#eff6ff;
+      color:var(--accent);
+      border:1px solid #bfdbfe;
+      border-radius:999px;
+      padding:3px 8px;
+      font-size:8.5px;
+      font-weight:bold;
+    }
+
+    .note-box{
+      background:#fffbeb;
+      border:1px solid #fde68a;
+      border-left:4px solid var(--warning);
+      border-radius:8px;
+      padding:10px 12px;
+      color:#92400e;
+      margin:10px 0 14px;
+    }
+
+    .summary-table, .annexe-table{
+      width:100%;
+      border-collapse:collapse;
+      table-layout:fixed;
+      margin:12px 0 14px;
+      font-size:9px;
+    }
+
+    .summary-table th, .annexe-table th{
+      background:var(--primary);
+      color:white;
+      border:1px solid var(--primary);
+      padding:8px;
+      text-align:center;
+      font-size:8.5px;
+    }
+
+    .summary-table td, .annexe-table td{
+      border:1px solid var(--border);
+      padding:7px 8px;
+      vertical-align:top;
+      overflow-wrap:anywhere;
+      word-wrap:break-word;
+    }
+
+    .summary-table td{
+      text-align:center;
+      font-weight:bold;
+      font-size:12px;
+    }
+
+    .stat-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+
+    .pill{
+      flex:1;
+      min-width:120px;
+      border:1px solid var(--border);
+      background:#f8fafc;
+      border-radius:10px;
+      padding:10px 12px;
+      text-align:center;
+    }
+
+    .pill span{
+      display:block;
+      font-size:8.5px;
+      color:var(--muted);
+      text-transform:uppercase;
+      margin-bottom:4px;
+    }
+
+    .pill strong{
+      color:var(--primary);
+      font-size:15px;
+    }
+
+    .pill.accent{
+      background:#eff6ff;
+      border-color:#bfdbfe;
+    }
+
+    .pill.risk.low{ background:#f0fdf4; border-color:#bbf7d0; }
+    .pill.risk.moderate{ background:#fffbeb; border-color:#fde68a; }
+    .pill.risk.high{ background:#fff7ed; border-color:#fed7aa; }
+    .pill.risk.critical{ background:#fef2f2; border-color:#fecaca; }
+
+    .small-note{
+      margin-top:8px;
+      font-size:9px;
+      color:var(--muted);
+      font-style:italic;
+    }
+
+    .sev-critical-text{ color:var(--danger); font-weight:bold; }
+    .sev-high-text{ color:#ea580c; font-weight:bold; }
+    .sev-medium-text{ color:var(--warning); font-weight:bold; }
+    .sev-low-text{ color:var(--success); font-weight:bold; }
+    .sev-info-text{ color:var(--info); font-weight:bold; }
+
+    .page-break{ page-break-before:always; }
+
+    .footer{
+      margin-top:18px;
+      padding-top:8px;
+      border-top:1px solid var(--border);
+      display:flex;
+      justify-content:space-between;
+      font-size:8.5px;
+      color:var(--muted);
+    }
+  </style>
+</head>
+<body>
+
+ 
+
+  <div class="content">
+    <div class="topbar">
+      <div>
+        <div class="brand">CyberScan Report</div>
+        <div style="font-size:9px; color:#64748b;">Analyse automatisée des vulnérabilités web</div>
+      </div>
+      <div class="meta">
+        <div><strong>Cible :</strong> https://www.biat.com.tn/</div>
+        <div><strong>Date :</strong> 10/03/2026</div>
+      </div>
+    </div>
+     
+    <div class="synthesis-block">
+      <h2>Tableau de synthèse des vulnérabilités</h2>
+
+      <div class="note-box">
+        <strong>Note méthodologique :</strong> Ce tableau comptabilise uniquement les vulnérabilités confirmées
+        retenues dans le rapport principal après déduplication. Les vulnérabilités potentielles à valider
+        et les éléments informationnels sont comptabilisés séparément.
+      </div>
+
+      <table class="summary-table">
+        <thead>
+          <tr>
+            <th>🔴 Critique</th>
+            <th>🟠 Élevé</th>
+            <th>🟡 Moyen</th>
+            <th>🟢 Faible</th>
+            <th>ℹ️ Info</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>0</td>
+            <td>0</td>
+            <td>5</td>
+            <td>3</td>
+            <td>10</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="stat-row">
+        <div class="pill risk moderate">
+          <span>Niveau de risque global</span>
+          <strong>MODÉRÉ</strong>
+        </div>
+        <div class="pill">
+          <span>Vulnérabilités confirmées retenues</span>
+          <strong>8</strong>
+        </div>
+        <div class="pill">
+          <span>Vulnérabilités potentielles à valider</span>
+          <strong>3</strong>
+        </div>
+        <div class="pill">
+          <span>Éléments informationnels</span>
+          <strong>10</strong>
+        </div>
+        <div class="pill accent">
+          <span>Prioritaires confirmées (section B)</span>
+          <strong>5</strong>
+        </div>
+      </div>
+
+      <div class="small-note">ℹ️ Les chiffres ci-dessus sont calculés après déduplication globale.</div>
+    </div>
+    
+     
+    <h2>A - Résumé Exécutif</h2>
+    <div class="box"><p>Après analyse, déduplication et consolidation des résultats, 8 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. Niveau de risque global : MODÉRÉ. Cible : https://www.biat.com.tn/ (drupal 10). Scan du : 2026-03-10 12:40:23 UTC. La surface d’attaque côté navigateur est élargie en raison de la présence de plusieurs vulnérabilités liées à la sécurité côté client, notamment des problèmes de Content Security Policy (CSP) et des attributs de ressource non sécurisés. Cela signale que la surface d&#x27;attaque XSS est élargie et que le risque combiné est plus élevé. Étant donné que le secteur est bancaire, il est important de considérer les implications réglementaires, notamment celles liées à la BCT (Banque Centrale de Tunisie) et au PCI-DSS pour les vulnérabilités liées à l&#x27;injection SQL et à l&#x27;exécution de code à distance.</p></div>
+
+    <h2>B - Vulnérabilités Prioritaires</h2>
+    
+            <div class="finding-card">
+              <div class="finding-top sev-medium">
+                <div class="finding-title">#1 — CSP: Failure to Define Directive with No Fallback</div>
+                <div class="badge sev-medium">Moyen</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Description</div><div class='v'>La politique de sécurité de contenu (CSP) ne définit pas une directive essentielle sans fallback, ce qui équivaut à autoriser tout contenu.</div></div><div class='kv'><div class='k'>Paramètre/Ressource affecté(e)</div><div class='v'><code>Content-Security-Policy</code></div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A05:2021 - Security Misconfiguration</div></div><div class='kv'><div class='k'>Recommandation</div><div class='v'>Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle et les ajouter avec des valeurs restrictives.</div></div><div class='kv'><div class='k'>Vérification</div><div class='v'><pre>Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src, et contrôler dans les outils navigateur que les violations CSP sont bien remontées.</pre></div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://www.w3.org/TR/CSP/" target="_blank">https://www.w3.org/TR/CSP/</a><br><a href="https://caniuse.com/#search=content+security+policy" target="_blank">https://caniuse.com/#search=content+security+policy</a><br><a href="https://content-security-policy.com/" target="_blank">https://content-security-policy.com/</a><br><a href="https://github.com/HtmlUnit/htmlunit-csp" target="_blank">https://github.com/HtmlUnit/htmlunit-csp</a><br><a href="https://web.dev/articles/csp#resource-options" target="_blank">https://web.dev/articles/csp#resource-options</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card">
+              <div class="finding-top sev-medium">
+                <div class="finding-title">#2 — CSP: script-src unsafe-inline</div>
+                <div class="badge sev-medium">Moyen</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Description</div><div class='v'>La politique de sécurité de contenu (CSP) autorise l&#x27;exécution de scripts inline, ce qui peut faciliter les attaques de type XSS.</div></div><div class='kv'><div class='k'>Paramètre/Ressource affecté(e)</div><div class='v'><code>Content-Security-Policy</code></div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A05:2021 - Security Misconfiguration</div></div><div class='kv'><div class='k'>Recommandation</div><div class='v'>Identifier tous les scripts inline présents dans les templates HTML et les migrer vers des fichiers JS statiques versionnés lorsque possible.</div></div><div class='kv'><div class='k'>Vérification</div><div class='v'><pre>Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que script-src ne contient plus unsafe-inline, et contrôler dans le HTML que les scripts inline restants portent un nonce ou hash valide.</pre></div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://www.w3.org/TR/CSP/" target="_blank">https://www.w3.org/TR/CSP/</a><br><a href="https://caniuse.com/#search=content+security+policy" target="_blank">https://caniuse.com/#search=content+security+policy</a><br><a href="https://content-security-policy.com/" target="_blank">https://content-security-policy.com/</a><br><a href="https://github.com/HtmlUnit/htmlunit-csp" target="_blank">https://github.com/HtmlUnit/htmlunit-csp</a><br><a href="https://web.dev/articles/csp#resource-options" target="_blank">https://web.dev/articles/csp#resource-options</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card">
+              <div class="finding-top sev-medium">
+                <div class="finding-title">#3 — CSP: style-src unsafe-inline</div>
+                <div class="badge sev-medium">Moyen</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Description</div><div class='v'>La politique de sécurité de contenu (CSP) autorise l&#x27;injection de styles inline, ce qui peut faciliter les attaques de type XSS.</div></div><div class='kv'><div class='k'>Paramètre/Ressource affecté(e)</div><div class='v'><code>Content-Security-Policy</code></div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A05:2021 - Security Misconfiguration</div></div><div class='kv'><div class='k'>Recommandation</div><div class='v'>Identifier les styles inline dans les templates et composants front-end et les déplacer vers des feuilles CSS servies depuis des sources approuvées.</div></div><div class='kv'><div class='k'>Vérification</div><div class='v'><pre>Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que style-src ne contient plus unsafe-inline, et contrôler le rendu visuel des pages après externalisation des styles.</pre></div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://www.w3.org/TR/CSP/" target="_blank">https://www.w3.org/TR/CSP/</a><br><a href="https://caniuse.com/#search=content+security+policy" target="_blank">https://caniuse.com/#search=content+security+policy</a><br><a href="https://content-security-policy.com/" target="_blank">https://content-security-policy.com/</a><br><a href="https://github.com/HtmlUnit/htmlunit-csp" target="_blank">https://github.com/HtmlUnit/htmlunit-csp</a><br><a href="https://web.dev/articles/csp#resource-options" target="_blank">https://web.dev/articles/csp#resource-options</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card">
+              <div class="finding-top sev-medium">
+                <div class="finding-title">#4 — Sub Resource Integrity Attribute Missing</div>
+                <div class="badge sev-medium">Moyen</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Description</div><div class='v'>L&#x27;attribut d&#x27;intégrité de ressource est manquant sur un script ou une balise de lien servi par un serveur externe, ce qui permet à un attaquant ayant accès à ce serveur d&#x27;injecter du contenu malveillant.</div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A08:2021 - Software and Data Integrity Failures</div></div><div class='kv'><div class='k'>Recommandation</div><div class='v'>Identifier les scripts et les feuilles CSS chargés depuis des domaines externes et ajouter l&#x27;attribut d&#x27;intégrité et crossorigin=&quot;anonymous&quot; sur les ressources stables et versionnées.</div></div><div class='kv'><div class='k'>Vérification</div><div class='v'><pre>Inspecter le code source HTML : curl -s https://[site] | grep -i &#x27;integrity=&#x27;, vérifier que chaque balise script et link externe contient l&#x27;attribut integrity et crossorigin, et recalculer le hash en cas de mise à jour de la dépendance.</pre></div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity" target="_blank">https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card">
+              <div class="finding-top sev-medium">
+                <div class="finding-title">#5 — CSP: Wildcard Directive</div>
+                <div class="badge sev-medium">Moyen</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Description</div><div class='v'>La politique de sécurité de contenu (CSP) utilise une directive générique qui autorise des sources trop larges, ce qui peut faciliter les attaques.</div></div><div class='kv'><div class='k'>Paramètre/Ressource affecté(e)</div><div class='v'><code>Content-Security-Policy</code></div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A05:2021 - Security Misconfiguration</div></div><div class='kv'><div class='k'>Recommandation</div><div class='v'>Remplacer la directive générique par une liste précise d&#x27;hôtes de confiance et éviter les schémas génériques.</div></div><div class='kv'><div class='k'>Vérification</div><div class='v'><pre>Exécuter curl -I https://[site] | grep -i content-security-policy, comparer la CSP déployée avec l&#x27;inventaire réel des ressources chargées, et supprimer progressivement les sources non justifiées.</pre></div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://www.w3.org/TR/CSP/" target="_blank">https://www.w3.org/TR/CSP/</a><br><a href="https://caniuse.com/#search=content+security+policy" target="_blank">https://caniuse.com/#search=content+security+policy</a><br><a href="https://content-security-policy.com/" target="_blank">https://content-security-policy.com/</a><br><a href="https://github.com/HtmlUnit/htmlunit-csp" target="_blank">https://github.com/HtmlUnit/htmlunit-csp</a><br><a href="https://web.dev/articles/csp#resource-options" target="_blank">https://web.dev/articles/csp#resource-options</a></div>
+              </div>
+            </div>
+            
+
+    <h2>C - Vulnérabilités Potentielles à Valider</h2>
+    
+            <div class="finding-card potential">
+              <div class="finding-top sev-high">
+                <div class="finding-title">#1 — CVE-2008-6020</div>
+                <div class="badge badge-potential">À valider</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Statut</div><div class='v'>À valider manuellement</div></div><div class='kv'><div class='k'>Description</div><div class='v'>Vulnérabilité d&#x27;injection SQL dans le module Views pour Drupal, permettant aux attaquants distants d&#x27;exécuter des commandes SQL arbitraires via des vecteurs non spécifiés liés à un filtre exposé sur les champs de texte CCK. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s&#x27;appliquer.</div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A03:2021 - Injection</div></div><div class='kv'><div class='k'>Délai</div><div class='v'>À valider manuellement avant planification</div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://nvd.nist.gov/vuln/detail/CVE-2008-6020" target="_blank">https://nvd.nist.gov/vuln/detail/CVE-2008-6020</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card potential">
+              <div class="finding-top sev-high">
+                <div class="finding-title">#2 — CVE-2011-4113</div>
+                <div class="badge badge-potential">À valider</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Statut</div><div class='v'>À valider manuellement</div></div><div class='kv'><div class='k'>Description</div><div class='v'>Vulnérabilité d&#x27;injection SQL dans le module Views avant la version 6.x-2.13 pour Drupal, permettant aux attaquants distants d&#x27;exécuter des commandes SQL arbitraires via des vecteurs liés aux filtres/arguments sur certains types de vues avec des configurations spécifiques d&#x27;arguments. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s&#x27;appliquer.</div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A03:2021 - Injection</div></div><div class='kv'><div class='k'>Délai</div><div class='v'>À valider manuellement avant planification</div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://nvd.nist.gov/vuln/detail/CVE-2011-4113" target="_blank">https://nvd.nist.gov/vuln/detail/CVE-2011-4113</a></div>
+              </div>
+            </div>
+            
+
+            <div class="finding-card potential">
+              <div class="finding-top sev-high">
+                <div class="finding-title">#3 — CVE-2024-13254</div>
+                <div class="badge badge-potential">À valider</div>
+              </div>
+              <div class="finding-body">
+                <div class='kv'><div class='k'>Statut</div><div class='v'>À valider manuellement</div></div><div class='kv'><div class='k'>Description</div><div class='v'>Vulnérabilité d&#x27;insertion d&#x27;informations sensibles dans les données envoyées dans Drupal REST Views, permettant la navigation forcée. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s&#x27;appliquer.</div></div><div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>A01:2021 - Broken Access Control</div></div><div class='kv'><div class='k'>Délai</div><div class='v'>À valider manuellement avant planification</div></div>
+                <div class='refs-box'><strong>Références :</strong><br><a href="https://nvd.nist.gov/vuln/detail/CVE-2024-13254" target="_blank">https://nvd.nist.gov/vuln/detail/CVE-2024-13254</a></div>
+              </div>
+            </div>
+            
+
+    <h2>D - Plan de remédiation</h2>
+    
+            <div class="rem-item">
+              <div class="num">1</div>
+              <div class="rem-content">
+                <div class="rem-title">CSP</div>
+                <div class="rem-action">Failure to Define Directive with No Fallback : Identifier les directives CSP sans fallback et les ajouter avec des valeurs restrictives</div>
+              </div>
+              <div class='delay'>30 jours</div>
+            </div>
+            
+
+            <div class="rem-item">
+              <div class="num">2</div>
+              <div class="rem-content">
+                <div class="rem-title">CSP</div>
+                <div class="rem-action">script-src unsafe-inline : Migrer les scripts inline vers des fichiers JS statiques versionnés</div>
+              </div>
+              <div class='delay'>30 jours</div>
+            </div>
+            
+
+            <div class="rem-item">
+              <div class="num">3</div>
+              <div class="rem-content">
+                <div class="rem-title">CSP</div>
+                <div class="rem-action">style-src unsafe-inline : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées</div>
+              </div>
+              <div class='delay'>30 jours</div>
+            </div>
+            
+
+            <div class="rem-item">
+              <div class="num">4</div>
+              <div class="rem-content">
+                <div class="rem-title">Sub Resource Integrity Attribute Missing</div>
+                <div class="rem-action">Ajouter l&#x27;attribut d&#x27;intégrité et crossorigin=&quot;anonymous&quot; sur les ressources stables et versionnées</div>
+              </div>
+              <div class='delay'>30 jours</div>
+            </div>
+            
+
+            <div class="rem-item">
+              <div class="num">5</div>
+              <div class="rem-content">
+                <div class="rem-title">CSP</div>
+                <div class="rem-action">Wildcard Directive : Remplacer la directive générique par une liste précise d&#x27;hôtes de confiance</div>
+              </div>
+              <div class='delay'>30 jours</div>
+            </div>
+            
+
+    <h2>E - Conclusion</h2>
+    <div class="box"><p>Le niveau de risque global est MODÉRÉ. L&#x27;action prioritaire principale est de remédier à la vulnérabilité liée à l&#x27;absence de directive de sécurité de contenu (CSP) avec un délai de 30 jours. Il est essentiel de traiter ces vulnérabilités pour réduire la surface d&#x27;attaque et améliorer la sécurité globale du site. Étant donné le secteur bancaire, il est crucial de considérer les implications réglementaires et de s&#x27;assurer que les mesures de sécurité sont conformes aux exigences de la BCT et du PCI-DSS.</p></div>
+
+   
+
+    
+    <div class="page-break"></div>
+    <h2>Annexe  - Liste complète des findings dédupliqués (TOUS)</h2>
+    <table class="annexe-table">
+      <thead><tr><th>Priorité</th><th>Type</th><th>Sévérité</th><th>Risk</th><th>Confidence</th><th>Titre</th><th>Preuve</th><th>alertRef</th></tr></thead>
+      <tbody>
+        <tr><td >P4</td><td >vulnerability</td><td class='sev-low-text'>low</td><td >—</td><td >—</td><td >CVE-2012-10004</td><td >—</td><td ></td></tr><tr><td >P4</td><td >vulnerability</td><td class='sev-low-text'>low</td><td class='sev-low-text'>Low</td><td class='sev-medium-text'>Medium</td><td >Cross-Domain JavaScript Source File Inclusion</td><td >Chargement de scripts depuis des domaines tiers</td><td >10017</td></tr><tr><td >P4</td><td >vulnerability</td><td class='sev-low-text'>low</td><td class='sev-low-text'>Low</td><td class='sev-high-text'>High</td><td >Server Leaks Version Information via &quot;Server&quot; HTTP Response Header Field</td><td >Version du serveur exposée : Apache/2.4.62 (Debian)</td><td >10036-2</td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Apache HTTP Server</td><td >2.4.62</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Bootstrap</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Debian</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Drupal</td><td >10</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Google Tag Manager</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : HSTS</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : OWL Carousel</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : PHP</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : Slick</td><td >Version non fournie</td><td ></td></tr><tr><td >P5</td><td >information</td><td class='sev-info-text'>info</td><td >—</td><td >—</td><td >Technologie détectée : jQuery</td><td >Version non fournie</td><td ></td></tr>
+      </tbody>
+    </table>
+    
+
+    <div class="footer">
+      <span>Généré automatiquement par CyberScan</span>
+      <span>Rapport confidentiel — Ne pas distribuer</span>
+      <span>10/03/2026</span>
+    </div>
+  </div>
+</body>
+</html>
