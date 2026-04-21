@@ -1320,7 +1320,7 @@
       "instance_count": 38
     },
     {
-      "name": "User Controllable HTML Element Attribute (Potential python pdf_export.py reports\ton_rapport.md)",
+      "name": "User Controllable HTML Element Attribute (Potential XSS)",
       "risk": "Informational",
       "urls": [
         "https://iota-group.com/demo/",

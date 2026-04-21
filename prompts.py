@@ -66,7 +66,8 @@ SECTION B — VULNÉRABILITÉS PRIORITAIRES :
 
 FORMAT PAR FINDING :
 [titre exact]
-- Description : reformulation fidèle du champ "description" de CE finding uniquement. Ne jamais copier la description d'un autre finding.
+- Description : reformulation fidèle du champ "description" de CE finding uniquement.
+Si le champ "description" vaut "Non fourni" ou est vide, générer une description courte, fidèle et technique à partir du titre exact, de la catégorie OWASP, du type de finding et du rag_context éventuel. Ne pas inventer de détails spécifiques absents, mais fournir une explication générique correcte du risque.
 - Référence : valeur exacte du champ "reference". Si liste : une URL par ligne précédée de "  - "
 - Catégorie OWASP : valeur exacte du champ "owasp_category".
 - Sévérité : valeur exacte du champ "severity".
@@ -225,7 +226,11 @@ SECTION B — VULNÉRABILITÉS PRIORITAIRES :
 
 FORMAT PAR FINDING :
 [titre exact]
-- Description : reformulation fidèle du champ "description" de CE finding uniquement. Ne jamais copier la description d'un autre finding.
+- Description :
+  - Si le champ "description" contient une valeur exploitable, en faire une reformulation fidèle pour CE finding uniquement.
+  - Si le champ "description" vaut "Non fourni" ou est vide, générer une description courte, claire et technique basée sur le titre exact, la catégorie OWASP, le type de vulnérabilité et le contexte éventuel (rag_context).
+  - La description doit expliquer le risque de manière générique mais correcte, sans inventer de détails spécifiques absents.
+  - Ne jamais laisser "Non fourni" dans le rapport final.
 
 - Référence : valeur exacte du champ "reference". Si liste : une URL par ligne précédée de "  - "
 - Catégorie OWASP : valeur exacte du champ "owasp_category".
@@ -269,8 +274,11 @@ SECTION C — VULNÉRABILITÉS POTENTIELLES À VALIDER :
 FORMAT PAR FINDING :
 [titre exact]
 - Statut : À valider manuellement
-- Description : reformuler fidèlement le champ "description" de CE finding uniquement, puis ajouter obligatoirement : "Contexte : module détecté : [module_name]. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer."
-
+- Description :
+  - Si le champ "description" contient une valeur exploitable, en faire une reformulation fidèle pour CE finding uniquement.
+  - Si le champ "description" vaut "Non fourni" ou est vide, générer une description courte, claire et technique basée sur le titre exact, la catégorie OWASP, le type de vulnérabilité et le contexte éventuel (rag_context).
+  - La description doit expliquer le risque de manière générique mais correcte, sans inventer de détails spécifiques absents.
+  - Ne jamais laisser "Non fourni" dans le rapport final.
 
 - Référence : valeur exacte du champ "reference". Si liste : une URL par ligne précédée de "  - "
 - Catégorie OWASP : valeur exacte du champ "owasp_category".

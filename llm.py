@@ -1093,16 +1093,29 @@ def dedupe_section_b(report_text: str) -> str:
 # ============================================================
 # SECTION B
 # ============================================================
-
 def _is_conf_ok_for_section_b(f: Dict[str, Any]) -> bool:
     finding_type = f.get("finding_type") or classify_finding_type(f)
     conf = str(f.get("confidence") or "").strip().lower()
     sev = normalize_severity(f.get("severity"))
+    source = str(f.get("source") or "").strip().lower()
 
+    # Toujours garder les CVE confirmées / potentielles et le TLS
     if finding_type in {"confirmed_cve", "potential_cve", "tls_crypto"}:
         return True
-    if finding_type == "exposure" and sev in {"high", "medium"}:
-        return True
+
+    # Findings Nuclei : garder si medium+
+    if source == "nuclei":
+        return sev in {"medium", "high", "critical"}
+
+    # Findings ZAP / web misconfig : garder si medium+
+    if finding_type == "web_misconfig":
+        return sev in {"medium", "high", "critical"}
+
+    # Exposition : garder si medium+
+    if finding_type == "exposure":
+        return sev in {"medium", "high", "critical"}
+
+    # Fallback
     return conf in {"high", "medium"}
 
 
@@ -1487,11 +1500,13 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
    
 
         # 3) supprimer les observations pures mal classées en vulnérabilité
-        if _is_pure_observation_row(row):
+        if (
+            _is_pure_observation_row(row)
+            and str(row.get("source", "")).lower() not in {"zap", "nuclei", "cve", "network_ssl", "network_ports"}
+        ):
             row["kind"] = "information"
             row["severity"] = "info"
             row["priority"] = "P5"
-
         # 4) supprimer les doublons internes de l'annexe B
         row_key = _row_dedup_key(row)
         if row_key in seen_annexe_keys:

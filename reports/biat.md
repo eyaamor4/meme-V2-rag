@@ -1,10 +1,13 @@
 A - Résumé Exécutif
-Après analyse, déduplication et consolidation des résultats, 8 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires. Niveau de risque global : MODÉRÉ. Cible : https://www.biat.com.tn/ (drupal 10). Scan du : 2026-03-10 12:40:23 UTC. La surface d’attaque côté navigateur est élargie en raison de la présence de plusieurs vulnérabilités liées à la sécurité côté client, notamment des problèmes de Content Security Policy (CSP) et des attributs de ressource non sécurisés. Cela signale que la surface d'attaque XSS est élargie et que le risque combiné est plus élevé. Étant donné que le secteur est bancaire, il est important de considérer les implications réglementaires, notamment celles liées à la BCT (Banque Centrale de Tunisie) et au PCI-DSS pour les vulnérabilités liées à l'injection SQL et à l'exécution de code à distance.
+Après analyse, déduplication et consolidation des résultats, 8 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires.
+Niveau de risque global : MODÉRÉ. Cible : https://www.biat.com.tn/ (drupal 10). Scan du : 2026-03-10 12:40:23 UTC.
+La surface d’attaque côté navigateur est élargie en raison de plusieurs vulnérabilités liées à la sécurité côté client, notamment l'absence de certaines directives de sécurité dans la politique de sécurité du contenu (CSP) et l'utilisation de scripts et styles inline, ce qui signale que la surface d'attaque XSS est élargie et que le risque combiné est plus élevé.
+Étant donné que le secteur est bancaire, les implications réglementaires liées à la BCT (Banque Centrale de Tunisie) et au PCI-DSS pour les vulnérabilités SQLi et RCE doivent être prises en compte.
 
 B - Vulnérabilités Prioritaires
 - CSP: Failure to Define Directive with No Fallback
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité de contenu (CSP) ne définit pas une directive essentielle sans fallback, ce qui équivaut à autoriser tout contenu.
+  - Description : La politique de sécurité du contenu (CSP) ne définit pas une directive essentielle, ce qui peut permettre l'exécution de contenu non autorisé.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -18,7 +21,7 @@ B - Vulnérabilités Prioritaires
 
 - CSP: script-src unsafe-inline
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité de contenu (CSP) autorise l'exécution de scripts inline, ce qui peut faciliter les attaques de type XSS.
+  - Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline, ce qui peut faciliter les attaques de type XSS.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -32,7 +35,7 @@ B - Vulnérabilités Prioritaires
 
 - CSP: style-src unsafe-inline
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité de contenu (CSP) autorise l'injection de styles inline, ce qui peut faciliter les attaques de type XSS.
+  - Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline, ce qui peut faciliter les attaques de type XSS.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -45,7 +48,7 @@ B - Vulnérabilités Prioritaires
   - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que style-src ne contient plus unsafe-inline, et contrôler le rendu visuel des pages après externalisation des styles.
 
 - Sub Resource Integrity Attribute Missing
-  - Description : L'attribut d'intégrité de ressource est manquant sur un script ou une balise de lien servi par un serveur externe, ce qui permet à un attaquant ayant accès à ce serveur d'injecter du contenu malveillant.
+  - Description : L'attribut d'intégrité des ressources est manquant sur un script ou une balise de lien servi par un serveur externe, ce qui peut permettre à un attaquant d'injecter du contenu malveillant.
   - Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
   - Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
   - Sévérité : MEDIUM
@@ -54,7 +57,7 @@ B - Vulnérabilités Prioritaires
 
 - CSP: Wildcard Directive
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité de contenu (CSP) utilise une directive générique qui autorise des sources trop larges, ce qui peut faciliter les attaques.
+  - Description : La politique de sécurité du contenu (CSP) utilise une directive générique qui autorise des sources trop larges, ce qui peut faciliter les attaques.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -69,7 +72,7 @@ B - Vulnérabilités Prioritaires
 C - Vulnérabilités Potentielles à Valider
 - CVE-2008-6020
   - Statut : À valider manuellement
-  - Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant aux attaquants distants d'exécuter des commandes SQL arbitraires via des vecteurs non spécifiés liés à un filtre exposé sur les champs de texte CCK. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
+  - Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant aux attaquants distants d'exécuter des commandes SQL arbitraires. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
   - Référence : https://nvd.nist.gov/vuln/detail/CVE-2008-6020
   - Catégorie OWASP : A03:2021 - Injection
   - Sévérité : HIGH
@@ -77,7 +80,7 @@ C - Vulnérabilités Potentielles à Valider
 
 - CVE-2011-4113
   - Statut : À valider manuellement
-  - Description : Vulnérabilité d'injection SQL dans le module Views avant la version 6.x-2.13 pour Drupal, permettant aux attaquants distants d'exécuter des commandes SQL arbitraires via des vecteurs liés aux filtres/arguments sur certains types de vues avec des configurations spécifiques d'arguments. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
+  - Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant aux attaquants distants d'exécuter des commandes SQL arbitraires. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
   - Référence : https://nvd.nist.gov/vuln/detail/CVE-2011-4113
   - Catégorie OWASP : A03:2021 - Injection
   - Sévérité : HIGH
@@ -99,7 +102,9 @@ D - Plan de remédiation
 5. CSP: Wildcard Directive : Remplacer la directive générique par une liste précise d'hôtes de confiance — Délai : 30 jours
 
 E - Conclusion
-Le niveau de risque global est MODÉRÉ. L'action prioritaire principale est de remédier à la vulnérabilité liée à l'absence de directive de sécurité de contenu (CSP) avec un délai de 30 jours. Il est essentiel de traiter ces vulnérabilités pour réduire la surface d'attaque et améliorer la sécurité globale du site. Étant donné le secteur bancaire, il est crucial de considérer les implications réglementaires et de s'assurer que les mesures de sécurité sont conformes aux exigences de la BCT et du PCI-DSS.
+Le niveau de risque global est MODÉRÉ.
+L'action prioritaire principale est de remédier à la vulnérabilité "CSP: Failure to Define Directive with No Fallback" dans les 30 jours, en identifiant les directives CSP sans fallback et en les ajoutant avec des valeurs restrictives.
+Il est essentiel de traiter ces vulnérabilités pour réduire la surface d'attaque et améliorer la sécurité globale du site.
 
 
     ## Tableau de synthèse des vulnérabilités

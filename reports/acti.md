@@ -1,7 +1,7 @@
 A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 3 vulnérabilités ont été retenues dans ce rapport, dont 1 sont prioritaires.
 Niveau de risque global : FAIBLE. Cible : http://www.acti.fr/ (wordpress 6.4.3). Scan du : 2026-03-10 14:01:17 UTC.
-La surface d’attaque côté navigateur est élargie en raison de la présence de vulnérabilités liées à la sécurité côté client, notamment l'absence de Content Security Policy (CSP).
+La surface d'attaque côté navigateur est élargie en raison de la présence de vulnérabilités liées à la sécurité côté client, notamment l'absence de Content Security Policy (CSP).
 
 B - Vulnérabilités Prioritaires
 Content Security Policy (CSP) Header Not Set
@@ -20,15 +20,15 @@ Content Security Policy (CSP) Header Not Set
 - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, contrôler la présence de l'en-tête Content-Security-Policy et tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP.
 
 C - Vulnérabilités Potentielles à Valider
-Aucune vulnérabilité potentielle à valider n'a été identifiée.
+Cette section n'est pas applicable dans ce cas, car il n'y a pas de vulnérabilités potentielles à valider.
 
 D - Plan de remédiation
 1. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires — Délai : 30 jours
 
 E - Conclusion
 Le niveau de risque global est FAIBLE.
-L'action prioritaire principale est de définir une politique CSP de base avec default-src 'self' et de déclarer explicitement les directives nécessaires, avec un délai de 30 jours.
-Il est essentiel de remédier à cette vulnérabilité pour réduire la surface d’attaque côté navigateur et améliorer la sécurité globale du site.
+L'action prioritaire principale est de définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires, avec un délai de 30 jours.
+Il est essentiel de remédier à cette vulnérabilité pour réduire la surface d'attaque côté navigateur et améliorer la sécurité globale du site.
 
 
     ## Tableau de synthèse des vulnérabilités

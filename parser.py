@@ -1055,7 +1055,13 @@ def extract_findings(data: Dict[str, Any]) -> List[Dict[str, Any]]:
     grouped: Dict[str, List[Dict[str, Any]]] = {}
 
     for a in zap_alerts:
-        key = str(a.get("alertRef") or a.get("pluginId") or a.get("alert") or "unknown")
+        key = str(
+            a.get("alertRef")
+            or a.get("pluginId")
+            or a.get("alert")
+            or a.get("name")
+            or "unknown"
+        ).strip().lower()
         grouped.setdefault(key, []).append(a)
 
     for key, group in grouped.items():

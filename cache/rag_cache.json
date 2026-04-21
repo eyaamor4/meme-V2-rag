@@ -3029,5 +3029,225 @@
         "score": 0.8139
       }
     ]
+  },
+  "bb75e4434deeb8846202dcf13131f6a955b0f058b3b504828931626468c5a1e1": {
+    "ts": 1776715234.2461715,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy.",
+          "Tester l'application pour détecter d'éventuelles régressions fonctionnelles liées à la CSP."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "c6f4270b6a405b68c88891f99fef6d42453a447d7eafa9ade2f2376d123a889f": {
+    "ts": 1776718280.2693052,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Vérifier dans le code HTML que chaque ressource externe concernée contient un attribut integrity valide correspondant au contenu réellement servi.",
+        "verification_steps": [
+          "Inspecter le code source HTML : curl -s https://[site] | grep -i 'integrity='",
+          "Vérifier que chaque balise script et link externe contient l'attribut integrity et crossorigin.",
+          "Recalculer le hash en cas de mise à jour de la dépendance.",
+          "Relancer le scan pour confirmer la disparition de l'alerte."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "8aa5b871db63773e55914372857f4bedd4e05f3c34858021c2fb85fe46f54e73": {
+    "ts": 1776718280.2833066,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "73a10600b23eda6447415726af1d684943b5fbe4294ef4518a12e9dce31a5ce0": {
+    "ts": 1776718280.3090796,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": -0.919
+      }
+    ]
   }
 }
