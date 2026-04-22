@@ -1190,14 +1190,11 @@ HTML_TEMPLATE = r"""
 # =========================================================
 # Main
 # =========================================================
-
-def main() -> None:
-    report_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_MD
+def generate_pdf_from_markdown(report_path: str | Path) -> tuple[Path, Path]:
+    report_path = Path(report_path)
     if not report_path.exists():
-        print(f"❌ Fichier introuvable : {report_path}")
-        sys.exit(1)
+        raise FileNotFoundError(f"Fichier introuvable : {report_path}")
 
-    print(f"📄 Lecture du rapport : {report_path}")
     md_text = report_path.read_text(encoding="utf-8")
     md_text = md_text.replace("\r\n", "\n").replace("\r", "\n")
 
@@ -1261,11 +1258,24 @@ def main() -> None:
     output_pdf = report_path.with_name(report_path.stem + "_rapport.pdf")
 
     output_html.write_text(final_html, encoding="utf-8")
-    print(f"🌐 HTML généré : {output_html}")
-
     HTML(string=final_html, base_url=str(report_path.parent)).write_pdf(str(output_pdf))
+
+    return output_html, output_pdf
+
+
+def main() -> None:
+    report_path = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_MD
+    if not report_path.exists():
+        print(f"❌ Fichier introuvable : {report_path}")
+        sys.exit(1)
+
+    print(f"📄 Lecture du rapport : {report_path}")
+    output_html, output_pdf = generate_pdf_from_markdown(report_path)
+    print(f"🌐 HTML généré : {output_html}")
     print(f"✅ PDF généré : {output_pdf}")
 
 
 if __name__ == "__main__":
     main()
+
+    
