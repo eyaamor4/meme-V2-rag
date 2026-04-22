@@ -1,15 +1,29 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
+from fastapi import FastAPI, UploadFile, File, Header, HTTPException
 from fastapi.responses import FileResponse
 import json
 import re
+import os
 from pathlib import Path
 from urllib.parse import urlparse
+from dotenv import load_dotenv
 
 from parser import extract_findings, extract_metadata
 from llm import analyze_full
 from generate_pdf import generate_pdf_from_markdown
 
+load_dotenv()
+
+API_KEY = os.getenv("CYBERSCAN_API_KEY")
+
 app = FastAPI(title="Vulnerability Report API")
+
+
+def verify_api_key(x_api_key: str = Header(None)):
+    if not x_api_key:
+        raise HTTPException(status_code=401, detail="API key missing")
+
+    if x_api_key != API_KEY:
+        raise HTTPException(status_code=403, detail="Invalid API key")
 
 
 def safe_name(value: str) -> str:
@@ -19,7 +33,12 @@ def safe_name(value: str) -> str:
 
 
 @app.post("/analyze")
-async def analyze(file: UploadFile = File(...)):
+async def analyze(
+    file: UploadFile = File(...),
+    x_api_key: str = Header(None)
+):
+    verify_api_key(x_api_key)
+
     try:
         content = await file.read()
         data = json.loads(content.decode("utf-8"))
