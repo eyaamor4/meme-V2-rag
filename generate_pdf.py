@@ -190,6 +190,7 @@ FIELD_LABELS = [
     "Référence",
     "Catégorie OWASP",
     "Sévérité",
+    "Score CVSS",
     "Recommandation",
     "Vérification",
     "Statut",
@@ -333,6 +334,7 @@ def parse_section_b(md_text: str) -> List[Dict[str, str]]:
             "description": extract_field(block, "Description"),
             "owasp": extract_field(block, "Catégorie OWASP"),
             "severity": extract_field(block, "Sévérité").lower(),
+            "cvss": extract_field(block, "Score CVSS"),
             "recommendation": extract_field(block, "Recommandation"),
             "verification": extract_field(block, "Vérification"),
             "parametre": extract_param(block),
@@ -524,6 +526,10 @@ def render_findings(findings: List[Dict[str, str]]) -> str:
             rows.append(
                 f"<div class='kv'><div class='k'>Catégorie OWASP</div><div class='v'>{escape(f['owasp'])}</div></div>"
             )
+        if f.get("cvss"):
+            rows.append(
+                f"<div class='kv'><div class='k'>Score CVSS</div><div class='v'>{escape(f['cvss'])}</div></div>"
+            )    
         if f.get("recommendation"):
             rows.append(
                 f"<div class='kv'><div class='k'>Recommandation</div><div class='v'>{escape(f['recommendation'])}</div></div>"
