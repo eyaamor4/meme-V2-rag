@@ -51,10 +51,6 @@ def normalize_title(title: str) -> str:
     return re.sub(r"\s+", " ", title.strip())
 
 def extract_section(md_text: str, title_regex: str, next_titles: list[str]) -> str:
-    """
-    Extrait une section entre son titre et le prochain titre.
-    Supporte les espaces avant les titres.
-    """
     start_pattern = re.compile(title_regex, re.IGNORECASE | re.MULTILINE)
     start_match = start_pattern.search(md_text)
     if not start_match:
@@ -119,11 +115,6 @@ def extract_scan_date(md_text: str) -> str:
 
 
 def extract_counts_from_table(md_text: str) -> dict:
-    """
-    Extrait la ligne de compteurs du tableau markdown, même si elle est indentée.
-    Exemple attendu :
-        | 0 | 0 | 5 | 3 | 10 |
-    """
     matches = re.findall(
         r"^\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*$",
         md_text,
@@ -222,16 +213,6 @@ def is_real_entry_title(title: str) -> bool:
 
 
 def split_entries(section_text: str) -> list[str]:
-    """
-    Découpe une section en entrées top-level uniquement.
-    Supporte :
-      - Titre
-      1. Titre
-
-    MAIS ignore les sous-lignes indentées comme :
-      - Référence :
-        - https://...
-    """
     lines = section_text.splitlines()
     entries = []
     current = []
@@ -240,17 +221,13 @@ def split_entries(section_text: str) -> list[str]:
         raw = line.rstrip("\n")
         stripped = raw.strip()
 
-        # Compter l'indentation réelle
         indent = len(raw) - len(raw.lstrip(" "))
 
-        # On n'accepte comme nouvelle entrée que les lignes NON indentées
-        # du type "- Titre" ou "1. Titre"
         start_match = re.match(r"^(?:-\s+|\d+\.\s+)(.+)$", stripped)
 
         if indent == 0 and start_match:
             title_candidate = start_match.group(1).strip()
 
-            # Exclure les champs internes
             if (
                 not is_field_line(stripped)
                 and is_real_entry_title(title_candidate)
@@ -271,12 +248,6 @@ def split_entries(section_text: str) -> list[str]:
     return [e for e in entries if e.strip()]
 
 def extract_field(block: str, label: str) -> str:
-    """
-    Extrait un champ multi-lignes :
-    - Description : ...
-    - Référence :
-      - https://...
-    """
     pattern = re.compile(
         rf"(?:^|\n)\s*(?:-\s+|\*\s*)?{re.escape(label)}\s*:\s*(.*?)(?=(?:\n\s*(?:-\s+|\*\s*)?(?:{'|'.join(re.escape(x) for x in FIELD_LABELS)}|Param[èe]tre/Ressource affect)[^:\n]*\s*:)|\Z)",
         re.IGNORECASE | re.DOTALL,
@@ -479,6 +450,7 @@ def extract_annexe_title_and_table(md_text: str) -> dict:
         rows.append(cells)
 
     return {"title": title, "headers": headers, "rows": rows}
+
 # =========================================================
 # Render helpers
 # =========================================================
@@ -620,59 +592,105 @@ def render_remediation(items: List[Dict[str, str]]) -> str:
     return "\n".join(blocks)
 
 
+# =========================================================
+# ✅ ONLY render_synthesis WAS CHANGED — visual bar chart style
+# =========================================================
 def render_synthesis(counts: Dict[str, str], stats: Dict[str, str], risk_label: str) -> str:
     risk_class = risk_to_class(risk_label)
+
+    sev_colors = {
+        "critique": "#dc2626",
+        "eleve":    "#ea580c",
+        "moyen":    "#d97706",
+        "faible":   "#2563eb",
+        "info":     "#16a34a",
+    }
+    sev_labels = {
+        "critique": "Critique",
+        "eleve":    "Élevé",
+        "moyen":    "Moyen",
+        "faible":   "Faible",
+        "info":     "Info",
+    }
+
+    values = {k: int(counts.get(k, 0) or 0) for k in ["critique", "eleve", "moyen", "faible", "info"]}
+    max_val = max(values.values()) if any(v > 0 for v in values.values()) else 1
+
+    bar_rows = ""
+    for key in ["critique", "eleve", "moyen", "faible", "info"]:
+        val = values[key]
+        color = sev_colors[key]
+        label = sev_labels[key]
+        width_pct = max(4, int(val / max_val * 100)) if val > 0 else 4
+        if val > 0:
+            bar_html = (
+                f'<div style="background:{color};width:{width_pct}%;min-width:28px;'
+                f'border-radius:4px;padding:2px 8px;color:white;font-weight:bold;'
+                f'font-size:10px;text-align:center;display:inline-block;">{val}</div>'
+            )
+        else:
+            bar_html = (
+                f'<div style="background:{color};width:28px;border-radius:4px;'
+                f'padding:2px 8px;color:white;font-weight:bold;font-size:10px;'
+                f'text-align:center;display:inline-block;">0</div>'
+            )
+        bar_rows += f"""
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+          <div style="min-width:60px;font-size:9.5px;color:#475569;text-align:right;">{label}:</div>
+          {bar_html}
+        </div>"""
+
+    risk_pill_styles = {
+        "low":      "background:#2563eb;color:white;",
+        "moderate": "background:#d97706;color:white;",
+        "high":     "background:#ea580c;color:white;",
+        "critical": "background:#dc2626;color:white;",
+    }
+    risk_pill_css = risk_pill_styles.get(risk_class, "background:#2563eb;color:white;")
+
     return f"""
     <div class="synthesis-block">
       <h2>Tableau de synthèse des vulnérabilités</h2>
+      <div style="display:flex;gap:32px;align-items:flex-start;padding:14px 0 6px;">
 
-      <div class="note-box">
+        <div style="min-width:140px;">
+          <div style="font-size:9.5px;font-weight:bold;color:#2563eb;margin-bottom:6px;">Niveau de risque global :</div>
+          <div style="{risk_pill_css}border-radius:6px;padding:6px 18px;font-size:12px;font-weight:bold;text-align:center;display:inline-block;">
+            {escape(risk_label.capitalize())}
+          </div>
+        </div>
+
+        <div style="width:1px;background:#dbe3ee;align-self:stretch;"></div>
+
+        <div style="flex:1;">
+          <div style="font-size:9.5px;font-weight:bold;color:#2563eb;margin-bottom:8px;">Répartition des niveaux de sévérité :</div>
+          {bar_rows}
+        </div>
+
+      </div>
+
+      <div class="note-box" style="margin-top:12px;">
        <strong>Note méthodologique :</strong> Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
       </div>
 
-      <table class="summary-table">
-        <thead>
-          <tr>
-            <th>🔴 Critique</th>
-            <th>🟠 Élevé</th>
-            <th>🟡 Moyen</th>
-            <th>🟢 Faible</th>
-            <th>ℹ️ Info</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>{escape(counts['critique'])}</td>
-            <td>{escape(counts['eleve'])}</td>
-            <td>{escape(counts['moyen'])}</td>
-            <td>{escape(counts['faible'])}</td>
-            <td>{escape(counts['info'])}</td>
-          </tr>
-        </tbody>
-      </table>
-
       <div class="stat-row">
-        <div class="pill risk {risk_class}">
-          <span>Niveau de risque global</span>
-          <strong>{escape(risk_label)}</strong>
+        <div class="pill confirmed">
+            <span>Vulnérabilités confirmées retenues</span>
+            <strong>{escape(stats['vulns_total'])}</strong>
         </div>
-        <div class="pill">
-          <span>Vulnérabilités confirmées retenues</span>
-          <strong>{escape(stats['vulns_total'])}</strong>
+        <div class="pill potential">
+            <span>Vulnérabilités potentielles à valider</span>
+            <strong>{escape(stats['potential_total'])}</strong>
         </div>
-        <div class="pill">
-          <span>Vulnérabilités potentielles à valider</span>
-          <strong>{escape(stats['potential_total'])}</strong>
-        </div>
-        <div class="pill">
-          <span>Éléments informationnels</span>
-          <strong>{escape(stats['info_total'])}</strong>
+        <div class="pill info">
+            <span>Éléments informationnels</span>
+            <strong>{escape(stats['info_total'])}</strong>
         </div>
         <div class="pill accent">
-          <span>Prioritaires confirmées (section B)</span>
-          <strong>{escape(stats['priority_total'])}</strong>
+            <span>Prioritaires confirmées (section B)</span>
+            <strong>{escape(stats['priority_total'])}</strong>
         </div>
-      </div>
+        </div>
 
       <div class="small-note">ℹ️ Les chiffres ci-dessus sont calculés après déduplication globale.</div>
     </div>
@@ -1079,44 +1097,79 @@ HTML_TEMPLATE = r"""
     }
 
     .stat-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      margin-top:10px;
-    }
+        display:grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap:10px;
+        margin-top:14px;
+        width:100%;
+        }
 
-    .pill{
-      flex:1;
-      min-width:120px;
-      border:1px solid var(--border);
-      background:#f8fafc;
-      border-radius:10px;
-      padding:10px 12px;
-      text-align:center;
-    }
+   .pill{
+        min-width:0;
+        width:100%;
+        background:linear-gradient(to bottom, #ffffff, #f8fafc);
+        border:1px solid #dbe3ee;
+        border-radius:14px;
+        padding:12px 10px;
+        text-align:center;
+        box-shadow:0 2px 8px rgba(15, 23, 42, 0.04);
+        position:relative;
+        }
 
-    .pill span{
-      display:block;
-      font-size:8.5px;
-      color:var(--muted);
-      text-transform:uppercase;
-      margin-bottom:4px;
-    }
+.pill::before{
+  content:"";
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  height:4px;
+  border-radius:14px 14px 0 0;
+  background:#cbd5e1;
+}
 
-    .pill strong{
-      color:var(--primary);
-      font-size:15px;
-    }
+.pill span{
+  display:block;
+  font-size:8px;
+  color:#64748b;
+  text-transform:uppercase;
+  letter-spacing:0.2px;
+  line-height:1.35;
+  margin-bottom:8px;
+}
 
-    .pill.accent{
-      background:#eff6ff;
-      border-color:#bfdbfe;
-    }
+.pill strong{
+  display:block;
+  color:#173a5e;
+  font-size:20px;
+  font-weight:700;
+  line-height:1;
+}
 
-    .pill.risk.low{ background:#f0fdf4; border-color:#bbf7d0; }
-    .pill.risk.moderate{ background:#fffbeb; border-color:#fde68a; }
-    .pill.risk.high{ background:#fff7ed; border-color:#fed7aa; }
-    .pill.risk.critical{ background:#fef2f2; border-color:#fecaca; }
+/* Couleurs par type */
+.pill.confirmed::before{
+  background:#2563eb;
+}
+
+.pill.potential::before{
+  background:#f59e0b;
+}
+
+.pill.info::before{
+  background:#16a34a;
+}
+
+.pill.accent{
+  background:#f8fbff;
+  border-color:#bfdbfe;
+}
+
+.pill.accent::before{
+  background:#1d4ed8;
+}
+.pill:hover{
+  transform:translateY(-2px);
+  box-shadow:0 6px 16px rgba(15,23,42,0.08);
+}
 
     .small-note{
       margin-top:8px;
@@ -1146,8 +1199,6 @@ HTML_TEMPLATE = r"""
 </head>
 <body>
 
- 
-
   <div class="content">
     <div class="topbar">
       <div>
@@ -1175,8 +1226,6 @@ HTML_TEMPLATE = r"""
 
     <h2>E - Conclusion</h2>
     <div class="box">{{ conclusion_html | safe }}</div>
-
-   
 
     {{ annexe_html | safe }}
 
@@ -1281,5 +1330,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-    
