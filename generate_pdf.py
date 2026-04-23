@@ -627,9 +627,7 @@ def render_synthesis(counts: Dict[str, str], stats: Dict[str, str], risk_label: 
       <h2>Tableau de synthèse des vulnérabilités</h2>
 
       <div class="note-box">
-        <strong>Note méthodologique :</strong> Ce tableau comptabilise uniquement les vulnérabilités confirmées
-        retenues dans le rapport principal après déduplication. Les vulnérabilités potentielles à valider
-        et les éléments informationnels sont comptabilisés séparément.
+       <strong>Note méthodologique :</strong> Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
       </div>
 
       <table class="summary-table">

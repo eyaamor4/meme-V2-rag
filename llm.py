@@ -936,7 +936,7 @@ def _make_annexe_row(f: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
-    headers = ["Priorité", "Type", "Sévérité ", "Risk", "Confidence", "Titre",  "Preuve", "alertRef"]
+    headers = ["Priorité", "Titre", "Sévérité ",  "Preuve", "alertRef"]
     lines = [
         "| " + " | ".join(headers) + " |",
         "| " + " | ".join(["---"] * len(headers)) + " |",
@@ -945,11 +945,8 @@ def build_annexe_table(all_compact: List[Dict[str, Any]]) -> str:
     for f in all_compact:
         row = [
             str(f.get("priority", "—")),
-            str(f.get("kind", "—")),
-            str(f.get("severity", "—")),
-            str(f.get("risk") or "—"),
-            str(f.get("confidence") or "—"),
             str(f.get("title") or "—"),
+            str(f.get("severity", "—")),
             str(f.get("evidence") or "—"),
             str(f.get("alertRef") or ""),
         ]
@@ -1610,8 +1607,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     summary_table = f"""
     ## Tableau de synthèse des vulnérabilités
 
-    > **Note méthodologique :** Ce tableau comptabilise uniquement les vulnérabilités confirmées retenues dans le rapport principal après déduplication.
-    > Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
+    > **Note méthodologique :** Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
 
     | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
     |:---:|:---:|:---:|:---:|:---:|
