@@ -217,14 +217,44 @@ def split_entries(section_text: str) -> list[str]:
     entries = []
     current = []
 
-    for line in lines:
-        raw = line.rstrip("\n")
+    def looks_like_plain_title(i: int) -> bool:
+        raw = lines[i].rstrip("\n")
         stripped = raw.strip()
 
+        if not stripped:
+            return False
+
+        if is_field_line(stripped):
+            return False
+
+        if stripped.startswith("http://") or stripped.startswith("https://"):
+            return False
+
+        if re.match(r"^[A-E]\s*-\s*", stripped, re.IGNORECASE):
+            return False
+
+        if re.match(r"^##\s*", stripped):
+            return False
+
+        # cas "Titre nu" suivi d'un champ
+        if i + 1 < len(lines):
+            next_line = lines[i + 1].strip()
+            if is_field_line(next_line):
+                return True
+
+        return False
+
+    for i, line in enumerate(lines):
+        raw = line.rstrip("\n")
+        stripped = raw.strip()
         indent = len(raw) - len(raw.lstrip(" "))
 
         start_match = re.match(r"^(?:-\s+|\d+\.\s+)(.+)$", stripped)
 
+        is_new_entry = False
+        title_candidate = ""
+
+        # cas 1 : - Titre ou 1. Titre
         if indent == 0 and start_match:
             title_candidate = start_match.group(1).strip()
 
@@ -234,10 +264,18 @@ def split_entries(section_text: str) -> list[str]:
                 and not title_candidate.startswith("http://")
                 and not title_candidate.startswith("https://")
             ):
-                if current:
-                    entries.append("\n".join(current).strip())
-                current = [raw]
-                continue
+                is_new_entry = True
+
+        # cas 2 : Titre nu suivi de "- Description :" ou autre champ
+        elif indent == 0 and looks_like_plain_title(i):
+            title_candidate = stripped
+            is_new_entry = True
+
+        if is_new_entry:
+            if current:
+                entries.append("\n".join(current).strip())
+            current = [raw]
+            continue
 
         if current:
             current.append(raw)
