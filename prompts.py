@@ -78,36 +78,61 @@ Si le champ "description" vaut "Non fourni" ou est vide, générer une descripti
 - Copier fidèlement les étapes, sans résumé.
 - Ne jamais utiliser rag_context.verification.
 - Remplacer [site] par {target_url}.
-- Remplacer [host] par le domaine extrait de la cible, sans https://.
+- Remplacer [host] par le domaine extrait de la cible (sans https://).
 
 2. Sinon :
-- Générer une vérification spécifique avec une commande réelle et une condition claire :
-  "Si [condition] → vulnérabilité confirmée."
+- Générer une vérification spécifique.
+- La vérification doit être EXACTEMENT sous la forme :
+  [commande réelle]
+  Si [condition] → vulnérabilité confirmée.
 
 Règles globales :
 - Ne jamais laisser [site] ou [host].
-- Interdit : phrases vagues ("vérifier", "scanner", "utiliser...").
-- Chaque finding doit avoir une vérification différente et adaptée.
+- Interdit : "utiliser", "vérifier", "scanner", "tester".
+- La vérification commence directement par une commande.
+- Chaque vulnérabilité doit avoir une vérification différente et adaptée.
 
 Par type :
-- CSP : curl -I {target_url} | grep -i content-security-policy.
-  Mentionner la directive exacte et la condition exacte :
-  unsafe-inline présent, joker * présent, ou directive requise absente.
 
-- SRI : curl -s {target_url} | grep -i integrity.
-  Condition : si une ressource externe script/link n’a pas integrity → vulnérabilité confirmée.
+CSP :
+- Header Not Set → si Content-Security-Policy est absent.
+- No Fallback → si form-action, frame-ancestors, base-uri ou object-src est absent.
+- script-src unsafe-inline → si script-src contient 'unsafe-inline'.
+- style-src unsafe-inline → si style-src contient 'unsafe-inline'.
+- Wildcard → si une directive contient '*'.
+Commande commune : curl -I {target_url} | grep -i content-security-policy.
 
-- TLS : ne jamais utiliser curl.
-  Protocoles : utiliser openssl s_client -connect [host]:443 -tls1_0 ou -tls1_1.
-  Suites : utiliser testssl.sh [host] ou nmap --script ssl-enum-ciphers -p 443 [host].
-  Remplacer [host] par le domaine extrait de la cible, sans https://.
-  Condition : si le protocole ou la suite vulnérable est accepté → vulnérabilité confirmée.
+SRI :
+curl -s {target_url} | grep -i integrity
+Si une ressource externe script ou link ne contient pas l’attribut integrity → vulnérabilité confirmée.
 
-- Headers : curl -I {target_url} | grep -i [nom-header].
-  Condition : si l’en-tête est absent → vulnérabilité confirmée.
+CSRF :
+curl -s {target_url} | grep -Ei "csrf|token|xsrf"
+Si aucun champ de formulaire sensible ne contient un token CSRF unique → vulnérabilité confirmée.
 
-- CVE : si aucune verification_steps fiable n’existe, ne pas inventer de commande.
-  Écrire : "Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE."
+TLS (protocoles) :
+openssl s_client -connect [host]:443 -tls1_0
+Si la connexion TLS 1.0 est établie → vulnérabilité confirmée.
+
+openssl s_client -connect [host]:443 -tls1_1
+Si la connexion TLS 1.1 est établie → vulnérabilité confirmée.
+
+TLS (suites) :
+testssl.sh [host]
+Si des suites CBC, 3DES ou à bloc 64 bits sont proposées → vulnérabilité confirmée.
+
+OU
+
+nmap --script ssl-enum-ciphers -p 443 [host]
+Si des suites faibles (CBC, 3DES, 64 bits) sont détectées → vulnérabilité confirmée.
+
+Headers :
+curl -I {target_url} | grep -i [nom-header]
+Si l’en-tête est absent → vulnérabilité confirmée.
+
+CVE :
+Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE.
+Pour toute CVE, ne jamais utiliser une vérification CSP, TLS, X-Frame-Options, SRI ou header HTTP sauf si la CVE concerne explicitement ce mécanisme.
 
 INTERDIT pour les recommandations : "utiliser une valeur sécurisée", "renforcer la sécurité", "corriger la configuration", "appliquer les bonnes pratiques".
 INTERDIT : vérification générique identique pour tous les findings.
@@ -264,43 +289,66 @@ FORMAT PAR FINDING :
 - Catégorie OWASP : valeur exacte du champ "owasp_category".
 - Sévérité : valeur exacte du champ "severity".
 - Recommandation : concrète et spécifique. Si "forced_recommendation" présent → copier exactement.
-
 - Vérification :
 
 1. Si rag_context.verification_steps existe :
 - Copier fidèlement les étapes, sans résumé.
 - Ne jamais utiliser rag_context.verification.
 - Remplacer [site] par {target_url}.
-- Remplacer [host] par le domaine extrait de la cible, sans https://.
+- Remplacer [host] par le domaine extrait de la cible (sans https://).
 
 2. Sinon :
-- Générer une vérification spécifique avec une commande réelle et une condition claire :
-  "Si [condition] → vulnérabilité confirmée."
+- Générer une vérification spécifique.
+- La vérification doit être EXACTEMENT sous la forme :
+  [commande réelle]
+  Si [condition] → vulnérabilité confirmée.
 
 Règles globales :
 - Ne jamais laisser [site] ou [host].
-- Interdit : phrases vagues ("vérifier", "scanner", "utiliser...").
-- Chaque finding doit avoir une vérification différente et adaptée.
+- Interdit : "utiliser", "vérifier", "scanner", "tester".
+- La vérification commence directement par une commande.
+- Chaque vulnérabilité doit avoir une vérification différente et adaptée.
 
 Par type :
-- CSP : curl -I {target_url} | grep -i content-security-policy.
-  Mentionner la directive exacte et la condition exacte :
-  unsafe-inline présent, joker * présent, ou directive requise absente.
 
-- SRI : curl -s {target_url} | grep -i integrity.
-  Condition : si une ressource externe script/link n’a pas integrity → vulnérabilité confirmée.
+CSP :
+- Header Not Set → si Content-Security-Policy est absent.
+- No Fallback → si form-action, frame-ancestors, base-uri ou object-src est absent.
+- script-src unsafe-inline → si script-src contient 'unsafe-inline'.
+- style-src unsafe-inline → si style-src contient 'unsafe-inline'.
+- Wildcard → si une directive contient '*'.
+Commande commune : curl -I {target_url} | grep -i content-security-policy.
+SRI :
+curl -s {target_url} | grep -i integrity
+Si une ressource externe script ou link ne contient pas l’attribut integrity → vulnérabilité confirmée.
 
-- TLS : ne jamais utiliser curl.
-  Protocoles : utiliser openssl s_client -connect [host]:443 -tls1_0 ou -tls1_1.
-  Suites : utiliser testssl.sh [host] ou nmap --script ssl-enum-ciphers -p 443 [host].
-  Remplacer [host] par le domaine extrait de la cible, sans https://.
-  Condition : si le protocole ou la suite vulnérable est accepté → vulnérabilité confirmée.
+CSRF :
+curl -s {target_url} | grep -Ei "csrf|token|xsrf"
+Si aucun champ de formulaire sensible ne contient un token CSRF unique → vulnérabilité confirmée.
 
-- Headers : curl -I {target_url} | grep -i [nom-header].
-  Condition : si l’en-tête est absent → vulnérabilité confirmée.
+TLS (protocoles) :
+openssl s_client -connect [host]:443 -tls1_0
+Si la connexion TLS 1.0 est établie → vulnérabilité confirmée.
 
-- CVE : si aucune verification_steps fiable n’existe, ne pas inventer de commande.
-  Écrire : "Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE."
+openssl s_client -connect [host]:443 -tls1_1
+Si la connexion TLS 1.1 est établie → vulnérabilité confirmée.
+
+TLS (suites) :
+testssl.sh [host]
+Si des suites CBC, 3DES ou à bloc 64 bits sont proposées → vulnérabilité confirmée.
+
+OU
+
+nmap --script ssl-enum-ciphers -p 443 [host]
+Si des suites faibles (CBC, 3DES, 64 bits) sont détectées → vulnérabilité confirmée.
+
+Headers :
+curl -I {target_url} | grep -i [nom-header]
+Si l’en-tête est absent → vulnérabilité confirmée.
+
+CVE :
+Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE.
+Pour toute CVE, ne jamais utiliser une vérification CSP, TLS, X-Frame-Options, SRI ou header HTTP sauf si la CVE concerne explicitement ce mécanisme.
 
 
 INTERDIT pour les recommandations : "utiliser une valeur sécurisée", "renforcer la sécurité", "corriger la configuration", "appliquer les bonnes pratiques".
