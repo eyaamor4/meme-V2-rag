@@ -1,12 +1,12 @@
 A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 14 vulnérabilités ont été retenues dans ce rapport, dont 8 sont prioritaires.
 Niveau de risque global : MODÉRÉ. Cible : https://manysports.tn/ (wordpress 6.9.1). Scan du : 2026-03-10 12:21:55 UTC.
-La surface d’attaque côté navigateur est élargie en raison de plusieurs vulnérabilités liées à la sécurité côté client, notamment l'absence de certaines directives de sécurité et l'utilisation de scripts et styles inline. Cela signifie que la surface d'attaque XSS est élargie et que le risque combiné est plus élevé.
+La surface d’attaque côté navigateur est élargie en raison de plusieurs vulnérabilités liées à la sécurité côté client, notamment l'absence de certaines directives de sécurité dans la politique de sécurité du contenu (CSP) et la présence de scripts et styles inline non sécurisés.
 
 B - Vulnérabilités Prioritaires
 - CSP: Failure to Define Directive with No Fallback
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) ne définit pas une directive essentielle, ce qui peut permettre à un attaquant d'exécuter du code malveillant.
+  - Description : La politique de sécurité du contenu (CSP) ne définit pas une directive essentielle, ce qui peut permettre l'exécution de code malveillant.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -15,12 +15,12 @@ B - Vulnérabilités Prioritaires
     - https://web.dev/articles/csp#resource-options
   - Catégorie OWASP : A05:2021 - Security Misconfiguration
   - Sévérité : MEDIUM
-  - Recommandation : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle et les ajouter avec des valeurs restrictives.
-  - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
+  - Recommandation : Ajouter les directives manquantes avec des valeurs restrictives.
+  - Vérification : Exécuter : curl -I https://manysports.tn/ | grep -i content-security-policy, puis vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
 - CSP: script-src unsafe-inline
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline, ce qui peut permettre à un attaquant d'exécuter du code malveillant.
+  - Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline, ce qui peut permettre des attaques de type XSS.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -29,12 +29,12 @@ B - Vulnérabilités Prioritaires
     - https://web.dev/articles/csp#resource-options
   - Catégorie OWASP : A05:2021 - Security Misconfiguration
   - Sévérité : MEDIUM
-  - Recommandation : Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.
-  - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que script-src ne contient plus unsafe-inline.
+  - Recommandation : Migrer les scripts inline vers des fichiers JS statiques versionnés.
+  - Vérification : Exécuter : curl -I https://manysports.tn/ | grep -i content-security-policy, puis identifier la directive script-src.
 
 - CSP: style-src unsafe-inline
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline, ce qui peut permettre à un attaquant d'exécuter du code malveillant.
+  - Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline, ce qui peut permettre des attaques de type XSS.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -44,19 +44,19 @@ B - Vulnérabilités Prioritaires
   - Catégorie OWASP : A05:2021 - Security Misconfiguration
   - Sévérité : MEDIUM
   - Recommandation : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
-  - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, vérifier que style-src ne contient plus unsafe-inline.
+  - Vérification : Exécuter : curl -I https://manysports.tn/ | grep -i content-security-policy, puis identifier la directive style-src.
 
 - Sub Resource Integrity Attribute Missing
-  - Description : L'attribut d'intégrité des ressources est manquant, ce qui peut permettre à un attaquant d'injecter du code malveillant.
+  - Description : L'attribut d'intégrité des ressources est manquant, ce qui peut permettre l'injection de code malveillant.
   - Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
   - Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
   - Sévérité : MEDIUM
-  - Recommandation : Ajouter l'attribut d'intégrité aux ressources chargées depuis des domaines externes.
-  - Vérification : Inspecter le code source HTML, vérifier la présence de l'attribut d'intégrité sur les balises script et link externes.
+  - Recommandation : Ajouter l'attribut integrity et crossorigin="anonymous" sur les ressources stables et versionnées.
+  - Vérification : Exécuter : curl -s https://manysports.tn/ | grep -i integrity, puis identifier les balises script et link qui chargent des ressources externes.
 
 - CSP: Wildcard Directive
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) utilise une directive générique, ce qui peut permettre à un attaquant d'exécuter du code malveillant.
+  - Description : La politique de sécurité du contenu (CSP) utilise une directive générique, ce qui peut permettre l'exécution de code malveillant.
   - Référence : 
     - https://www.w3.org/TR/CSP/
     - https://caniuse.com/#search=content+security+policy
@@ -65,20 +65,20 @@ B - Vulnérabilités Prioritaires
     - https://web.dev/articles/csp#resource-options
   - Catégorie OWASP : A05:2021 - Security Misconfiguration
   - Sévérité : MEDIUM
-  - Recommandation : Remplacer la directive générique par une liste précise d'hôtes de confiance.
-  - Vérification : Exécuter curl -I https://[site] | grep -i content-security-policy, comparer la CSP déployée avec l'inventaire réel des ressources chargées.
+  - Recommandation : Remplacer le joker * par une liste précise d'hôtes de confiance.
+  - Vérification : Exécuter : curl -I https://manysports.tn/ | grep -i content-security-policy, puis rechercher le caractère '*' dans les directives concernées.
 
 - Missing Anti-clickjacking Header
   - Paramètre/Ressource affecté(e) : x-frame-options
-  - Description : L'en-tête de protection contre les attaques de clickjacking est manquant, ce qui peut permettre à un attaquant d'exécuter du code malveillant.
+  - Description : L'en-tête de protection contre les attaques de type ClickJacking est manquant.
   - Référence : https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/X-Frame-Options
   - Catégorie OWASP : A05:2021 - Security Misconfiguration
   - Sévérité : MEDIUM
-  - Recommandation : Définir l'en-tête X-Frame-Options à DENY ou SAMEORIGIN.
-  - Vérification : Exécuter curl -I https://[site] | grep -i x-frame-options, tester l'intégration de la page dans une iframe depuis un domaine tiers.
+  - Recommandation : Définir X-Frame-Options à DENY ou SAMEORIGIN.
+  - Vérification : Exécuter curl -I https://manysports.tn/ | grep -i x-frame-options, puis contrôler la présence de X-Frame-Options.
 
 - CVE-2023-5561
-  - Description : Une vulnérabilité dans WordPress permet à un attaquant de découvrir les adresses e-mail des utilisateurs qui ont publié des articles publics.
+  - Description : Une vulnérabilité dans WordPress permet à un attaquant non authentifié de découvrir les adresses e-mail des utilisateurs qui ont publié des articles publics.
   - Référence : 
     - https://lists.debian.org/debian-lts-announce/2023/11/msg00014.html
     - https://wpscan.com/blog/email-leak-oracle-vulnerability-addressed-in-wordpress-6-3-2/
@@ -86,11 +86,11 @@ B - Vulnérabilités Prioritaires
   - Catégorie OWASP : A01:2021 - Broken Access Control
   - Sévérité : MEDIUM
   - Recommandation : Mettre à jour WordPress vers une version corrigée.
-  - Vérification : Tester les vues avec plusieurs rôles, manipuler les paramètres exposés et filtres.
+  - Vérification : Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE.
 
 - CVE-2024-2473
 * Score CVSS : 5.3
-  - Description : Une vulnérabilité dans le plugin WPS Hide Login permet à un attaquant de découvrir la page de connexion cachée.
+  - Description : Une vulnérabilité dans le plugin WPS Hide Login pour WordPress permet à un attaquant de découvrir facilement la page de connexion.
   - Référence : 
     - https://github.com/whattheslime/wps-show-login
     - https://plugins.trac.wordpress.org/changeset/3099109/wps-hide-login
@@ -98,23 +98,23 @@ B - Vulnérabilités Prioritaires
   - Catégorie OWASP : A07:2021 - Identification and Authentication Failures
   - Sévérité : MEDIUM
   - Recommandation : Mettre à jour le plugin WPS Hide Login vers une version corrigée.
-  - Vérification : Exécuter curl -I https://[site] | grep -i x-frame-options, tester l'intégration de la page dans une iframe depuis un domaine tiers.
+  - Vérification : Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE.
 
 C - Vulnérabilités Potentielles à Valider
 Aucune vulnérabilité potentielle à valider n'a été identifiée.
 
 D - Plan de remédiation
-1. CSP: Failure to Define Directive with No Fallback : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle et les ajouter avec des valeurs restrictives — Délai : 30 jours
-2. CSP: script-src unsafe-inline : Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible — Délai : 30 jours
+1. CSP: Failure to Define Directive with No Fallback : Ajouter les directives manquantes avec des valeurs restrictives — Délai : 30 jours
+2. CSP: script-src unsafe-inline : Migrer les scripts inline vers des fichiers JS statiques versionnés — Délai : 30 jours
 3. CSP: style-src unsafe-inline : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées — Délai : 30 jours
-4. Sub Resource Integrity Attribute Missing : Ajouter l'attribut d'intégrité aux ressources chargées depuis des domaines externes — Délai : 30 jours
-5. CSP: Wildcard Directive : Remplacer la directive générique par une liste précise d'hôtes de confiance — Délai : 30 jours
-6. Missing Anti-clickjacking Header : Définir l'en-tête X-Frame-Options à DENY ou SAMEORIGIN — Délai : 30 jours
+4. Sub Resource Integrity Attribute Missing : Ajouter l'attribut integrity et crossorigin="anonymous" sur les ressources stables et versionnées — Délai : 30 jours
+5. CSP: Wildcard Directive : Remplacer le joker * par une liste précise d'hôtes de confiance — Délai : 30 jours
+6. Missing Anti-clickjacking Header : Définir X-Frame-Options à DENY ou SAMEORIGIN — Délai : 30 jours
 7. CVE-2023-5561 : Mettre à jour WordPress vers une version corrigée — Délai : 30 jours
 8. CVE-2024-2473 : Mettre à jour le plugin WPS Hide Login vers une version corrigée — Délai : 30 jours
 
 E - Conclusion
-Le niveau de risque global est MODÉRÉ. L'action prioritaire principale est de remédier à la vulnérabilité CSP: Failure to Define Directive with No Fallback, qui doit être effectuée dans les 30 jours. Il est essentiel de traiter ces vulnérabilités pour réduire la surface d'attaque et protéger les données sensibles.
+Le niveau de risque global est MODÉRÉ. L'action prioritaire principale est de remédier à la vulnérabilité CSP: Failure to Define Directive with No Fallback, avec un délai de 30 jours. Il est essentiel de traiter ces vulnérabilités pour réduire la surface d’attaque et améliorer la sécurité globale du site.
 
 
     ## Tableau de synthèse des vulnérabilités

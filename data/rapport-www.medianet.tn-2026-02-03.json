@@ -17,9 +17,6 @@
     "cms_type": "inconnu",
     "preview_only": false,
     "cms_scan": null,
-
-
-    
     "nuclei_scan": {
       "target_url": "https://www.medianet.tn/",
       "cms": "inconnu",
@@ -1424,7 +1421,6 @@
         "details": "[tls11 TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA]"
       },
       {
-        
         "name": "tls-version",
         "protocol": "ssl",
         "severity": "info",

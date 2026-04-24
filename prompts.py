@@ -72,14 +72,42 @@ Si le champ "description" vaut "Non fourni" ou est vide, générer une descripti
 - Catégorie OWASP : valeur exacte du champ "owasp_category".
 - Sévérité : valeur exacte du champ "severity".
 - Recommandation : concrète et spécifique. Si "forced_recommendation" présent → copier exactement.
-- Vérification : si rag_context présent → utiliser ses verification_steps. Sinon, adapter strictement au type :
-  * SQLi → tester les paramètres avec payloads SQL
-  * XSS → injecter un payload XSS adapté
-  * CSRF → vérifier présence/contrôle du token
-  * Access control → tester avec profils autorisés et non autorisés
-  * Data exposure → accéder directement à l'endpoint
-  * Headers → curl -I https://[site] | grep -i [header]
-  * Attribut HTML → curl -s https://[site] | grep -i '[attribut]'
+- Vérification :
+
+1. Si rag_context.verification_steps existe :
+- Copier fidèlement les étapes, sans résumé.
+- Ne jamais utiliser rag_context.verification.
+- Remplacer [site] par {target_url}.
+- Remplacer [host] par le domaine extrait de la cible, sans https://.
+
+2. Sinon :
+- Générer une vérification spécifique avec une commande réelle et une condition claire :
+  "Si [condition] → vulnérabilité confirmée."
+
+Règles globales :
+- Ne jamais laisser [site] ou [host].
+- Interdit : phrases vagues ("vérifier", "scanner", "utiliser...").
+- Chaque finding doit avoir une vérification différente et adaptée.
+
+Par type :
+- CSP : curl -I {target_url} | grep -i content-security-policy.
+  Mentionner la directive exacte et la condition exacte :
+  unsafe-inline présent, joker * présent, ou directive requise absente.
+
+- SRI : curl -s {target_url} | grep -i integrity.
+  Condition : si une ressource externe script/link n’a pas integrity → vulnérabilité confirmée.
+
+- TLS : ne jamais utiliser curl.
+  Protocoles : utiliser openssl s_client -connect [host]:443 -tls1_0 ou -tls1_1.
+  Suites : utiliser testssl.sh [host] ou nmap --script ssl-enum-ciphers -p 443 [host].
+  Remplacer [host] par le domaine extrait de la cible, sans https://.
+  Condition : si le protocole ou la suite vulnérable est accepté → vulnérabilité confirmée.
+
+- Headers : curl -I {target_url} | grep -i [nom-header].
+  Condition : si l’en-tête est absent → vulnérabilité confirmée.
+
+- CVE : si aucune verification_steps fiable n’existe, ne pas inventer de commande.
+  Écrire : "Validation manuelle requise : vérifier la version exacte du composant concerné et la comparer avec la version corrigée indiquée dans la référence CVE."
 
 INTERDIT pour les recommandations : "utiliser une valeur sécurisée", "renforcer la sécurité", "corriger la configuration", "appliquer les bonnes pratiques".
 INTERDIT : vérification générique identique pour tous les findings.
@@ -236,16 +264,7 @@ FORMAT PAR FINDING :
 - Catégorie OWASP : valeur exacte du champ "owasp_category".
 - Sévérité : valeur exacte du champ "severity".
 - Recommandation : concrète et spécifique. Si "forced_recommendation" présent → copier exactement.
-- Vérification : adapter strictement au type :
-  * SQLi → tester les paramètres avec payloads SQL
-  * XSS → injecter un payload XSS adapté
-  * CSRF → vérifier présence/contrôle du token
-  * SSL/TLS déprécié → openssl s_client -connect [host]:443 -[protocole]
-  * Port exposé → nmap -sV -p [port] [host]
-  * Headers → curl -I https://[site] | grep -i [header]
-  * Attribut HTML → curl -s https://[site] | grep -i '[attribut]'
-
-
+- Vérification :
 
 INTERDIT pour les recommandations : "utiliser une valeur sécurisée", "renforcer la sécurité", "corriger la configuration", "appliquer les bonnes pratiques".
 INTERDIT : vérification générique identique pour tous les findings.
