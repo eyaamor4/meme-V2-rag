@@ -10,28 +10,39 @@ NVD_CVE_ENDPOINT = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 
 
 def fetch_nvd_cve(cve_id: str, api_key: Optional[str] = None, timeout: int = 30) -> Optional[Dict[str, Any]]:
-    headers = {}
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "application/json",
+    }
+
     if api_key:
-        headers["apiKey"] = api_key
+        headers["apiKey"] = api_key.strip()
 
-    r = requests.get(
-        NVD_CVE_ENDPOINT,
-        params={"cveId": cve_id},
-        headers=headers,
-        timeout=timeout,
-    )
+    cve_id = extract_cve_id(cve_id) or cve_id.strip().upper()
 
-    if r.status_code != 200:
-        print(f"[NVD] HTTP {r.status_code} for {cve_id}")
+    url = f"{NVD_CVE_ENDPOINT}?cveId={cve_id}"
+
+    try:
+        r = requests.get(url, headers=headers, timeout=timeout)
+
+        if r.status_code != 200:
+            print(f"[NVD] HTTP {r.status_code} for {cve_id}")
+            print(f"[NVD] URL: {url}")
+            print(f"[NVD] Response: {r.text[:300]}")
+            return None
+
+        data = r.json()
+        vulns = data.get("vulnerabilities") or []
+
+        if not vulns:
+            print(f"[NVD] No vulnerability found for {cve_id}")
+            return None
+
+        return vulns[0]
+
+    except Exception as e:
+        print(f"[NVD] ERROR for {cve_id}: {e}")
         return None
-
-    data = r.json()
-    vulns = data.get("vulnerabilities") or []
-    if not vulns:
-        print(f"[NVD] No vulnerability found for {cve_id}")
-        return None
-    return vulns[0]
-
 
 def _pick_desc(descs: Any) -> Optional[str]:
     if not isinstance(descs, list):

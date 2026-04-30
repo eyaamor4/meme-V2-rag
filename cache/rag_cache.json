@@ -1,105 +1,104 @@
 {
-  "bd851605d4a8d39543d26b1bc268cd7b18d1b714b354ed0047858da344b01aa3": {
-    "ts": 1777040099.5949206,
+  "08108a5d9229a1890750ff6f2577949d462dcf8aa29bba99ffe344630037ecb5": {
+    "ts": 1777048161.0787878,
     "result": [
       {
-        "id": "kb_001",
-        "title": "CSP: Failure to Define Directive with No Fallback",
-        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
-        "owasp": "A05:2021 - Security Misconfiguration",
-        "cwe": "CWE-693",
+        "id": "kb_010",
+        "title": "deprecated-tls",
+        "description": "Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
         "tags": [
-          "csp",
-          "missing directive",
-          "fallback",
-          "security header"
+          "tls 1.0",
+          "tls 1.1",
+          "deprecated tls"
         ],
         "keywords": [],
-        "aliases": [],
+        "aliases": [
+          "Protocole déprécié activé : TLS 1.0",
+          "Protocole déprécié activé : TLS 1.1",
+          "Protocole déprécié activé : SSLv2",
+          "Protocole déprécié activé : SSLv3",
+          "TLS 1.0",
+          "TLS 1.1",
+          "SSLv2",
+          "SSLv3"
+        ],
         "cves": [],
-        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
-        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "recommendation": "Désactiver TLS 1.0 et TLS 1.1 sur le serveur et conserver uniquement TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Supprimer les protocoles TLS obsolètes exposés par le service.",
         "technical_actions": [
-          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
-          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
-          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+          "Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.",
+          "Conserver uniquement TLS 1.2 et TLS 1.3.",
+          "Vérifier les dépendances applicatives et clients legacy avant mise en production."
         ],
         "implementation_examples": {
-          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
-          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
-          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3;",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
         },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si les directives form-action, frame-ancestors, base-uri et object-src sont présentes. Si l’une de ces directives est absente, la vulnérabilité reste présente.",
+        "verification": "Vérifier via un scan SSL/TLS que TLS 1.0 et TLS 1.1 ne sont plus négociables et que TLS 1.2 ou TLS 1.3 restent disponibles.",
         "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP récupéré.",
-          "Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.",
-          "Si une ou plusieurs de ces directives sont absentes, confirmer la vulnérabilité.",
-          "Après correction, relancer la commande et vérifier que chaque directive manquante a bien été ajoutée avec une valeur restrictive."
+          "Scanner le service TLS après changement.",
+          "Contrôler que seules TLS 1.2 et TLS 1.3 restent disponibles.",
+          "Tester la compatibilité des clients métiers."
         ],
-        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "report_template": "Désactiver les protocoles TLS 1.0 et TLS 1.1, devenus obsolètes, et limiter le service aux versions TLS 1.2 et TLS 1.3. La mesure doit être appliquée sur le serveur ou le composant réseau terminant HTTPS, puis validée par un nouveau contrôle SSL/TLS.",
         "affected_technologies": [],
         "affected_components": [],
         "notes": [],
         "references": [],
-        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "_search_text": "deprecated-tls Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes. A02:2021 - Cryptographic Failures CWE-327 tls 1.0 tls 1.1 deprecated tls Protocole déprécié activé : TLS 1.0 Protocole déprécié activé : TLS 1.1 Protocole déprécié activé : SSLv2 Protocole déprécié activé : SSLv3 TLS 1.0 TLS 1.1 SSLv2 SSLv3",
         "score": 1.0
       }
     ]
   },
-  "96a5bb03342673f1c112de6cca9c3fa100bd3988f3eadf118e23119587518a7b": {
-    "ts": 1777040099.6217103,
+  "84db33e5c7a9683626cfca14344a3a80552da384adef7604dc17ec01268b37da": {
+    "ts": 1777048161.0947886,
     "result": [
       {
-        "id": "kb_003",
-        "title": "CSP: script-src unsafe-inline",
-        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
-        "owasp": "A05:2021 - Security Misconfiguration",
-        "cwe": "CWE-693",
+        "id": "kb_tls_002",
+        "title": "Vulnérabilité TLS : LUCKY13",
+        "description": "La vulnérabilité LUCKY13 affecte certaines suites cryptographiques TLS basées sur des chiffrements CBC et peut permettre une attaque par canal auxiliaire selon l’implémentation côté serveur.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-203",
         "tags": [
-          "csp",
-          "unsafe-inline",
-          "script-src",
-          "xss"
+          "tls",
+          "lucky13",
+          "cbc",
+          "cipher"
         ],
         "keywords": [],
-        "aliases": [],
+        "aliases": [
+          "LUCKY13",
+          "lucky13"
+        ],
         "cves": [],
-        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
-        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "recommendation": "Réduire ou supprimer les suites CBC lorsque cela est possible, appliquer les correctifs de sécurité sur le composant TLS, et privilégier les suites AEAD modernes.",
+        "recommendation_summary": "Réduire l’exposition aux suites CBC vulnérables.",
         "technical_actions": [
-          "Identifier tous les scripts inline présents dans les templates HTML.",
-          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
-          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
-          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+          "Réduire ou supprimer les suites CBC lorsque possible.",
+          "Appliquer les correctifs sur le composant TLS ou reverse proxy.",
+          "Favoriser les suites AEAD modernes."
         ],
-        "implementation_examples": {
-          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
-          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
-          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
-        },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive script-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans script-src, la vulnérabilité est confirmée.",
+        "implementation_examples": {},
+        "verification": "Exécuter un scan TLS pour identifier les suites CBC encore exposées. Si des suites CBC sont toujours proposées sur le serveur, la surface d’exposition à LUCKY13 reste présente. Après remédiation, relancer le scan pour vérifier leur suppression.",
         "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP.",
-          "Identifier la directive script-src dans la politique.",
-          "Vérifier si script-src contient 'unsafe-inline'.",
-          "Si 'unsafe-inline' est présent dans script-src, confirmer la vulnérabilité.",
-          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de script-src.",
-          "Contrôler ensuite que les scripts inline restants utilisent un nonce ou un hash valide."
+          "Exécuter testssl.sh <host> ou nmap --script ssl-enum-ciphers -p 443 <host>.",
+          "Vérifier si des suites CBC restent proposées par le serveur.",
+          "Après correction, relancer le scan et confirmer la suppression des suites CBC vulnérables."
         ],
-        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "report_template": "Réduire l’exposition aux chiffrements CBC anciens et privilégier des suites modernes de type AEAD. Une validation par rescan TLS est nécessaire après remédiation afin de confirmer la suppression des suites CBC exposées.",
         "affected_technologies": [],
         "affected_components": [],
         "notes": [],
         "references": [],
-        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "_search_text": "Vulnérabilité TLS : LUCKY13 La vulnérabilité LUCKY13 affecte certaines suites cryptographiques TLS basées sur des chiffrements CBC et peut permettre une attaque par canal auxiliaire selon l’implémentation côté serveur. A02:2021 - Cryptographic Failures CWE-203 tls lucky13 cbc cipher LUCKY13 lucky13",
         "score": 1.0
       }
     ]
   },
-  "f8cc20e632129ea871af99c7505e07ed1b49f3639eb43b84eaa5ebe0047214a9": {
-    "ts": 1777040099.62517,
+  "8e6252092866139e11f61048d65c75d9f534eac83785fd4d852891fb52a3dc02": {
+    "ts": 1777048161.0974395,
     "result": [
       {
         "id": "kb_006",
@@ -152,8 +151,533 @@
       }
     ]
   },
-  "7ad64cc3e6c2e8597b197524cba81beea3825624e01143054ff20e21bb0eb201": {
-    "ts": 1777040099.6273804,
+  "9fb65dff278fb6f7616755db0660ee22e53a4e4c1f5b4bd47a7ddb7f27bfb6b5": {
+    "ts": 1777048161.1015909,
+    "result": [
+      {
+        "id": "kb_010",
+        "title": "deprecated-tls",
+        "description": "Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls 1.0",
+          "tls 1.1",
+          "deprecated tls"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Protocole déprécié activé : TLS 1.0",
+          "Protocole déprécié activé : TLS 1.1",
+          "Protocole déprécié activé : SSLv2",
+          "Protocole déprécié activé : SSLv3",
+          "TLS 1.0",
+          "TLS 1.1",
+          "SSLv2",
+          "SSLv3"
+        ],
+        "cves": [],
+        "recommendation": "Désactiver TLS 1.0 et TLS 1.1 sur le serveur et conserver uniquement TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Supprimer les protocoles TLS obsolètes exposés par le service.",
+        "technical_actions": [
+          "Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.",
+          "Conserver uniquement TLS 1.2 et TLS 1.3.",
+          "Vérifier les dépendances applicatives et clients legacy avant mise en production."
+        ],
+        "implementation_examples": {
+          "nginx": "ssl_protocols TLSv1.2 TLSv1.3;",
+          "apache": "SSLProtocol -all +TLSv1.2 +TLSv1.3"
+        },
+        "verification": "Vérifier via un scan SSL/TLS que TLS 1.0 et TLS 1.1 ne sont plus négociables et que TLS 1.2 ou TLS 1.3 restent disponibles.",
+        "verification_steps": [
+          "Scanner le service TLS après changement.",
+          "Contrôler que seules TLS 1.2 et TLS 1.3 restent disponibles.",
+          "Tester la compatibilité des clients métiers."
+        ],
+        "report_template": "Désactiver les protocoles TLS 1.0 et TLS 1.1, devenus obsolètes, et limiter le service aux versions TLS 1.2 et TLS 1.3. La mesure doit être appliquée sur le serveur ou le composant réseau terminant HTTPS, puis validée par un nouveau contrôle SSL/TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "deprecated-tls Le serveur accepte encore TLS 1.0 ou TLS 1.1, désormais obsolètes. A02:2021 - Cryptographic Failures CWE-327 tls 1.0 tls 1.1 deprecated tls Protocole déprécié activé : TLS 1.0 Protocole déprécié activé : TLS 1.1 Protocole déprécié activé : SSLv2 Protocole déprécié activé : SSLv3 TLS 1.0 TLS 1.1 SSLv2 SSLv3",
+        "score": 1.0
+      }
+    ]
+  },
+  "20a4cfef16b24c2c0c7821fa5f6abe0f61671af8232a42a25ffaf016dbafbb34": {
+    "ts": 1777048161.1015909,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "c4b453377bba1592d220d89ad3e6ae254dea459d5e198b3f59de4400f308f815": {
+    "ts": 1777048161.1053345,
+    "result": [
+      {
+        "id": "kb_tls_001",
+        "title": "Vulnérabilité TLS : SWEET32",
+        "description": "Vulnérabilité liée à l’utilisation de chiffrements à bloc 64 bits, pouvant affaiblir la confidentialité des échanges chiffrés lors de sessions longues.",
+        "owasp": "A02:2021 - Cryptographic Failures",
+        "cwe": "CWE-327",
+        "tags": [
+          "tls",
+          "sweet32",
+          "3des",
+          "cipher"
+        ],
+        "keywords": [],
+        "aliases": [
+          "SWEET32",
+          "sweet32"
+        ],
+        "cves": [],
+        "recommendation": "Supprimer les suites 3DES et autres chiffrements à bloc 64 bits, et ne conserver que des suites robustes compatibles avec TLS 1.2 et TLS 1.3.",
+        "recommendation_summary": "Retirer les suites 64 bits vulnérables de la configuration TLS.",
+        "technical_actions": [
+          "Désactiver 3DES et toute suite à bloc 64 bits.",
+          "Conserver uniquement des suites modernes pour TLS 1.2 et TLS 1.3.",
+          "Valider la compatibilité des clients métiers après durcissement."
+        ],
+        "implementation_examples": {},
+        "verification": "Exécuter un scan TLS pour vérifier qu’aucune suite 3DES ou autre chiffrement à bloc 64 bits n’est encore proposée par le serveur.",
+        "verification_steps": [
+          "Exécuter testssl.sh <host> ou nmap --script ssl-enum-ciphers -p 443 <host>.",
+          "Vérifier qu’aucune suite 3DES ou autre suite à bloc 64 bits n’est proposée.",
+          "Tester les connexions clientes métier après correction."
+        ],
+        "report_template": "Supprimer les suites cryptographiques vulnérables de type 3DES et autres chiffrements à bloc 64 bits afin de réduire le risque de compromission partielle des échanges chiffrés. La configuration doit être revalidée par un nouveau scan TLS.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Vulnérabilité TLS : SWEET32 Vulnérabilité liée à l’utilisation de chiffrements à bloc 64 bits, pouvant affaiblir la confidentialité des échanges chiffrés lors de sessions longues. A02:2021 - Cryptographic Failures CWE-327 tls sweet32 3des cipher SWEET32 sweet32",
+        "score": 1.0
+      }
+    ]
+  },
+  "4bd3c7fa514250a00c41be17e911b95003c16bb82ad6e6782939f5efd564f05e": {
+    "ts": 1777048161.1061654,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "0e7a87184d4e63719357167ddb89c30e0fc2580a5a2effe157fd29679f4c6ff8": {
+    "ts": 1777048288.4760885,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "1c943ae5d005e2d9f99ff961c3d9d36ded2a7964b1a623fd5e6a35c66da87312": {
+    "ts": 1777049534.1515348,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "55ee65c348ba4650015f78a43d45d59e0cfc2acde840899a883949430aeed72b": {
+    "ts": 1777049534.1594956,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Inspecter le code source HTML pour identifier les balises script et link chargeant des ressources externes, puis vérifier si elles contiennent un attribut integrity valide. La vulnérabilité est confirmée si une ressource externe JavaScript ou CSS est chargée sans integrity.",
+        "verification_steps": [
+          "Exécuter : curl -s https://[site] | grep -i integrity",
+          "Identifier les balises script et link qui chargent des ressources externes (CDN, domaine tiers, URL absolue ou //domain).",
+          "Vérifier si ces balises contiennent un attribut integrity et crossorigin.",
+          "Si une ressource externe JavaScript ou CSS ne contient pas d’attribut integrity, confirmer la vulnérabilité.",
+          "Après correction, relancer l’inspection et vérifier que chaque ressource externe stable possède integrity et crossorigin=\"anonymous\"."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "16139372632f12e7af2116cdbc1ffc30a4c760fae383a84f4b3078fdab3909b0": {
+    "ts": 1777049534.1614254,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "b2732ec59c0caf4a04d22f261683da8e9968e2ca5738c8c1459390c35bfbbfeb": {
+    "ts": 1777049632.6729422,
+    "result": [
+      {
+        "id": "kb_001",
+        "title": "CSP: Failure to Define Directive with No Fallback",
+        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "missing directive",
+          "fallback",
+          "security header"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
+        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "technical_actions": [
+          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
+          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si les directives form-action, frame-ancestors, base-uri et object-src sont présentes. Si l’une de ces directives est absente, la vulnérabilité reste présente.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP récupéré.",
+          "Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+          "Si une ou plusieurs de ces directives sont absentes, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que chaque directive manquante a bien été ajoutée avec une valeur restrictive."
+        ],
+        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "score": 1.0
+      }
+    ]
+  },
+  "82f574bb6c0b7b79e62e655b91ee804cfc3ba94997e65ca52240909bb13e354c": {
+    "ts": 1777049632.6811712,
+    "result": [
+      {
+        "id": "kb_003",
+        "title": "CSP: script-src unsafe-inline",
+        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "script-src",
+          "xss"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
+        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "technical_actions": [
+          "Identifier tous les scripts inline présents dans les templates HTML.",
+          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
+          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
+          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+        ],
+        "implementation_examples": {
+          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
+          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
+          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive script-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans script-src, la vulnérabilité est confirmée.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Identifier la directive script-src dans la politique.",
+          "Vérifier si script-src contient 'unsafe-inline'.",
+          "Si 'unsafe-inline' est présent dans script-src, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de script-src.",
+          "Contrôler ensuite que les scripts inline restants utilisent un nonce ou un hash valide."
+        ],
+        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "score": 1.0
+      }
+    ]
+  },
+  "0c25cb5a67a91e9a681c669a74493448466d1c6dad4c8b051aa0b02d0cb75bdb": {
+    "ts": 1777049632.6849208,
     "result": [
       {
         "id": "kb_002",
@@ -200,8 +724,62 @@
       }
     ]
   },
-  "a62e2acfa6a45d9514f6e63a9df37012b4acce6c0c32fdc7e5b2d80ca443c3fb": {
-    "ts": 1777040099.6304145,
+  "2d7f3486dfffaf68d88ad9e67cf26c743537f4745e10bf63bc005d1ef68b4c35": {
+    "ts": 1777049632.690118,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Inspecter le code source HTML pour identifier les balises script et link chargeant des ressources externes, puis vérifier si elles contiennent un attribut integrity valide. La vulnérabilité est confirmée si une ressource externe JavaScript ou CSS est chargée sans integrity.",
+        "verification_steps": [
+          "Exécuter : curl -s https://[site] | grep -i integrity",
+          "Identifier les balises script et link qui chargent des ressources externes (CDN, domaine tiers, URL absolue ou //domain).",
+          "Vérifier si ces balises contiennent un attribut integrity et crossorigin.",
+          "Si une ressource externe JavaScript ou CSS ne contient pas d’attribut integrity, confirmer la vulnérabilité.",
+          "Après correction, relancer l’inspection et vérifier que chaque ressource externe stable possède integrity et crossorigin=\"anonymous\"."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "9fe1760f29d1ef9e73b6172ae410d9f1299bfc1326b044413feebf793c85ed18": {
+    "ts": 1777049632.6918504,
     "result": [
       {
         "id": "kb_004",
@@ -250,8 +828,781 @@
       }
     ]
   },
+  "3841052b25c73c3ea0a1768148ff8cc323921df5c2eea108818b34a66ae829b3": {
+    "ts": 1777049632.700114,
+    "result": [
+      {
+        "id": "kb_017",
+        "title": "SQL Injection",
+        "description": "Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs.",
+        "owasp": "A03:2021 - Injection",
+        "cwe": "CWE-89",
+        "tags": [
+          "sql injection",
+          "sqli",
+          "database"
+        ],
+        "keywords": [],
+        "aliases": [
+          "SQL injection vulnerability in the Views module",
+          "Drupal Views SQL Injection",
+          "Views module SQL injection",
+          "CVE-2008-6020",
+          "CVE-2011-4113"
+        ],
+        "cves": [
+          "CVE-2008-6020",
+          "CVE-2011-4113"
+        ],
+        "recommendation": "Remplacer la concaténation SQL dynamique par des requêtes préparées ou paramétrées et valider strictement les entrées attendues côté serveur.",
+        "recommendation_summary": "Supprimer toute construction SQL basée sur de la concaténation de données utilisateur.",
+        "technical_actions": [
+          "Identifier les requêtes construites dynamiquement avec concaténation.",
+          "Utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.",
+          "Valider côté serveur le type, format et domaine de chaque entrée.",
+          "Éviter de concaténer dynamiquement les clauses ORDER BY, LIMIT ou noms de colonnes sans liste blanche."
+        ],
+        "implementation_examples": {
+          "python": "cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
+          "php_pdo": "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email'); $stmt->execute(['email' => $email]);"
+        },
+        "verification": "Vérifier dans le code que les requêtes utilisent des paramètres liés et rejouer le scénario de test pour confirmer qu’aucune injection SQL n’est encore possible.",
+        "verification_steps": [
+          "Rechercher les usages de concaténation SQL dans le code.",
+          "Tester les paramètres identifiés avec payloads d’injection.",
+          "Vérifier aussi les accès indirects via filtres, tri et recherche."
+        ],
+        "report_template": "Remplacer toutes les requêtes SQL construites dynamiquement à partir d’entrées utilisateur par des requêtes préparées ou paramétrées. Les paramètres métier doivent en complément être validés côté serveur selon leur type attendu. Une nouvelle campagne de tests doit confirmer qu’aucune injection SQL n’est encore possible sur les points d’entrée affectés.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "SQL Injection Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs. A03:2021 - Injection CWE-89 sql injection sqli database SQL injection vulnerability in the Views module Drupal Views SQL Injection Views module SQL injection CVE-2008-6020 CVE-2011-4113 CVE-2008-6020 CVE-2011-4113",
+        "score": 1.8
+      }
+    ]
+  },
+  "26a15cf82a0aa1fa0bbfc8cf3187a0fa3d244b4c05c1da2c311fe6412376a6ea": {
+    "ts": 1777049632.7011003,
+    "result": [
+      {
+        "id": "kb_017",
+        "title": "SQL Injection",
+        "description": "Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs.",
+        "owasp": "A03:2021 - Injection",
+        "cwe": "CWE-89",
+        "tags": [
+          "sql injection",
+          "sqli",
+          "database"
+        ],
+        "keywords": [],
+        "aliases": [
+          "SQL injection vulnerability in the Views module",
+          "Drupal Views SQL Injection",
+          "Views module SQL injection",
+          "CVE-2008-6020",
+          "CVE-2011-4113"
+        ],
+        "cves": [
+          "CVE-2008-6020",
+          "CVE-2011-4113"
+        ],
+        "recommendation": "Remplacer la concaténation SQL dynamique par des requêtes préparées ou paramétrées et valider strictement les entrées attendues côté serveur.",
+        "recommendation_summary": "Supprimer toute construction SQL basée sur de la concaténation de données utilisateur.",
+        "technical_actions": [
+          "Identifier les requêtes construites dynamiquement avec concaténation.",
+          "Utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.",
+          "Valider côté serveur le type, format et domaine de chaque entrée.",
+          "Éviter de concaténer dynamiquement les clauses ORDER BY, LIMIT ou noms de colonnes sans liste blanche."
+        ],
+        "implementation_examples": {
+          "python": "cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
+          "php_pdo": "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email'); $stmt->execute(['email' => $email]);"
+        },
+        "verification": "Vérifier dans le code que les requêtes utilisent des paramètres liés et rejouer le scénario de test pour confirmer qu’aucune injection SQL n’est encore possible.",
+        "verification_steps": [
+          "Rechercher les usages de concaténation SQL dans le code.",
+          "Tester les paramètres identifiés avec payloads d’injection.",
+          "Vérifier aussi les accès indirects via filtres, tri et recherche."
+        ],
+        "report_template": "Remplacer toutes les requêtes SQL construites dynamiquement à partir d’entrées utilisateur par des requêtes préparées ou paramétrées. Les paramètres métier doivent en complément être validés côté serveur selon leur type attendu. Une nouvelle campagne de tests doit confirmer qu’aucune injection SQL n’est encore possible sur les points d’entrée affectés.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "SQL Injection Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs. A03:2021 - Injection CWE-89 sql injection sqli database SQL injection vulnerability in the Views module Drupal Views SQL Injection Views module SQL injection CVE-2008-6020 CVE-2011-4113 CVE-2008-6020 CVE-2011-4113",
+        "score": 1.8
+      }
+    ]
+  },
+  "5780bb4d8acf067a4bc4992d4e3849b4ac765919f943be5b47aceed1158858de": {
+    "ts": 1777049632.7102938,
+    "result": [
+      {
+        "id": "kb_031",
+        "title": "REST Views Sensitive Information Exposure",
+        "description": "Une vue REST peut exposer des données sensibles ou permettre un accès non prévu aux ressources.",
+        "owasp": "A01:2021 - Broken Access Control",
+        "cwe": "CWE-200",
+        "tags": [
+          "drupal",
+          "rest views",
+          "sensitive information",
+          "forceful browsing"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views",
+          "Drupal REST Views Forceful Browsing",
+          "REST Views sensitive information exposure",
+          "CVE-2024-13254"
+        ],
+        "cves": [
+          "CVE-2024-13254"
+        ],
+        "recommendation": "Restreindre les permissions d’accès aux vues REST concernées, limiter les champs exposés et désactiver les endpoints non nécessaires.",
+        "recommendation_summary": "Réduire l’exposition des endpoints REST Drupal et des champs publiés.",
+        "technical_actions": [
+          "Inventorier les vues REST exposées publiquement.",
+          "Limiter les permissions sur les displays REST de Views.",
+          "Retirer les champs sensibles, identifiants internes ou métadonnées non nécessaires.",
+          "Désactiver les endpoints inutilisés."
+        ],
+        "implementation_examples": {
+          "drupal": "Revoir les permissions liées au display REST dans Views et dans les rôles Drupal.",
+          "generic": "Restreindre les réponses aux champs strictement requis."
+        },
+        "verification": "Vérifier que les vues REST sensibles exigent les permissions attendues et qu’un utilisateur non autorisé ne peut plus consulter les données exposées.",
+        "verification_steps": [
+          "Tester l’accès anonyme et authentifié aux endpoints REST.",
+          "Vérifier les champs renvoyés.",
+          "Contrôler qu’un utilisateur non autorisé reçoit un refus."
+        ],
+        "report_template": "Revoir les vues REST Drupal exposées afin de limiter l’accès aux seuls rôles autorisés et de supprimer les champs non strictement nécessaires. Les endpoints inutiles doivent être désactivés et les contrôles d’autorisation vérifiés par des tests multi-profils.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "REST Views Sensitive Information Exposure Une vue REST peut exposer des données sensibles ou permettre un accès non prévu aux ressources. A01:2021 - Broken Access Control CWE-200 drupal rest views sensitive information forceful browsing Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views Drupal REST Views Forceful Browsing REST Views sensitive information exposure CVE-2024-13254 CVE-2024-13254",
+        "score": 2.3
+      }
+    ]
+  },
+  "aa98a90fa846dca1f35ca81548b16bb0cf26d7a827c6c95c9d40939418b62178": {
+    "ts": 1777049775.1841464,
+    "result": [
+      {
+        "id": "kb_003",
+        "title": "CSP: script-src unsafe-inline",
+        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "script-src",
+          "xss"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
+        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "technical_actions": [
+          "Identifier tous les scripts inline présents dans les templates HTML.",
+          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
+          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
+          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+        ],
+        "implementation_examples": {
+          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
+          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
+          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive script-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans script-src, la vulnérabilité est confirmée.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Identifier la directive script-src dans la politique.",
+          "Vérifier si script-src contient 'unsafe-inline'.",
+          "Si 'unsafe-inline' est présent dans script-src, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de script-src.",
+          "Contrôler ensuite que les scripts inline restants utilisent un nonce ou un hash valide."
+        ],
+        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "score": 1.0
+      }
+    ]
+  },
+  "456c7ff7487d28e5ed4f298313d04d89abe266e9a5f09491fcad195a50eff67b": {
+    "ts": 1777049775.1963084,
+    "result": [
+      {
+        "id": "kb_001",
+        "title": "CSP: Failure to Define Directive with No Fallback",
+        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "missing directive",
+          "fallback",
+          "security header"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
+        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "technical_actions": [
+          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
+          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si les directives form-action, frame-ancestors, base-uri et object-src sont présentes. Si l’une de ces directives est absente, la vulnérabilité reste présente.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP récupéré.",
+          "Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+          "Si une ou plusieurs de ces directives sont absentes, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que chaque directive manquante a bien été ajoutée avec une valeur restrictive."
+        ],
+        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "score": 1.0
+      }
+    ]
+  },
+  "2c331547dd7bb0bd963d97ac7fa3e809943882a0e9519c74d7d2065e86bc01c8": {
+    "ts": 1777049775.2084599,
+    "result": [
+      {
+        "id": "kb_004",
+        "title": "CSP: style-src unsafe-inline",
+        "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "style-src",
+          "css-injection"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
+        "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",
+        "technical_actions": [
+          "Identifier les styles inline dans les templates et composants front-end.",
+          "Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.",
+          "Conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.",
+          "Nettoyer les librairies ou widgets qui injectent du style inline non indispensable."
+        ],
+        "implementation_examples": {
+          "generic": "style-src 'self' https://fonts.googleapis.com;",
+          "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive style-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans style-src, la vulnérabilité est confirmée.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Identifier la directive style-src dans la politique.",
+          "Vérifier si style-src contient 'unsafe-inline'.",
+          "Si 'unsafe-inline' est présent dans style-src, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de style-src.",
+          "Contrôler le rendu visuel et les éventuelles erreurs CSP après externalisation des styles."
+        ],
+        "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: style-src unsafe-inline La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline style-src css-injection",
+        "score": 1.0
+      }
+    ]
+  },
+  "e1b1f20597d6232f833680e39ac25c3799fabb6447e3bbf6e577aefb5beb8b0f": {
+    "ts": 1777049775.2175708,
+    "result": [
+      {
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "content security policy",
+          "security headers"
+        ],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
+        "cves": [],
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
+        "technical_actions": [
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
+        },
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "3a2057c8f1549fcb4e1a808ebbddd6b53295841005fe551c297f054286b71571": {
+    "ts": 1777049775.2276359,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Inspecter le code source HTML pour identifier les balises script et link chargeant des ressources externes, puis vérifier si elles contiennent un attribut integrity valide. La vulnérabilité est confirmée si une ressource externe JavaScript ou CSS est chargée sans integrity.",
+        "verification_steps": [
+          "Exécuter : curl -s https://[site] | grep -i integrity",
+          "Identifier les balises script et link qui chargent des ressources externes (CDN, domaine tiers, URL absolue ou //domain).",
+          "Vérifier si ces balises contiennent un attribut integrity et crossorigin.",
+          "Si une ressource externe JavaScript ou CSS ne contient pas d’attribut integrity, confirmer la vulnérabilité.",
+          "Après correction, relancer l’inspection et vérifier que chaque ressource externe stable possède integrity et crossorigin=\"anonymous\"."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
+  "03221c3bbce50ba1b10e68139ba91491dc16b7e4e590a394a64929e3b1253745": {
+    "ts": 1777049775.2373364,
+    "result": [
+      {
+        "id": "kb_002",
+        "title": "CSP: Wildcard Directive",
+        "description": "Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "wildcard",
+          "misconfiguration"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.",
+        "recommendation_summary": "Réduire la surface autorisée par la CSP en supprimant les jokers et schémas trop larges.",
+        "technical_actions": [
+          "Remplacer * par une liste précise d’hôtes de confiance.",
+          "Éviter les schémas génériques comme https: quand les domaines réels sont connus.",
+          "Séparer les besoins par type de ressource : script-src, style-src, img-src, font-src, connect-src, frame-src.",
+          "Supprimer les doublons et les domaines non utilisés."
+        ],
+        "implementation_examples": {
+          "generic": "Remplacer img-src * data: https: par img-src 'self' data: https://cdn.example.com si seul ce CDN est nécessaire.",
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier si une directive contient le joker '*'. La vulnérabilité est confirmée si une ou plusieurs directives autorisent explicitement '*'. La présence d’un schéma générique comme https: doit être revue au cas par cas mais ne suffit pas seule à confirmer une wildcard directive.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Rechercher explicitement le caractère '*' dans les directives concernées.",
+          "Si '*' est présent dans une directive CSP, confirmer la vulnérabilité.",
+          "Ne pas conclure à une wildcard directive sur la seule présence de https: ; comparer la politique aux besoins réels de l’application.",
+          "Après correction, relancer la commande et vérifier la disparition du joker '*' dans les directives concernées."
+        ],
+        "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Wildcard Directive Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique. A05:2021 - Security Misconfiguration CWE-693 csp wildcard misconfiguration",
+        "score": 1.0
+      }
+    ]
+  },
+  "55b8cfd60e3c0d0fbddc159aa5471d6009de4e9b737b0cf5189bf798f8df5a16": {
+    "ts": 1777049775.242292,
+    "result": [
+      {
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
+        ],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
+        "technical_actions": [
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
+        },
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
+        "verification_steps": [
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
+        ],
+        "report_template": "",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": 1.0
+      }
+    ]
+  },
+  "bd851605d4a8d39543d26b1bc268cd7b18d1b714b354ed0047858da344b01aa3": {
+    "ts": 1777049956.28645,
+    "result": [
+      {
+        "id": "kb_001",
+        "title": "CSP: Failure to Define Directive with No Fallback",
+        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "missing directive",
+          "fallback",
+          "security header"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
+        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "technical_actions": [
+          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
+          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
+          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+        ],
+        "implementation_examples": {
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
+          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si les directives form-action, frame-ancestors, base-uri et object-src sont présentes. Si l’une de ces directives est absente, la vulnérabilité reste présente.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP récupéré.",
+          "Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.",
+          "Si une ou plusieurs de ces directives sont absentes, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que chaque directive manquante a bien été ajoutée avec une valeur restrictive."
+        ],
+        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "score": 1.0
+      }
+    ]
+  },
+  "7ad64cc3e6c2e8597b197524cba81beea3825624e01143054ff20e21bb0eb201": {
+    "ts": 1777049956.3033867,
+    "result": [
+      {
+        "id": "kb_002",
+        "title": "CSP: Wildcard Directive",
+        "description": "Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "wildcard",
+          "misconfiguration"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.",
+        "recommendation_summary": "Réduire la surface autorisée par la CSP en supprimant les jokers et schémas trop larges.",
+        "technical_actions": [
+          "Remplacer * par une liste précise d’hôtes de confiance.",
+          "Éviter les schémas génériques comme https: quand les domaines réels sont connus.",
+          "Séparer les besoins par type de ressource : script-src, style-src, img-src, font-src, connect-src, frame-src.",
+          "Supprimer les doublons et les domaines non utilisés."
+        ],
+        "implementation_examples": {
+          "generic": "Remplacer img-src * data: https: par img-src 'self' data: https://cdn.example.com si seul ce CDN est nécessaire.",
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier si une directive contient le joker '*'. La vulnérabilité est confirmée si une ou plusieurs directives autorisent explicitement '*'. La présence d’un schéma générique comme https: doit être revue au cas par cas mais ne suffit pas seule à confirmer une wildcard directive.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Rechercher explicitement le caractère '*' dans les directives concernées.",
+          "Si '*' est présent dans une directive CSP, confirmer la vulnérabilité.",
+          "Ne pas conclure à une wildcard directive sur la seule présence de https: ; comparer la politique aux besoins réels de l’application.",
+          "Après correction, relancer la commande et vérifier la disparition du joker '*' dans les directives concernées."
+        ],
+        "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: Wildcard Directive Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique. A05:2021 - Security Misconfiguration CWE-693 csp wildcard misconfiguration",
+        "score": 1.0
+      }
+    ]
+  },
+  "96a5bb03342673f1c112de6cca9c3fa100bd3988f3eadf118e23119587518a7b": {
+    "ts": 1777049956.3135836,
+    "result": [
+      {
+        "id": "kb_003",
+        "title": "CSP: script-src unsafe-inline",
+        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "script-src",
+          "xss"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
+        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "technical_actions": [
+          "Identifier tous les scripts inline présents dans les templates HTML.",
+          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
+          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
+          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+        ],
+        "implementation_examples": {
+          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
+          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
+          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive script-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans script-src, la vulnérabilité est confirmée.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Identifier la directive script-src dans la politique.",
+          "Vérifier si script-src contient 'unsafe-inline'.",
+          "Si 'unsafe-inline' est présent dans script-src, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de script-src.",
+          "Contrôler ensuite que les scripts inline restants utilisent un nonce ou un hash valide."
+        ],
+        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "score": 1.0
+      }
+    ]
+  },
+  "a62e2acfa6a45d9514f6e63a9df37012b4acce6c0c32fdc7e5b2d80ca443c3fb": {
+    "ts": 1777049956.3190918,
+    "result": [
+      {
+        "id": "kb_004",
+        "title": "CSP: style-src unsafe-inline",
+        "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
+        "tags": [
+          "csp",
+          "unsafe-inline",
+          "style-src",
+          "css-injection"
+        ],
+        "keywords": [],
+        "aliases": [],
+        "cves": [],
+        "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
+        "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",
+        "technical_actions": [
+          "Identifier les styles inline dans les templates et composants front-end.",
+          "Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.",
+          "Conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.",
+          "Nettoyer les librairies ou widgets qui injectent du style inline non indispensable."
+        ],
+        "implementation_examples": {
+          "generic": "style-src 'self' https://fonts.googleapis.com;",
+          "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
+        },
+        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive style-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans style-src, la vulnérabilité est confirmée.",
+        "verification_steps": [
+          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
+          "Lire la valeur complète de l’en-tête CSP.",
+          "Identifier la directive style-src dans la politique.",
+          "Vérifier si style-src contient 'unsafe-inline'.",
+          "Si 'unsafe-inline' est présent dans style-src, confirmer la vulnérabilité.",
+          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de style-src.",
+          "Contrôler le rendu visuel et les éventuelles erreurs CSP après externalisation des styles."
+        ],
+        "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "CSP: style-src unsafe-inline La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline style-src css-injection",
+        "score": 1.0
+      }
+    ]
+  },
+  "f8cc20e632129ea871af99c7505e07ed1b49f3639eb43b84eaa5ebe0047214a9": {
+    "ts": 1777049956.3287654,
+    "result": [
+      {
+        "id": "kb_006",
+        "title": "Sub Resource Integrity Attribute Missing",
+        "description": "Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers.",
+        "owasp": "A08:2021 - Software and Data Integrity Failures",
+        "cwe": "CWE-345",
+        "tags": [
+          "sri",
+          "integrity",
+          "external script",
+          "cdn"
+        ],
+        "keywords": [],
+        "aliases": [
+          "Subresource Integrity Attribute Missing",
+          "SRI Missing",
+          "Missing Subresource Integrity",
+          "Missing integrity attribute",
+          "Missing SRI attribute"
+        ],
+        "cves": [],
+        "recommendation": "Ajouter un attribut integrity et crossorigin aux balises script ou link qui chargent des ressources externes stables depuis un CDN.",
+        "recommendation_summary": "Protéger les dépendances tierces statiques contre une altération côté fournisseur.",
+        "technical_actions": [
+          "Identifier les scripts et feuilles CSS chargés depuis des domaines externes.",
+          "Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.",
+          "Héberger localement les ressources externes critiques si leur contenu varie fréquemment.",
+          "Réduire le nombre de dépendances tierces non indispensables."
+        ],
+        "implementation_examples": {
+          "html": "<script src=\"https://cdn.example.com/lib.min.js\" integrity=\"sha384-...\" crossorigin=\"anonymous\"></script>",
+          "css": "<link rel=\"stylesheet\" href=\"https://cdn.example.com/lib.min.css\" integrity=\"sha384-...\" crossorigin=\"anonymous\">"
+        },
+        "verification": "Inspecter le code source HTML pour identifier les balises script et link chargeant des ressources externes, puis vérifier si elles contiennent un attribut integrity valide. La vulnérabilité est confirmée si une ressource externe JavaScript ou CSS est chargée sans integrity.",
+        "verification_steps": [
+          "Exécuter : curl -s https://[site] | grep -i integrity",
+          "Identifier les balises script et link qui chargent des ressources externes (CDN, domaine tiers, URL absolue ou //domain).",
+          "Vérifier si ces balises contiennent un attribut integrity et crossorigin.",
+          "Si une ressource externe JavaScript ou CSS ne contient pas d’attribut integrity, confirmer la vulnérabilité.",
+          "Après correction, relancer l’inspection et vérifier que chaque ressource externe stable possède integrity et crossorigin=\"anonymous\"."
+        ],
+        "report_template": "Ajouter un attribut Subresource Integrity sur les ressources JavaScript et CSS externes stables afin de garantir que seul le contenu attendu est chargé par le navigateur. Les balises concernées doivent inclure un hash valide et l’attribut crossorigin approprié. Pour les ressources critiques ou instables, un hébergement local maîtrisé doit être privilégié.",
+        "affected_technologies": [],
+        "affected_components": [],
+        "notes": [],
+        "references": [],
+        "_search_text": "Sub Resource Integrity Attribute Missing Une ressource externe JavaScript ou CSS est chargée sans attribut integrity, ce qui expose à une compromission du fournisseur tiers. A08:2021 - Software and Data Integrity Failures CWE-345 sri integrity external script cdn Subresource Integrity Attribute Missing SRI Missing Missing Subresource Integrity Missing integrity attribute Missing SRI attribute",
+        "score": 1.0
+      }
+    ]
+  },
   "5d3817dce15bb371f2e74b7cea9de1e5786f872988da2b6c23eff20920b1cd8a": {
-    "ts": 1777040099.6350935,
+    "ts": 1777049956.3375988,
     "result": [
       {
         "id": "kb_clickjacking_001",
@@ -307,7 +1658,7 @@
     ]
   },
   "61c75e535fda553dc5c5378041416d5f8a472f4e1fef54499f6f6987f4fc4f48": {
-    "ts": 1777040099.72592,
+    "ts": 1777049956.4167092,
     "result": [
       {
         "id": "kb_034",
@@ -440,7 +1791,7 @@
     ]
   },
   "2a71e7bebc854df288c762d62b3753fbff8e0d04c3d27ecfab5f62558c2f4471": {
-    "ts": 1777040099.7461445,
+    "ts": 1777049956.4407685,
     "result": [
       {
         "id": "kb_clickjacking_001",
@@ -591,205 +1942,118 @@
       }
     ]
   },
-  "b2732ec59c0caf4a04d22f261683da8e9968e2ca5738c8c1459390c35bfbbfeb": {
-    "ts": 1777040545.25917,
+  "bb75e4434deeb8846202dcf13131f6a955b0f058b3b504828931626468c5a1e1": {
+    "ts": 1777052206.2814355,
     "result": [
       {
-        "id": "kb_001",
-        "title": "CSP: Failure to Define Directive with No Fallback",
-        "description": "Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint.",
+        "id": "kb_csp_missing_001",
+        "title": "Content Security Policy (CSP) Header Not Set",
+        "description": "",
         "owasp": "A05:2021 - Security Misconfiguration",
         "cwe": "CWE-693",
         "tags": [
           "csp",
-          "missing directive",
-          "fallback",
-          "security header"
+          "content security policy",
+          "security headers"
         ],
-        "keywords": [],
-        "aliases": [],
+        "keywords": [
+          "csp",
+          "content security policy",
+          "header missing",
+          "missing csp"
+        ],
+        "aliases": [
+          "CSP Header Not Set",
+          "Content-Security-Policy Header Not Set",
+          "Missing CSP Header",
+          "Content Security Policy Header Missing",
+          "CSP missing"
+        ],
         "cves": [],
-        "recommendation": "Définir explicitement les directives CSP sans fallback, notamment form-action, frame-ancestors, base-uri et object-src, selon les besoins exacts de l’application.",
-        "recommendation_summary": "Compléter la politique CSP avec toutes les directives qui ne tombent pas en repli sur default-src.",
+        "recommendation": "Définir un en-tête Content-Security-Policy adapté afin de restreindre les sources de contenu autorisées pour les scripts, styles, images, polices, objets embarqués et frames.",
+        "recommendation_summary": "Mettre en place une CSP explicite pour réduire les risques d’injection et de chargement de contenu non autorisé.",
         "technical_actions": [
-          "Identifier les directives CSP sans fallback qui sont ABSENTES de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src.",
-          "Ajouter uniquement les directives manquantes avec des valeurs restrictives.",
-          "Ne PAS recommander l'ajout d'une directive déjà définie dans le CSP existant."
+          "Définir une politique CSP de base avec default-src 'self'.",
+          "Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors.",
+          "Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée."
         ],
         "implementation_examples": {
-          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\" always;",
-          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self'; form-action 'self';\"",
-          "generic": "Déployer d’abord en Content-Security-Policy-Report-Only si le périmètre fonctionnel n’est pas complètement maîtrisé."
+          "nginx": "add_header Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\" always;",
+          "apache": "Header always set Content-Security-Policy \"default-src 'self'; object-src 'none'; base-uri 'self'; frame-ancestors 'self';\""
         },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si les directives form-action, frame-ancestors, base-uri et object-src sont présentes. Si l’une de ces directives est absente, la vulnérabilité reste présente.",
+        "verification": "Vérifier la présence de l’en-tête Content-Security-Policy dans les réponses HTTP et contrôler que les directives définies sont cohérentes avec le périmètre fonctionnel.",
         "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP récupéré.",
-          "Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.",
-          "Si une ou plusieurs de ces directives sont absentes, confirmer la vulnérabilité.",
-          "Après correction, relancer la commande et vérifier que chaque directive manquante a bien été ajoutée avec une valeur restrictive."
+          "Exécuter curl -I https://[site] | grep -i content-security-policy",
+          "Contrôler la présence de l'en-tête Content-Security-Policy."
         ],
-        "report_template": "Compléter la politique CSP en définissant explicitement les directives qui ne disposent pas de mécanisme de repli, notamment form-action, frame-ancestors, base-uri et object-src. Une configuration minimale recommandée consiste à positionner object-src sur 'none', base-uri sur 'self', frame-ancestors sur une valeur restrictive et form-action sur les seules destinations légitimes. La correction doit être validée sur plusieurs pages applicatives et confirmée par une nouvelle analyse des en-têtes HTTP.",
+        "report_template": "",
         "affected_technologies": [],
         "affected_components": [],
         "notes": [],
         "references": [],
-        "_search_text": "CSP: Failure to Define Directive with No Fallback Certaines directives CSP sensibles comme form-action ou frame-ancestors ne bénéficient pas d’un fallback depuis default-src. Leur absence revient à autoriser un comportement non restreint. A05:2021 - Security Misconfiguration CWE-693 csp missing directive fallback security header",
+        "_search_text": "Content Security Policy (CSP) Header Not Set A05:2021 - Security Misconfiguration CWE-693 csp content security policy security headers csp content security policy header missing missing csp CSP Header Not Set Content-Security-Policy Header Not Set Missing CSP Header Content Security Policy Header Missing CSP missing",
         "score": 1.0
       }
     ]
   },
-  "82f574bb6c0b7b79e62e655b91ee804cfc3ba94997e65ca52240909bb13e354c": {
-    "ts": 1777040545.2685826,
+  "8aa5b871db63773e55914372857f4bedd4e05f3c34858021c2fb85fe46f54e73": {
+    "ts": 1777052206.2963643,
     "result": [
       {
-        "id": "kb_003",
-        "title": "CSP: script-src unsafe-inline",
-        "description": "La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS.",
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
         "owasp": "A05:2021 - Security Misconfiguration",
         "cwe": "CWE-693",
         "tags": [
-          "csp",
-          "unsafe-inline",
-          "script-src",
-          "xss"
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
         ],
-        "keywords": [],
-        "aliases": [],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
+        "aliases": [
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
+        ],
         "cves": [],
-        "recommendation": "Supprimer 'unsafe-inline' de script-src et utiliser des nonces ou des hashes pour autoriser uniquement les scripts inline légitimes.",
-        "recommendation_summary": "Empêcher l’exécution libre des scripts inline afin de limiter l’impact d’une injection côté client.",
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
         "technical_actions": [
-          "Identifier tous les scripts inline présents dans les templates HTML.",
-          "Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.",
-          "Utiliser des nonces dynamiques par réponse pour les scripts inline légitimes restants.",
-          "À défaut, utiliser des hashes CSP strictement calculés sur les blocs inline stables."
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
         ],
         "implementation_examples": {
-          "generic": "script-src 'self' 'nonce-{random}' https://cdn.example.com;",
-          "template": "<script nonce=\"{{csp_nonce}}\">window.appConfig = {...}</script>",
-          "nginx": "Le nonce doit être généré côté application ou reverse proxy programmable, pas en valeur statique."
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
         },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive script-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans script-src, la vulnérabilité est confirmée.",
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
         "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP.",
-          "Identifier la directive script-src dans la politique.",
-          "Vérifier si script-src contient 'unsafe-inline'.",
-          "Si 'unsafe-inline' est présent dans script-src, confirmer la vulnérabilité.",
-          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de script-src.",
-          "Contrôler ensuite que les scripts inline restants utilisent un nonce ou un hash valide."
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
         ],
-        "report_template": "Retirer la directive 'unsafe-inline' de script-src afin d’empêcher l’exécution de scripts injectés ou non maîtrisés. Les blocs inline nécessaires doivent être externalisés dans des fichiers JavaScript statiques ou protégés par nonce ou hash. La correction doit être validée par des tests fonctionnels et par une nouvelle vérification des en-têtes CSP.",
+        "report_template": "",
         "affected_technologies": [],
         "affected_components": [],
         "notes": [],
         "references": [],
-        "_search_text": "CSP: script-src unsafe-inline La directive script-src autorise l’exécution de scripts inline, ce qui facilite l’exploitation de failles XSS. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline script-src xss",
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
         "score": 1.0
       }
     ]
   },
-  "0c25cb5a67a91e9a681c669a74493448466d1c6dad4c8b051aa0b02d0cb75bdb": {
-    "ts": 1777040545.2716265,
-    "result": [
-      {
-        "id": "kb_002",
-        "title": "CSP: Wildcard Directive",
-        "description": "Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique.",
-        "owasp": "A05:2021 - Security Misconfiguration",
-        "cwe": "CWE-693",
-        "tags": [
-          "csp",
-          "wildcard",
-          "misconfiguration"
-        ],
-        "keywords": [],
-        "aliases": [],
-        "cves": [],
-        "recommendation": "Remplacer les jokers CSP par une liste explicite et minimale de domaines de confiance pour chaque directive concernée.",
-        "recommendation_summary": "Réduire la surface autorisée par la CSP en supprimant les jokers et schémas trop larges.",
-        "technical_actions": [
-          "Remplacer * par une liste précise d’hôtes de confiance.",
-          "Éviter les schémas génériques comme https: quand les domaines réels sont connus.",
-          "Séparer les besoins par type de ressource : script-src, style-src, img-src, font-src, connect-src, frame-src.",
-          "Supprimer les doublons et les domaines non utilisés."
-        ],
-        "implementation_examples": {
-          "generic": "Remplacer img-src * data: https: par img-src 'self' data: https://cdn.example.com si seul ce CDN est nécessaire.",
-          "nginx": "add_header Content-Security-Policy \"default-src 'self'; script-src 'self' https://cdn.example.com; style-src 'self' https://fonts.googleapis.com; img-src 'self' data: https://images.example.com;\" always;"
-        },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier si une directive contient le joker '*'. La vulnérabilité est confirmée si une ou plusieurs directives autorisent explicitement '*'. La présence d’un schéma générique comme https: doit être revue au cas par cas mais ne suffit pas seule à confirmer une wildcard directive.",
-        "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP.",
-          "Rechercher explicitement le caractère '*' dans les directives concernées.",
-          "Si '*' est présent dans une directive CSP, confirmer la vulnérabilité.",
-          "Ne pas conclure à une wildcard directive sur la seule présence de https: ; comparer la politique aux besoins réels de l’application.",
-          "Après correction, relancer la commande et vérifier la disparition du joker '*' dans les directives concernées."
-        ],
-        "report_template": "Durcir la politique CSP en supprimant les jokers et les schémas trop permissifs au profit d’une liste explicite et minimale de sources approuvées. La politique doit être définie par type de ressource et ne conserver que les domaines effectivement nécessaires au fonctionnement de l’application. Une validation fonctionnelle complète est nécessaire après durcissement de la politique.",
-        "affected_technologies": [],
-        "affected_components": [],
-        "notes": [],
-        "references": [],
-        "_search_text": "CSP: Wildcard Directive Une directive CSP trop large ou avec joker autorise des sources multiples et réduit fortement l’efficacité de la politique. A05:2021 - Security Misconfiguration CWE-693 csp wildcard misconfiguration",
-        "score": 1.0
-      }
-    ]
-  },
-  "9fe1760f29d1ef9e73b6172ae410d9f1299bfc1326b044413feebf793c85ed18": {
-    "ts": 1777040545.2752156,
-    "result": [
-      {
-        "id": "kb_004",
-        "title": "CSP: style-src unsafe-inline",
-        "description": "La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP.",
-        "owasp": "A05:2021 - Security Misconfiguration",
-        "cwe": "CWE-693",
-        "tags": [
-          "csp",
-          "unsafe-inline",
-          "style-src",
-          "css-injection"
-        ],
-        "keywords": [],
-        "aliases": [],
-        "cves": [],
-        "recommendation": "Supprimer 'unsafe-inline' de style-src et migrer les styles inline vers des feuilles CSS autorisées ou des hashes lorsque nécessaire.",
-        "recommendation_summary": "Réduire l’exposition des styles inline pour renforcer l’efficacité globale de la CSP.",
-        "technical_actions": [
-          "Identifier les styles inline dans les templates et composants front-end.",
-          "Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.",
-          "Conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.",
-          "Nettoyer les librairies ou widgets qui injectent du style inline non indispensable."
-        ],
-        "implementation_examples": {
-          "generic": "style-src 'self' https://fonts.googleapis.com;",
-          "html": "Remplacer style=\"display:none\" par une classe CSS issue d’un fichier statique."
-        },
-        "verification": "Récupérer l’en-tête Content-Security-Policy et vérifier explicitement si la directive style-src contient 'unsafe-inline'. Si 'unsafe-inline' est présent dans style-src, la vulnérabilité est confirmée.",
-        "verification_steps": [
-          "Exécuter : curl -I https://[site] | grep -i content-security-policy",
-          "Lire la valeur complète de l’en-tête CSP.",
-          "Identifier la directive style-src dans la politique.",
-          "Vérifier si style-src contient 'unsafe-inline'.",
-          "Si 'unsafe-inline' est présent dans style-src, confirmer la vulnérabilité.",
-          "Après correction, relancer la commande et vérifier que 'unsafe-inline' a disparu de style-src.",
-          "Contrôler le rendu visuel et les éventuelles erreurs CSP après externalisation des styles."
-        ],
-        "report_template": "Supprimer l’autorisation 'unsafe-inline' de la directive style-src afin de limiter les possibilités d’injection de styles non contrôlés. Les styles inline doivent être déplacés vers des feuilles CSS autorisées ou protégés par hash lorsque cela reste indispensable. La mise en conformité doit être confirmée par des tests visuels et une revue de la politique CSP.",
-        "affected_technologies": [],
-        "affected_components": [],
-        "notes": [],
-        "references": [],
-        "_search_text": "CSP: style-src unsafe-inline La directive style-src autorise des styles inline et réduit l’efficacité de la politique CSP. A05:2021 - Security Misconfiguration CWE-693 csp unsafe-inline style-src css-injection",
-        "score": 1.0
-      }
-    ]
-  },
-  "2d7f3486dfffaf68d88ad9e67cf26c743537f4745e10bf63bc005d1ef68b4c35": {
-    "ts": 1777040545.2789063,
+  "c6f4270b6a405b68c88891f99fef6d42453a447d7eafa9ade2f2376d123a889f": {
+    "ts": 1777052206.3043802,
     "result": [
       {
         "id": "kb_006",
@@ -842,164 +2106,59 @@
       }
     ]
   },
-  "3841052b25c73c3ea0a1768148ff8cc323921df5c2eea108818b34a66ae829b3": {
-    "ts": 1777040545.284906,
+  "73a10600b23eda6447415726af1d684943b5fbe4294ef4518a12e9dce31a5ce0": {
+    "ts": 1777052206.3213434,
     "result": [
       {
-        "id": "kb_017",
-        "title": "SQL Injection",
-        "description": "Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs.",
-        "owasp": "A03:2021 - Injection",
-        "cwe": "CWE-89",
+        "id": "kb_clickjacking_001",
+        "title": "Missing Anti-clickjacking Header",
+        "description": "L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu.",
+        "owasp": "A05:2021 - Security Misconfiguration",
+        "cwe": "CWE-693",
         "tags": [
-          "sql injection",
-          "sqli",
-          "database"
+          "clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "security headers"
         ],
-        "keywords": [],
+        "keywords": [
+          "clickjacking",
+          "anti-clickjacking",
+          "x-frame-options",
+          "frame-ancestors",
+          "iframe"
+        ],
         "aliases": [
-          "SQL injection vulnerability in the Views module",
-          "Drupal Views SQL Injection",
-          "Views module SQL injection",
-          "CVE-2008-6020",
-          "CVE-2011-4113"
+          "X-Frame-Options Header Missing",
+          "Missing X-Frame-Options",
+          "Anti-clickjacking Header Missing",
+          "Clickjacking protection missing"
         ],
-        "cves": [
-          "CVE-2008-6020",
-          "CVE-2011-4113"
-        ],
-        "recommendation": "Remplacer la concaténation SQL dynamique par des requêtes préparées ou paramétrées et valider strictement les entrées attendues côté serveur.",
-        "recommendation_summary": "Supprimer toute construction SQL basée sur de la concaténation de données utilisateur.",
+        "cves": [],
+        "recommendation": "Mettre en place une protection anti-clickjacking en configurant soit le header X-Frame-Options, soit la directive CSP frame-ancestors.",
+        "recommendation_summary": "Empêcher l’inclusion non autorisée des pages dans des frames ou iframes.",
         "technical_actions": [
-          "Identifier les requêtes construites dynamiquement avec concaténation.",
-          "Utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.",
-          "Valider côté serveur le type, format et domaine de chaque entrée.",
-          "Éviter de concaténer dynamiquement les clauses ORDER BY, LIMIT ou noms de colonnes sans liste blanche."
+          "Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.",
+          "Si CSP est utilisée, définir explicitement frame-ancestors avec une valeur restrictive."
         ],
         "implementation_examples": {
-          "python": "cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
-          "php_pdo": "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email'); $stmt->execute(['email' => $email]);"
+          "nginx": "add_header X-Frame-Options \"SAMEORIGIN\" always;",
+          "apache": "Header always set X-Frame-Options \"SAMEORIGIN\"",
+          "csp": "Content-Security-Policy: frame-ancestors 'self';"
         },
-        "verification": "Vérifier dans le code que les requêtes utilisent des paramètres liés et rejouer le scénario de test pour confirmer qu’aucune injection SQL n’est encore possible.",
+        "verification": "Vérifier que la réponse HTTP renvoie X-Frame-Options ou une directive frame-ancestors restrictive.",
         "verification_steps": [
-          "Rechercher les usages de concaténation SQL dans le code.",
-          "Tester les paramètres identifiés avec payloads d’injection.",
-          "Vérifier aussi les accès indirects via filtres, tri et recherche."
+          "Exécuter curl -I https://[site] | grep -i x-frame-options",
+          "Contrôler la présence de X-Frame-Options ou de frame-ancestors dans la CSP.",
+          "Tester l'intégration de la page dans une iframe depuis un domaine tiers."
         ],
-        "report_template": "Remplacer toutes les requêtes SQL construites dynamiquement à partir d’entrées utilisateur par des requêtes préparées ou paramétrées. Les paramètres métier doivent en complément être validés côté serveur selon leur type attendu. Une nouvelle campagne de tests doit confirmer qu’aucune injection SQL n’est encore possible sur les points d’entrée affectés.",
+        "report_template": "",
         "affected_technologies": [],
         "affected_components": [],
         "notes": [],
         "references": [],
-        "_search_text": "SQL Injection Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs. A03:2021 - Injection CWE-89 sql injection sqli database SQL injection vulnerability in the Views module Drupal Views SQL Injection Views module SQL injection CVE-2008-6020 CVE-2011-4113 CVE-2008-6020 CVE-2011-4113",
-        "score": 1.8
-      }
-    ]
-  },
-  "26a15cf82a0aa1fa0bbfc8cf3187a0fa3d244b4c05c1da2c311fe6412376a6ea": {
-    "ts": 1777040545.2914195,
-    "result": [
-      {
-        "id": "kb_017",
-        "title": "SQL Injection",
-        "description": "Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs.",
-        "owasp": "A03:2021 - Injection",
-        "cwe": "CWE-89",
-        "tags": [
-          "sql injection",
-          "sqli",
-          "database"
-        ],
-        "keywords": [],
-        "aliases": [
-          "SQL injection vulnerability in the Views module",
-          "Drupal Views SQL Injection",
-          "Views module SQL injection",
-          "CVE-2008-6020",
-          "CVE-2011-4113"
-        ],
-        "cves": [
-          "CVE-2008-6020",
-          "CVE-2011-4113"
-        ],
-        "recommendation": "Remplacer la concaténation SQL dynamique par des requêtes préparées ou paramétrées et valider strictement les entrées attendues côté serveur.",
-        "recommendation_summary": "Supprimer toute construction SQL basée sur de la concaténation de données utilisateur.",
-        "technical_actions": [
-          "Identifier les requêtes construites dynamiquement avec concaténation.",
-          "Utiliser des requêtes préparées ou paramétrées via le driver natif ou l’ORM.",
-          "Valider côté serveur le type, format et domaine de chaque entrée.",
-          "Éviter de concaténer dynamiquement les clauses ORDER BY, LIMIT ou noms de colonnes sans liste blanche."
-        ],
-        "implementation_examples": {
-          "python": "cursor.execute('SELECT * FROM users WHERE email = %s', (email,))",
-          "php_pdo": "$stmt = $pdo->prepare('SELECT * FROM users WHERE email = :email'); $stmt->execute(['email' => $email]);"
-        },
-        "verification": "Vérifier dans le code que les requêtes utilisent des paramètres liés et rejouer le scénario de test pour confirmer qu’aucune injection SQL n’est encore possible.",
-        "verification_steps": [
-          "Rechercher les usages de concaténation SQL dans le code.",
-          "Tester les paramètres identifiés avec payloads d’injection.",
-          "Vérifier aussi les accès indirects via filtres, tri et recherche."
-        ],
-        "report_template": "Remplacer toutes les requêtes SQL construites dynamiquement à partir d’entrées utilisateur par des requêtes préparées ou paramétrées. Les paramètres métier doivent en complément être validés côté serveur selon leur type attendu. Une nouvelle campagne de tests doit confirmer qu’aucune injection SQL n’est encore possible sur les points d’entrée affectés.",
-        "affected_technologies": [],
-        "affected_components": [],
-        "notes": [],
-        "references": [],
-        "_search_text": "SQL Injection Des entrées utilisateur peuvent être utilisées pour construire des requêtes SQL sans validation ni paramétrage sûrs. A03:2021 - Injection CWE-89 sql injection sqli database SQL injection vulnerability in the Views module Drupal Views SQL Injection Views module SQL injection CVE-2008-6020 CVE-2011-4113 CVE-2008-6020 CVE-2011-4113",
-        "score": 1.8
-      }
-    ]
-  },
-  "5780bb4d8acf067a4bc4992d4e3849b4ac765919f943be5b47aceed1158858de": {
-    "ts": 1777040545.295079,
-    "result": [
-      {
-        "id": "kb_031",
-        "title": "REST Views Sensitive Information Exposure",
-        "description": "Une vue REST peut exposer des données sensibles ou permettre un accès non prévu aux ressources.",
-        "owasp": "A01:2021 - Broken Access Control",
-        "cwe": "CWE-200",
-        "tags": [
-          "drupal",
-          "rest views",
-          "sensitive information",
-          "forceful browsing"
-        ],
-        "keywords": [],
-        "aliases": [
-          "Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views",
-          "Drupal REST Views Forceful Browsing",
-          "REST Views sensitive information exposure",
-          "CVE-2024-13254"
-        ],
-        "cves": [
-          "CVE-2024-13254"
-        ],
-        "recommendation": "Restreindre les permissions d’accès aux vues REST concernées, limiter les champs exposés et désactiver les endpoints non nécessaires.",
-        "recommendation_summary": "Réduire l’exposition des endpoints REST Drupal et des champs publiés.",
-        "technical_actions": [
-          "Inventorier les vues REST exposées publiquement.",
-          "Limiter les permissions sur les displays REST de Views.",
-          "Retirer les champs sensibles, identifiants internes ou métadonnées non nécessaires.",
-          "Désactiver les endpoints inutilisés."
-        ],
-        "implementation_examples": {
-          "drupal": "Revoir les permissions liées au display REST dans Views et dans les rôles Drupal.",
-          "generic": "Restreindre les réponses aux champs strictement requis."
-        },
-        "verification": "Vérifier que les vues REST sensibles exigent les permissions attendues et qu’un utilisateur non autorisé ne peut plus consulter les données exposées.",
-        "verification_steps": [
-          "Tester l’accès anonyme et authentifié aux endpoints REST.",
-          "Vérifier les champs renvoyés.",
-          "Contrôler qu’un utilisateur non autorisé reçoit un refus."
-        ],
-        "report_template": "Revoir les vues REST Drupal exposées afin de limiter l’accès aux seuls rôles autorisés et de supprimer les champs non strictement nécessaires. Les endpoints inutiles doivent être désactivés et les contrôles d’autorisation vérifiés par des tests multi-profils.",
-        "affected_technologies": [],
-        "affected_components": [],
-        "notes": [],
-        "references": [],
-        "_search_text": "REST Views Sensitive Information Exposure Une vue REST peut exposer des données sensibles ou permettre un accès non prévu aux ressources. A01:2021 - Broken Access Control CWE-200 drupal rest views sensitive information forceful browsing Insertion of Sensitive Information Into Sent Data vulnerability in Drupal REST Views Drupal REST Views Forceful Browsing REST Views sensitive information exposure CVE-2024-13254 CVE-2024-13254",
-        "score": 2.3
+        "_search_text": "Missing Anti-clickjacking Header L'absence de protection anti-clickjacking permet à un attaquant d'intégrer la page dans une iframe malveillante et de tromper l'utilisateur pour qu'il effectue des actions à son insu. A05:2021 - Security Misconfiguration CWE-693 clickjacking x-frame-options frame-ancestors security headers clickjacking anti-clickjacking x-frame-options frame-ancestors iframe X-Frame-Options Header Missing Missing X-Frame-Options Anti-clickjacking Header Missing Clickjacking protection missing",
+        "score": -0.919
       }
     ]
   }

@@ -2,81 +2,95 @@ A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 18 vulnérabilités ont été retenues dans ce rapport, dont 7 sont prioritaires.
 Niveau de risque global : ÉLEVÉ. Cible : https://securas.fr/ (inconnu Non fourni). Scan du : 2026-03-13 11:51:22 UTC.
 Le grade SSL/TLS obtenu est B.
-La surface d'attaque TLS est étendue et le risque de downgrade ou d'affaiblissement cryptographique est accru, notamment en raison de l'activation de protocoles dépréciés tels que TLS 1.0 et TLS 1.1, ainsi que la présence de vulnérabilités TLS comme SWEET32 et LUCKY13.
-La surface d’attaque côté navigateur est également élargie en raison de l'absence de certaines en-têtes de sécurité, telles que Content Security Policy (CSP) et les attributs Sub Resource Integrity (SRI), ainsi que l'absence de headers anti-clickjacking.
+La surface d'attaque TLS est étendue et le risque de downgrade ou d'affaiblissement cryptographique est accru.
+La surface d’attaque côté navigateur est élargie.
 
 B - Vulnérabilités Prioritaires
 1. Protocole déprécié activé : TLS 1.0
-- Description : Le protocole TLS 1.0 est activé, ce qui constitue un protocole déprécié (RFC 8996) et peut présenter des risques de sécurité.
+- Description : Le protocole TLS 1.0 est activé, ce qui constitue une vulnérabilité de sécurité car il est considéré comme obsolète et peut être exploité par des attaquants.
 - Référence : https://www.rfc-editor.org/rfc/rfc8996
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : HIGH
-- Recommandation : Désactiver TLS 1.0 et conserver uniquement TLS 1.2 et TLS 1.3.
-- Vérification : Exécuter openssl s_client -connect securas.fr:443 -tls1_0 pour tester si TLS 1.0 est accepté. Si la connexion est établie, la vulnérabilité est confirmée.
+- Recommandation : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.
+- Vérification : 
+  openssl s_client -connect securas.fr:443 -tls1_0
+  Si la connexion TLS 1.0 est établie → vulnérabilité confirmée.
 
 2. Vulnérabilité TLS : SWEET32
 - Description : La vulnérabilité SWEET32 est liée à l’utilisation de chiffrements à bloc 64 bits, ce qui peut affaiblir la confidentialité des échanges chiffrés lors de sessions longues.
 - Référence : https://nvd.nist.gov/vuln/detail/CVE-2016-2183
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : MEDIUM
-- Recommandation : Désactiver 3DES et conserver uniquement des suites modernes pour TLS 1.2 et TLS 1.3.
-- Vérification : Exécuter testssl.sh securas.fr pour tester les suites de chiffrement proposées. Si des suites à bloc 64 bits sont proposées, la vulnérabilité est confirmée.
+- Recommandation : Désactiver 3DES et toute suite à bloc 64 bits.
+- Vérification : 
+  testssl.sh securas.fr
+  Si des suites CBC, 3DES ou à bloc 64 bits sont proposées → vulnérabilité confirmée.
 
 3. Vulnérabilité TLS : LUCKY13
 - Description : La vulnérabilité LUCKY13 affecte certaines suites cryptographiques TLS basées sur des chiffrements CBC et peut permettre une attaque par canal auxiliaire selon l’implémentation côté serveur.
 - Référence : https://nvd.nist.gov/vuln/detail/CVE-2013-0169
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : MEDIUM
-- Recommandation : Réduire ou supprimer les suites CBC lorsque possible et appliquer les correctifs sur le composant TLS ou reverse proxy.
-- Vérification : Exécuter testssl.sh securas.fr pour tester les suites de chiffrement proposées. Si des suites CBC sont proposées, la vulnérabilité est confirmée.
+- Recommandation : Réduire ou supprimer les suites CBC lorsque possible.
+- Vérification : 
+  testssl.sh securas.fr
+  Si des suites CBC restent proposées par le serveur → vulnérabilité confirmée.
 
 4. Protocole déprécié activé : TLS 1.1
-- Description : Le protocole TLS 1.1 est activé, ce qui constitue un protocole déprécié (RFC 8996) et peut présenter des risques de sécurité.
+- Description : Le protocole TLS 1.1 est activé, ce qui constitue une vulnérabilité de sécurité car il est considéré comme obsolète et peut être exploité par des attaquants.
 - Référence : https://www.rfc-editor.org/rfc/rfc8996
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : MEDIUM
-- Recommandation : Désactiver TLS 1.1 et conserver uniquement TLS 1.2 et TLS 1.3.
-- Vérification : Exécuter openssl s_client -connect securas.fr:443 -tls1_1 pour tester si TLS 1.1 est accepté. Si la connexion est établie, la vulnérabilité est confirmée.
+- Recommandation : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.
+- Vérification : 
+  openssl s_client -connect securas.fr:443 -tls1_1
+  Si la connexion TLS 1.1 est établie → vulnérabilité confirmée.
 
 5. Content Security Policy (CSP) Header Not Set
-- Description : L'en-tête Content Security Policy (CSP) n'est pas défini, ce qui peut permettre des attaques de type XSS.
+- Description : L'en-tête Content Security Policy (CSP) n'est pas défini, ce qui peut permettre à un attaquant d'injecter du code malveillant dans la page web.
 - Référence : https://securas.fr
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
 - Recommandation : Définir une politique CSP de base avec default-src 'self'.
-- Vérification : Exécuter curl -I https://securas.fr | grep -i content-security-policy pour tester si l'en-tête CSP est présent. Si l'en-tête est absent, la vulnérabilité est confirmée.
+- Vérification : 
+  curl -I https://securas.fr/ | grep -i content-security-policy
+  Si l’en-tête Content-Security-Policy est absent → vulnérabilité confirmée.
 
 6. Sub Resource Integrity Attribute Missing
-- Description : L'attribut Sub Resource Integrity (SRI) est manquant, ce qui peut permettre des attaques de type XSS.
+- Description : L'attribut Sub Resource Integrity est manquant, ce qui peut permettre à un attaquant de modifier les ressources externes chargées par la page web.
 - Référence : https://securas.fr
 - Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
 - Sévérité : MEDIUM
-- Recommandation : Ajouter l'attribut integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.
-- Vérification : Exécuter curl -s https://securas.fr | grep -i integrity pour tester si l'attribut SRI est présent. Si l'attribut est absent, la vulnérabilité est confirmée.
+- Recommandation : Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.
+- Vérification : 
+  curl -s https://securas.fr/ | grep -i integrity
+  Si une ressource externe script ou link ne contient pas l’attribut integrity → vulnérabilité confirmée.
 
 7. Missing Anti-clickjacking Header
-- Description : L'en-tête anti-clickjacking est manquant, ce qui peut permettre des attaques de type clickjacking.
+- Description : L'en-tête X-Frame-Options est manquant, ce qui peut permettre à un attaquant d'injecter une iframe malveillante dans la page web.
 - Référence : https://securas.fr
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
 - Recommandation : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
-- Vérification : Exécuter curl -I https://securas.fr | grep -i x-frame-options pour tester si l'en-tête X-Frame-Options est présent. Si l'en-tête est absent, la vulnérabilité est confirmée.
+- Vérification : 
+  curl -I https://securas.fr/ | grep -i x-frame-options
+  Si l’en-tête X-Frame-Options est absent → vulnérabilité confirmée.
 
 C - Vulnérabilités Potentielles à Valider
-Aucune vulnérabilité potentielle à valider n'a été détectée.
+Cette section est vide.
 
 D - Plan de remédiation
-1. Protocole déprécié activé : TLS 1.0 : Désactiver TLS 1.0 — Délai : 7 jours
-2. Vulnérabilité TLS : SWEET32 : Désactiver 3DES — Délai : 7 jours
-3. Vulnérabilité TLS : LUCKY13 : Réduire ou supprimer les suites CBC — Délai : 7 jours
-4. Protocole déprécié activé : TLS 1.1 : Désactiver TLS 1.1 — Délai : 7 jours
-5. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base — Délai : 7 jours
-6. Sub Resource Integrity Attribute Missing : Ajouter l'attribut integrity — Délai : 7 jours
-7. Missing Anti-clickjacking Header : Définir X-Frame-Options — Délai : 7 jours
+1. Protocole déprécié activé : TLS 1.0 : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS. — Délai : 7 jours
+2. Vulnérabilité TLS : SWEET32 : Désactiver 3DES et toute suite à bloc 64 bits. — Délai : 7 jours
+3. Vulnérabilité TLS : LUCKY13 : Réduire ou supprimer les suites CBC lorsque possible. — Délai : 7 jours
+4. Protocole déprécié activé : TLS 1.1 : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS. — Délai : 7 jours
+5. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self'. — Délai : 30 jours
+6. Sub Resource Integrity Attribute Missing : Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées. — Délai : 30 jours
+7. Missing Anti-clickjacking Header : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet. — Délai : 30 jours
 
 E - Conclusion
 Le niveau de risque global est ÉLEVÉ.
-L'action prioritaire principale est de désactiver TLS 1.0, qui présente un risque élevé de sécurité, avec un délai de 7 jours.
+L'action prioritaire principale est de désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS, avec un délai de 7 jours.
 Il est essentiel de traiter ces vulnérabilités pour réduire les risques de sécurité et protéger les données sensibles.
 
 

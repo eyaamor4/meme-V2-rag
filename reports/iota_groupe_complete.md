@@ -2,107 +2,144 @@ A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 27 vulnérabilités ont été retenues dans ce rapport, dont 10 sont prioritaires.
 Niveau de risque global : ÉLEVÉ. Cible : https://iota-group.com/ (inconnu Non fourni). Scan du : 2026-04-09 19:07:22 UTC.
 Le grade SSL/TLS obtenu est B.
-La surface d'attaque TLS est étendue et le risque de downgrade ou d'affaiblissement cryptographique est accru, notamment en raison de l'activation de protocoles dépréciés tels que TLS 1.0 et TLS 1.1.
-La surface d’attaque côté navigateur est élargie en raison de plusieurs findings liés à la sécurité côté client, tels que l'absence de certaines directives CSP et la présence de scripts et styles inline non sécurisés.
+La surface d'attaque TLS est étendue et le risque de downgrade ou d'affaiblissement cryptographique est accru.
+La surface d’attaque côté navigateur est élargie.
 
 B - Vulnérabilités Prioritaires
-1. Protocole déprécié activé : TLS 1.0
-- Description : Le protocole TLS 1.0 est activé, ce qui constitue un risque de sécurité car il est considéré comme déprécié et vulnérable à certaines attaques.
+[Protocole déprécié activé : TLS 1.0]
+- Description : 
+  Le protocole TLS 1.0 est activé, ce qui constitue un protocole déprécié (RFC 8996).
 - Référence : https://www.rfc-editor.org/rfc/rfc8996
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : HIGH
-- Recommandation : Désactiver TLS 1.0 et conserver uniquement TLS 1.2 et TLS 1.3.
-- Vérification : Utiliser la commande `openssl s_client -connect iota-group.com:443 -tls1_0` pour tester si le protocole TLS 1.0 est accepté. Si la connexion est établie, la vulnérabilité est confirmée.
+- Recommandation : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.
+- Vérification :
+  openssl s_client -connect iota-group.com:443 -tls1_0
+  Si la connexion TLS 1.0 est établie → vulnérabilité confirmée.
 
-2. Vulnérabilité TLS : LUCKY13
-- Description : La vulnérabilité LUCKY13 affecte certaines suites cryptographiques TLS basées sur des chiffrements CBC et peut permettre une attaque par canal auxiliaire selon l’implémentation côté serveur.
+[Vulnérabilité TLS : LUCKY13]
+- Description : 
+  La vulnérabilité LUCKY13 affecte certaines suites cryptographiques TLS basées sur des chiffrements CBC et peut permettre une attaque par canal auxiliaire selon l’implémentation côté serveur.
 - Référence : https://nvd.nist.gov/vuln/detail/CVE-2013-0169
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : MEDIUM
-- Recommandation : Réduire ou supprimer les suites CBC lorsque possible et appliquer les correctifs sur le composant TLS ou reverse proxy.
-- Vérification : Utiliser la commande `testssl.sh iota-group.com` pour tester les suites cryptographiques utilisées par le serveur. Si des suites CBC sont détectées, la vulnérabilité est confirmée.
+- Recommandation : Réduire ou supprimer les suites CBC lorsque possible.
+- Vérification :
+  testssl.sh iota-group.com
+  Si des suites CBC sont proposées → vulnérabilité confirmée.
 
-3. Protocole déprécié activé : TLS 1.1
-- Description : Le protocole TLS 1.1 est activé, ce qui constitue un risque de sécurité car il est considéré comme déprécié et vulnérable à certaines attaques.
+[Protocole déprécié activé : TLS 1.1]
+- Description : 
+  Le protocole TLS 1.1 est activé, ce qui constitue un protocole déprécié (RFC 8996).
 - Référence : https://www.rfc-editor.org/rfc/rfc8996
 - Catégorie OWASP : A02:2021 - Cryptographic Failures
 - Sévérité : MEDIUM
-- Recommandation : Désactiver TLS 1.1 et conserver uniquement TLS 1.2 et TLS 1.3.
-- Vérification : Utiliser la commande `openssl s_client -connect iota-group.com:443 -tls1_1` pour tester si le protocole TLS 1.1 est accepté. Si la connexion est établie, la vulnérabilité est confirmée.
+- Recommandation : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS.
+- Vérification :
+  openssl s_client -connect iota-group.com:443 -tls1_1
+  Si la connexion TLS 1.1 est établie → vulnérabilité confirmée.
 
-4. CSP: Failure to Define Directive with No Fallback
-- Description : Il manque une directive CSP avec un fallback pour certaines ressources, ce qui peut permettre l'injection de code malveillant.
+[CSP: Failure to Define Directive with No Fallback]
+- Description : 
+  Il manque des directives CSP sans fallback parmi : form-action, frame-ancestors, base-uri, object-src.
 - Référence : https://iota-group.com/wp-admin/admin-post.php?action=mailpoet_subscription_form
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Ajouter les directives manquantes avec des valeurs restrictives pour les ressources concernées.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête CSP. Si les directives nécessaires sont absentes, la vulnérabilité est confirmée.
+- Recommandation : Ajouter les directives manquantes avec des valeurs restrictives.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i content-security-policy
+  Lire la valeur complète de l’en-tête CSP récupéré.
+  Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
-5. CSP: script-src unsafe-inline
-- Description : La directive CSP pour les scripts autorise l'exécution de scripts inline, ce qui peut permettre l'injection de code malveillant.
+[CSP: script-src unsafe-inline]
+- Description : 
+  La directive script-src contient 'unsafe-inline'.
 - Référence : https://iota-group.com/wp-admin/admin-post.php?action=mailpoet_subscription_form
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Migrer les scripts inline vers des fichiers JS statiques versionnés et utiliser des nonces dynamiques pour les scripts inline légitimes restants.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête CSP. Si la directive script-src contient 'unsafe-inline', la vulnérabilité est confirmée.
+- Recommandation : Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i content-security-policy
+  Lire la valeur complète de l’en-tête CSP.
+  Identifier la directive script-src dans la politique.
 
-6. CSP: style-src unsafe-inline
-- Description : La directive CSP pour les styles autorise l'injection de styles inline, ce qui peut permettre l'injection de code malveillant.
+[CSP: style-src unsafe-inline]
+- Description : 
+  La directive style-src contient 'unsafe-inline'.
 - Référence : https://iota-group.com/wp-admin/admin-post.php?action=mailpoet_subscription_form
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées et conserver uniquement des hashes CSP pour les fragments inline impossibles à externaliser.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête CSP. Si la directive style-src contient 'unsafe-inline', la vulnérabilité est confirmée.
+- Recommandation : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i content-security-policy
+  Lire la valeur complète de l’en-tête CSP.
+  Identifier la directive style-src dans la politique.
 
-7. Content Security Policy (CSP) Header Not Set
-- Description : L'en-tête CSP n'est pas défini, ce qui peut permettre l'injection de code malveillant.
+[Content Security Policy (CSP) Header Not Set]
+- Description : 
+  L’en-tête Content-Security-Policy est absent.
 - Référence : https://iota-group.com
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Définir une politique CSP de base avec des directives restrictives pour les ressources concernées.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête CSP. Si l'en-tête est absent, la vulnérabilité est confirmée.
+- Recommandation : Définir une politique CSP de base avec default-src 'self'.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i content-security-policy
+  Contrôler la présence de l’en-tête Content-Security-Policy.
 
-8. Sub Resource Integrity Attribute Missing
-- Description : L'attribut SRI est manquant pour certaines ressources, ce qui peut permettre l'injection de code malveillant.
+[Sub Resource Integrity Attribute Missing]
+- Description : 
+  Il manque l’attribut integrity sur les balises script et link.
 - Référence : https://iota-group.com/*/comments/
 - Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
 - Sévérité : MEDIUM
-- Recommandation : Ajouter l'attribut integrity pour les ressources concernées et utiliser des nonces dynamiques pour les ressources qui ne peuvent pas être versionnées.
-- Vérification : Utiliser la commande `curl -s https://iota-group.com` pour récupérer les balises script et link. Si les attributs integrity sont absents, la vulnérabilité est confirmée.
+- Recommandation : Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.
+- Vérification :
+  curl -s https://iota-group.com/ | grep -i integrity
+  Identifier les balises script et link qui chargent des ressources externes.
+  Vérifier si ces balises contiennent un attribut integrity et crossorigin.
 
-9. CSP: Wildcard Directive
-- Description : La directive CSP contient un joker qui autorise des sources trop larges, ce qui peut permettre l'injection de code malveillant.
+[CSP: Wildcard Directive]
+- Description : 
+  Une directive CSP contient '*'.
 - Référence : https://iota-group.com/wp-admin/admin-post.php?action=mailpoet_subscription_form
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Remplacer le joker par une liste précise d'hôtes de confiance et séparer les besoins par type de ressource.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête CSP. Si la directive contient un joker, la vulnérabilité est confirmée.
+- Recommandation : Remplacer '*' par une liste précise d’hôtes de confiance.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i content-security-policy
+  Lire la valeur complète de l’en-tête CSP.
+  Rechercher explicitement le caractère '*' dans les directives concernées.
 
-10. Missing Anti-clickjacking Header
-- Description : L'en-tête anti-clickjacking est manquant, ce qui peut permettre des attaques de type clickjacking.
+[Missing Anti-clickjacking Header]
+- Description : 
+  L’en-tête X-Frame-Options est absent.
 - Référence : https://iota-group.com
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Définir l'en-tête X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
-- Vérification : Utiliser la commande `curl -I https://iota-group.com` pour récupérer l'en-tête X-Frame-Options. Si l'en-tête est absent, la vulnérabilité est confirmée.
+- Recommandation : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet.
+- Vérification :
+  curl -I https://iota-group.com/ | grep -i x-frame-options
+  Contrôler la présence de X-Frame-Options.
 
 C - Vulnérabilités Potentielles à Valider
-Aucune vulnérabilité potentielle à valider n'a été détectée.
+Cette section est absente car il n'y a pas de vulnérabilités potentielles à valider.
 
 D - Plan de remédiation
-1. Protocole déprécié activé : TLS 1.0 : Désactiver TLS 1.0 — Délai : sous 24h
-2. Vulnérabilité TLS : LUCKY13 : Réduire ou supprimer les suites CBC — Délai : 7 jours
-3. Protocole déprécié activé : TLS 1.1 : Désactiver TLS 1.1 — Délai : 7 jours
-4. CSP: Failure to Define Directive with No Fallback : Ajouter les directives manquantes — Délai : 30 jours
-5. CSP: script-src unsafe-inline : Migrer les scripts inline vers des fichiers JS statiques — Délai : 30 jours
-6. CSP: style-src unsafe-inline : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées — Délai : 30 jours
-7. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base — Délai : 30 jours
-8. Sub Resource Integrity Attribute Missing : Ajouter l'attribut integrity pour les ressources concernées — Délai : 30 jours
-9. CSP: Wildcard Directive : Remplacer le joker par une liste précise d'hôtes de confiance — Délai : 30 jours
-10. Missing Anti-clickjacking Header : Définir l'en-tête X-Frame-Options à DENY ou SAMEORIGIN — Délai : 30 jours
+1. [Protocole déprécié activé : TLS 1.0] : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS — Délai : sous 24h
+2. [Vulnérabilité TLS : LUCKY13] : Réduire ou supprimer les suites CBC lorsque possible — Délai : 7 jours
+3. [Protocole déprécié activé : TLS 1.1] : Désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS — Délai : sous 24h
+4. [CSP: Failure to Define Directive with No Fallback] : Ajouter les directives manquantes avec des valeurs restrictives — Délai : 7 jours
+5. [CSP: script-src unsafe-inline] : Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible — Délai : 7 jours
+6. [CSP: style-src unsafe-inline] : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées — Délai : 7 jours
+7. [Content Security Policy (CSP) Header Not Set] : Définir une politique CSP de base avec default-src 'self' — Délai : 7 jours
+8. [Sub Resource Integrity Attribute Missing] : Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées — Délai : 7 jours
+9. [CSP: Wildcard Directive] : Remplacer '*' par une liste précise d’hôtes de confiance — Délai : 7 jours
+10. [Missing Anti-clickjacking Header] : Définir X-Frame-Options à DENY ou SAMEORIGIN si la compatibilité le permet — Délai : 7 jours
 
 E - Conclusion
-Le niveau de risque global est ÉLEVÉ. L'action prioritaire principale est de désactiver le protocole TLS 1.0, qui présente un risque de sécurité élevé, dans les 24 prochaines heures. Il est essentiel de traiter ces vulnérabilités pour assurer la sécurité de l'application et protéger les données des utilisateurs.
+Le niveau de risque global est ÉLEVÉ.
+L'action prioritaire principale est de désactiver TLS 1.0 et TLS 1.1 sur le serveur web ou équipement de terminaison TLS, avec un délai de sous 24h.
+Il est essentiel de traiter ces vulnérabilités pour réduire les risques de sécurité et protéger les données sensibles.
 
 
     ## Tableau de synthèse des vulnérabilités

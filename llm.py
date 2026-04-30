@@ -26,7 +26,7 @@ from rag_vector import retrieve_knowledge
 # ============================================================
 
 MODEL_NAME = "llama-3.3-70b-versatile"
-GROQ_MAX_TOKENS = 2500
+GROQ_MAX_TOKENS = 3000
 
 
 # ============================================================
@@ -45,39 +45,283 @@ def _get_groq_client() -> Groq:
     return Groq(api_key=api_key)
 
 
+
+# ============================================================
+# OUTILS AGENT — définitions pour Groq tool calling
+# ============================================================
+
+AGENT_TOOLS = [
+    {
+        "type": "function",
+        "function": {
+            "name": "search_rag_knowledge",
+            "description": (
+                "Interroge la base de connaissances RAG locale pour obtenir des étapes de vérification, "
+                "recommandations techniques et contexte sur une vulnérabilité. "
+                "À appeler quand le contexte RAG manque ou est insuffisant pour une vulnérabilité connue "
+                "(XSS, CSP, SQLi, TLS, CSRF, SRI, HSTS, cookies, CORS, etc.)."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Titre exact de la vulnérabilité tel qu'il apparaît dans les données.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description de la vulnérabilité (peut être vide).",
+                    },
+                    "owasp": {
+                        "type": "string",
+                        "description": "Catégorie OWASP associée (ex: A03:2021 - Injection).",
+                    },
+                    "cwe": {
+                        "type": "string",
+                        "description": "Identifiant CWE associé (ex: CWE-79).",
+                    },
+                },
+                "required": ["title"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "fetch_nvd_cve_info",
+            "description": (
+                "Récupère les informations NVD (description, score CVSS, CWE, références) "
+                "pour un identifiant CVE donné. "
+                "À appeler uniquement si le CVE_ID est présent dans les données et que "
+                "le score CVSS ou la description sont manquants ou insuffisants."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "cve_id": {
+                        "type": "string",
+                        "description": "Identifiant CVE au format CVE-AAAA-NNNNN (ex: CVE-2021-44228).",
+                    },
+                },
+                "required": ["cve_id"],
+            },
+        },
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "classify_owasp_category",
+            "description": (
+                "Détermine la catégorie OWASP Top 10 2021 la plus appropriée pour une vulnérabilité "
+                "à partir de son titre, description et CWE. "
+                "À appeler si la catégorie OWASP d'un finding est 'Non fourni' ou absente."
+            ),
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "description": "Titre de la vulnérabilité.",
+                    },
+                    "description": {
+                        "type": "string",
+                        "description": "Description de la vulnérabilité.",
+                    },
+                    "cwe": {
+                        "type": "string",
+                        "description": "CWE associé si disponible.",
+                    },
+                },
+                "required": ["title"],
+            },
+        },
+    },
+]
+
+
+# ============================================================
+# EXÉCUTION DES OUTILS AGENT
+# ============================================================
+
+def _execute_agent_tool(tool_name: str, tool_args: Dict[str, Any]) -> str:
+    """Exécute un outil appelé par l'agent et retourne le résultat en JSON string."""
+
+    if tool_name == "search_rag_knowledge":
+        try:
+            docs = retrieve_knowledge(
+                title=tool_args.get("title", ""),
+                description=tool_args.get("description", ""),
+                owasp=tool_args.get("owasp", ""),
+                cwe=tool_args.get("cwe", ""),
+                top_k=2,
+                min_score=0.60,
+            )
+            if not docs:
+                return json.dumps({"result": "Aucun document trouvé dans la base RAG."})
+            compressed = compress_rag_context(docs)
+            print(f"🔧 [AGENT TOOL] search_rag_knowledge → {len(docs)} doc(s) pour: {tool_args.get('title')}")
+            return json.dumps(compressed, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    elif tool_name == "fetch_nvd_cve_info":
+        from nvd import fetch_nvd_cve, parse_nvd_fields
+        cve_id = tool_args.get("cve_id", "")
+        try:
+            nvd_obj = fetch_nvd_cve(cve_id, api_key=os.getenv("NVD_API_KEY"))
+            if not nvd_obj:
+                return json.dumps({"result": f"CVE {cve_id} non trouvé dans NVD."})
+            fields = parse_nvd_fields(nvd_obj)
+            print(f"🔧 [AGENT TOOL] fetch_nvd_cve_info → CVSS={fields.get('cvss')} pour {cve_id}")
+            return json.dumps(fields, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    elif tool_name == "classify_owasp_category":
+        from owasp import map_owasp
+        try:
+            result = map_owasp(
+                title=tool_args.get("title", ""),
+                description=tool_args.get("description", ""),
+                cwe=tool_args.get("cwe"),
+            )
+            print(f"🔧 [AGENT TOOL] classify_owasp_category → {result} pour: {tool_args.get('title')}")
+            return json.dumps({"owasp_category": result}, ensure_ascii=False)
+        except Exception as e:
+            return json.dumps({"error": str(e)})
+
+    return json.dumps({"error": f"Outil inconnu: {tool_name}"})
+
+
+# ============================================================
+# BOUCLE AGENT (ReAct : Reason → Act → Observe → Repeat)
+# ============================================================
+
 def ollama_run(prompt: str) -> str:
+    """
+    Agent LLM avec boucle ReAct + tool calling Groq.
+    Le modèle peut appeler jusqu'à MAX_AGENT_ITERATIONS outils
+    avant de produire la réponse finale.
+    """
+    MAX_AGENT_ITERATIONS = 8
+
     print(f"Taille du prompt: {len(prompt)} chars (~{len(prompt)//4} tokens)")
     client = _get_groq_client()
 
+    system_message = (
+        "Tu es un consultant senior en cybersécurité. Réponds UNIQUEMENT en français.\n\n"
+        "RÈGLE OBLIGATOIRE : Avant de rédiger le rapport, tu DOIS appeler les outils suivants :\n"
+        "1. search_rag_knowledge : pour CHAQUE finding de la section B, "
+        "afin d\'obtenir les étapes de vérification et recommandations depuis la base de connaissances.\n"
+        "2. fetch_nvd_cve_info : pour CHAQUE finding dont le titre ou cve_id contient CVE-, "
+        "afin de récupérer le score CVSS et la description officielle.\n"
+        "3. classify_owasp_category : pour tout finding dont owasp_category vaut Non fourni.\n\n"
+        "PROCESSUS OBLIGATOIRE :\n"
+        "- Etape 1 : Analyse les findings recus.\n"
+        "- Etape 2 : Appelle les outils pour chaque finding (search_rag_knowledge, fetch_nvd_cve_info).\n"
+        "- Etape 3 : Apres avoir collecte toutes les informations, genere le rapport complet.\n"
+        "Ne jamais rediger le rapport sans avoir appele les outils au moins une fois par finding."
+    )
+
+    messages = [
+        {"role": "system", "content": system_message},
+        {"role": "user", "content": prompt},
+    ]
+
+    tool_calls_log = []
+    iteration = 0
+
     try:
         start = time.time()
-        completion = client.chat.completions.create(
-            model=MODEL_NAME,
-            messages=[
-                {
-                    "role": "system",
-                    "content": "Tu es un consultant senior en cybersécurité. Réponds UNIQUEMENT en français.",
-                },
-                {
-                    "role": "user",
-                    "content": prompt,
-                },
-            ],
-            temperature=0,
-            max_tokens=GROQ_MAX_TOKENS,
-            stream=False,
-        )
 
-        elapsed = time.time() - start
-        out = completion.choices[0].message.content or ""
-        usage = completion.usage
+        while iteration < MAX_AGENT_ITERATIONS:
+            iteration += 1
+            print(f"\n🤖 [AGENT] Itération {iteration}/{MAX_AGENT_ITERATIONS}")
 
-        print(
-            f"✅ Groq terminé en {elapsed:.2f}s | "
-            f"Tokens prompt: {usage.prompt_tokens} | "
-            f"Tokens générés: {usage.completion_tokens} | "
-            f"Total: {usage.total_tokens}"
-        )
+            # Première itération : forcer l'appel d'outil (required)
+            # Itérations suivantes : laisser le modèle décider (auto)
+            current_tool_choice = "required" if iteration == 1 else "auto"
+
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=messages,
+                tools=AGENT_TOOLS,
+                tool_choice=current_tool_choice,
+                temperature=0,
+                max_tokens=GROQ_MAX_TOKENS,
+                stream=False,
+            )
+
+            response_message = completion.choices[0].message
+            finish_reason = completion.choices[0].finish_reason
+
+            # ── Pas d'appel d'outil → réponse finale
+            if finish_reason == "stop" or not response_message.tool_calls:
+                out = response_message.content or ""
+                elapsed = time.time() - start
+                usage = completion.usage
+                print(
+                    f"✅ Agent terminé en {elapsed:.2f}s | "
+                    f"{iteration} itération(s) | "
+                    f"{len(tool_calls_log)} appel(s) d'outils | "
+                    f"Tokens: {usage.prompt_tokens}→{usage.completion_tokens}"
+                )
+                if tool_calls_log:
+                    print(f"   Outils utilisés: {tool_calls_log}")
+                break
+
+            # ── Appels d'outils demandés par le modèle
+            # Ajouter le message assistant avec les tool_calls
+            messages.append({
+                "role": "assistant",
+                "content": response_message.content or "",
+                "tool_calls": [
+                    {
+                        "id": tc.id,
+                        "type": "function",
+                        "function": {
+                            "name": tc.function.name,
+                            "arguments": tc.function.arguments,
+                        },
+                    }
+                    for tc in response_message.tool_calls
+                ],
+            })
+
+            # Exécuter chaque outil et ajouter les résultats
+            for tool_call in response_message.tool_calls:
+                tool_name = tool_call.function.name
+                try:
+                    tool_args = json.loads(tool_call.function.arguments)
+                except json.JSONDecodeError:
+                    tool_args = {}
+
+                print(f"   🔧 Appel outil: {tool_name}({list(tool_args.keys())})")
+                tool_calls_log.append(tool_name)
+
+                tool_result = _execute_agent_tool(tool_name, tool_args)
+
+                messages.append({
+                    "role": "tool",
+                    "tool_call_id": tool_call.id,
+                    "content": tool_result,
+                })
+
+        else:
+            # MAX iterations atteint → forcer la génération finale
+            print(f"⚠️ [AGENT] Limite de {MAX_AGENT_ITERATIONS} itérations atteinte — forçage réponse finale")
+            messages.append({
+                "role": "user",
+                "content": "Tu as suffisamment d'informations. Génère maintenant le rapport complet en français.",
+            })
+            completion = client.chat.completions.create(
+                model=MODEL_NAME,
+                messages=messages,
+                temperature=0,
+                max_tokens=GROQ_MAX_TOKENS,
+                stream=False,
+            )
+            out = completion.choices[0].message.content or ""
 
     except Exception as e:
         error_msg = str(e)
@@ -88,7 +332,7 @@ def ollama_run(prompt: str) -> str:
         return f"⚠️ ERREUR GROQ: {error_msg}"
 
     if not out:
-        return "⚠️ ERREUR: sortie Groq vide."
+        return "⚠️ ERREUR: sortie agent vide."
 
     with open("debug_output.txt", "w", encoding="utf-8") as f:
         f.write(out)
@@ -728,11 +972,11 @@ def _filter_row_for_llm_section_b(row: Dict[str, Any]) -> Dict[str, Any]:
         "owasp_category",
         "severity",
        
-        "rag_context",
         "matched_version",
         "module_name",
-      
         "forced_recommendation",
+        "cve_id",
+        "cwe",
        
     }
     return {k: v for k, v in row.items() if k in allowed and v not in (None, "", [], {})}
@@ -1254,9 +1498,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     # --------------------------------------------------------
     # 2) Enrichissement NVD
     # --------------------------------------------------------
-    nvd_key = os.getenv("NVD_API_KEY")
-    if nvd_key:
-        enrich_cves(findings, api_key=nvd_key, sleep_sec=1.2)
+    enrich_cves(findings, api_key=None, sleep_sec=6)
 
  
     # 3) Recalcul des priorités

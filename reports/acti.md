@@ -1,11 +1,10 @@
 A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 3 vulnérabilités ont été retenues dans ce rapport, dont 1 sont prioritaires.
 Niveau de risque global : FAIBLE. Cible : http://www.acti.fr/ (wordpress 6.4.3). Scan du : 2026-03-10 14:01:17 UTC.
-La surface d’attaque côté navigateur est élargie en raison de l’absence de certaines mesures de sécurité côté client, notamment la politique de sécurité du contenu (CSP).
 
 B - Vulnérabilités Prioritaires
 Content Security Policy (CSP) Header Not Set
-- Description : La politique de sécurité du contenu (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certains types d'attaques, notamment les attaques de scriptage inter-site (XSS) et les attaques d'injection de données. 
+- Description : Content Security Policy (CSP) est une couche de sécurité supplémentaire qui aide à détecter et à atténuer certains types d'attaques, notamment les attaques de scriptage inter-site (XSS) et les attaques d'injection de données. Ces attaques sont utilisées pour tout, desde le vol de données jusqu'à la défiguration de site ou la distribution de logiciels malveillants. CSP fournit un ensemble d'en-têtes HTTP standard qui permettent aux propriétaires de sites Web de déclarer les sources de contenu approuvées que les navigateurs devraient être autorisés à charger sur cette page — les types couverts sont JavaScript, CSS, les cadres HTML, les polices, les images et les objets incorporables tels que les applets Java, ActiveX, les fichiers audio et vidéo.
 - Référence : 
   - https://developer.mozilla.org/en-US/docs/Web/HTTP/Guides/CSP
   - https://cheatsheetseries.owasp.org/cheatsheets/Content_Security_Policy_Cheat_Sheet.html
@@ -16,21 +15,21 @@ Content Security Policy (CSP) Header Not Set
   - https://content-security-policy.com/
 - Catégorie OWASP : A05:2021 - Security Misconfiguration
 - Sévérité : MEDIUM
-- Recommandation : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires.
+- Recommandation : Définir une politique CSP de base avec default-src 'self'. Déclarer explicitement les directives nécessaires comme script-src, style-src, img-src, font-src et frame-ancestors. Éviter unsafe-inline et unsafe-eval sauf contrainte technique clairement identifiée.
 - Vérification : 
-  Exécuter curl -I http://www.acti.fr/ | grep -i content-security-policy
-  Si l’en-tête Content-Security-Policy est absent → vulnérabilité confirmée.
+Exécuter curl -I http://www.acti.fr/ | grep -i content-security-policy
+Si l’en-tête Content-Security-Policy est absent → vulnérabilité confirmée.
 
 C - Vulnérabilités Potentielles à Valider
-Cette section n'est pas applicable dans ce cas, car il n'y a pas de vulnérabilités potentielles à valider.
+Cette section n'est pas applicable car il n'y a pas de vulnérabilités potentielles à valider.
 
 D - Plan de remédiation
 1. Content Security Policy (CSP) Header Not Set : Définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires — Délai : 30 jours
 
 E - Conclusion
 Le niveau de risque global est FAIBLE.
-L'action prioritaire principale est de définir une politique CSP de base avec default-src 'self' et déclarer explicitement les directives nécessaires, avec un délai de 30 jours.
-Il est essentiel de traiter cette vulnérabilité pour réduire la surface d’attaque côté navigateur et améliorer la sécurité globale du site.
+L'action prioritaire principale est de définir une politique CSP de base avec default-src 'self' et de déclarer explicitement les directives nécessaires pour la vulnérabilité "Content Security Policy (CSP) Header Not Set", avec un délai de 30 jours.
+Il est essentiel de mettre en œuvre cette action pour renforcer la sécurité de la cible http://www.acti.fr/.
 
 
     ## Tableau de synthèse des vulnérabilités

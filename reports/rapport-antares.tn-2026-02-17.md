@@ -1,109 +1,104 @@
 A - Résumé Exécutif
 Après analyse, déduplication et consolidation des résultats, 10 vulnérabilités ont été retenues dans ce rapport, dont 5 sont prioritaires.
 Niveau de risque global : MODÉRÉ. Cible : https://antares.tn/ (drupal 11). Scan du : 2026-02-17 09:56:39 UTC.
-La surface d’attaque côté navigateur est élargie en raison de plusieurs vulnérabilités liées à la sécurité côté client, notamment l'absence de directives de sécurité adéquates dans la politique de sécurité du contenu (CSP) et l'utilisation de scripts et de styles inline non sécurisés.
+La surface d’attaque côté navigateur est élargie.
 
 B - Vulnérabilités Prioritaires
-- CSP: Failure to Define Directive with No Fallback
+[CSP: Failure to Define Directive with No Fallback]
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) ne définit pas une directive essentielle sans fallback, ce qui peut permettre l'exécution de code malveillant.
-  - Référence : 
-    - https://www.w3.org/TR/CSP/
-    - https://caniuse.com/#search=content+security+policy
-    - https://content-security-policy.com/
-    - https://github.com/HtmlUnit/htmlunit-csp
-    - https://web.dev/articles/csp#resource-options
-  - Catégorie OWASP : A05:2021 - Security Misconfiguration
-  - Sévérité : MEDIUM
-  - Recommandation : Identifier les directives CSP sans fallback et les ajouter avec des valeurs restrictives.
-  - Vérification : Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy, puis vérifier la présence des directives form-action, frame-ancestors, base-uri et object-src.
+- Description : La politique de sécurité du contenu (CSP) ne définit pas une des directives qui n'a pas de fallback. L'absence ou l'exclusion de ces directives est la même chose que permettre n'importe quoi.
+- Référence : https://www.w3.org/TR/CSP/
+- Catégorie OWASP : A05:2021 - Security Misconfiguration
+- Sévérité : MEDIUM
+- Recommandation : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src. Ajouter uniquement les directives manquantes avec des valeurs restrictives.
+- Vérification : 
+Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy
+Lire la valeur complète de l’en-tête CSP récupéré.
+Vérifier explicitement la présence des directives form-action, frame-ancestors, base-uri et object-src.
 
-- CSP: script-src unsafe-inline
+[CSP: script-src unsafe-inline]
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline, ce qui peut permettre des attaques de type XSS.
-  - Référence : 
-    - https://www.w3.org/TR/CSP/
-    - https://caniuse.com/#search=content+security+policy
-    - https://content-security-policy.com/
-    - https://github.com/HtmlUnit/htmlunit-csp
-    - https://web.dev/articles/csp#resource-options
-  - Catégorie OWASP : A05:2021 - Security Misconfiguration
-  - Sévérité : MEDIUM
-  - Recommandation : Migrer les scripts inline vers des fichiers JS statiques et utiliser des nonces dynamiques pour les scripts inline légitimes.
-  - Vérification : Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy, puis identifier la directive script-src et vérifier la présence de 'unsafe-inline'.
+- Description : La politique de sécurité du contenu (CSP) permet l'exécution de scripts inline, ce qui peut permettre à un attaquant d'injecter du code malveillant.
+- Référence : https://www.w3.org/TR/CSP/
+- Catégorie OWASP : A05:2021 - Security Misconfiguration
+- Sévérité : MEDIUM
+- Recommandation : Identifier tous les scripts inline présents dans les templates HTML. Migrer les scripts inline vers des fichiers JS statiques versionnés lorsque possible.
+- Vérification : 
+Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy
+Lire la valeur complète de l’en-tête CSP.
+Identifier la directive script-src dans la politique.
 
-- CSP: style-src unsafe-inline
+[CSP: style-src unsafe-inline]
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline, ce qui peut permettre des attaques de type XSS.
-  - Référence : 
-    - https://www.w3.org/TR/CSP/
-    - https://caniuse.com/#search=content+security+policy
-    - https://content-security-policy.com/
-    - https://github.com/HtmlUnit/htmlunit-csp
-    - https://web.dev/articles/csp#resource-options
-  - Catégorie OWASP : A05:2021 - Security Misconfiguration
-  - Sévérité : MEDIUM
-  - Recommandation : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
-  - Vérification : Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy, puis identifier la directive style-src et vérifier la présence de 'unsafe-inline'.
+- Description : La politique de sécurité du contenu (CSP) permet l'injection de styles inline, ce qui peut permettre à un attaquant d'injecter du code malveillant.
+- Référence : https://www.w3.org/TR/CSP/
+- Catégorie OWASP : A05:2021 - Security Misconfiguration
+- Sévérité : MEDIUM
+- Recommandation : Identifier les styles inline dans les templates et composants front-end. Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées.
+- Vérification : 
+Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy
+Lire la valeur complète de l’en-tête CSP.
+Identifier la directive style-src dans la politique.
 
-- Sub Resource Integrity Attribute Missing
-  - Description : L'attribut d'intégrité des ressources est manquant pour les scripts et les liens chargés depuis des serveurs externes, ce qui peut permettre l'injection de code malveillant.
-  - Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
-  - Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
-  - Sévérité : MEDIUM
-  - Recommandation : Ajouter l'attribut d'intégrité pour les ressources chargées depuis des serveurs externes.
-  - Vérification : Exécuter : curl -s https://antares.tn/ | grep -i integrity, puis identifier les balises script et link qui chargent des ressources externes et vérifier la présence de l'attribut integrity.
+[Sub Resource Integrity Attribute Missing]
+- Description : L'attribut d'intégrité est manquant sur les balises script et link qui chargent des ressources externes, ce qui peut permettre à un attaquant d'injecter du code malveillant.
+- Référence : https://developer.mozilla.org/en-US/docs/Web/Security/Subresource_Integrity
+- Catégorie OWASP : A08:2021 - Software and Data Integrity Failures
+- Sévérité : MEDIUM
+- Recommandation : Identifier les scripts et feuilles CSS chargés depuis des domaines externes. Ajouter integrity et crossorigin=\"anonymous\" sur les ressources stables et versionnées.
+- Vérification : 
+Exécuter : curl -s https://antares.tn/ | grep -i integrity
+Identifier les balises script et link qui chargent des ressources externes (CDN, domaine tiers, URL absolue ou //domain).
+Vérifier si ces balises contiennent un attribut integrity et crossorigin.
 
-- CSP: Wildcard Directive
+[CSP: Wildcard Directive]
   - Paramètre/Ressource affecté(e) : Content-Security-Policy
-  - Description : La politique de sécurité du contenu (CSP) utilise une directive générique qui autorise des sources trop larges, ce qui peut permettre l'exécution de code malveillant.
-  - Référence : 
-    - https://www.w3.org/TR/CSP/
-    - https://caniuse.com/#search=content+security+policy
-    - https://content-security-policy.com/
-    - https://github.com/HtmlUnit/htmlunit-csp
-    - https://web.dev/articles/csp#resource-options
-  - Catégorie OWASP : A05:2021 - Security Misconfiguration
-  - Sévérité : MEDIUM
-  - Recommandation : Remplacer la directive générique par une liste précise d'hôtes de confiance.
-  - Vérification : Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy, puis rechercher le caractère '*' dans les directives concernées.
+- Description : La politique de sécurité du contenu (CSP) utilise des directives génériques (*), ce qui peut permettre à un attaquant d'injecter du code malveillant.
+- Référence : https://www.w3.org/TR/CSP/
+- Catégorie OWASP : A05:2021 - Security Misconfiguration
+- Sévérité : MEDIUM
+- Recommandation : Remplacer * par une liste précise d’hôtes de confiance. Éviter les schémas génériques comme https: quand les domaines réels sont connus.
+- Vérification : 
+Exécuter : curl -I https://antares.tn/ | grep -i content-security-policy
+Lire la valeur complète de l’en-tête CSP.
+Rechercher explicitement le caractère '*' dans les directives concernées.
 
 C - Vulnérabilités Potentielles à Valider
-- CVE-2008-6020
-  - Statut : À valider manuellement
-  - Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant aux attaquants d'exécuter des commandes SQL arbitraires. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
-  - Référence : https://nvd.nist.gov/vuln/detail/CVE-2008-6020
-  - Catégorie OWASP : A03:2021 - Injection
-  - Sévérité : HIGH
-  - Délai : À valider manuellement avant planification
+[CVE-2008-6020]
+- Statut : À valider manuellement
+- Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant à un attaquant distant d'exécuter des commandes SQL arbitraires via des vecteurs non spécifiés liés à un filtre exposé sur les champs de texte CCK. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
+- Référence : https://nvd.nist.gov/vuln/detail/CVE-2008-6020
+- Catégorie OWASP : A03:2021 - Injection
+- Sévérité : HIGH
+- Délai : À valider manuellement avant planification
 
-- CVE-2011-4113
-  - Statut : À valider manuellement
-  - Description : Vulnérabilité d'injection SQL dans le module Views pour Drupal, permettant aux attaquants d'exécuter des commandes SQL arbitraires. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
-  - Référence : https://nvd.nist.gov/vuln/detail/CVE-2011-4113
-  - Catégorie OWASP : A03:2021 - Injection
-  - Sévérité : HIGH
-  - Délai : À valider manuellement avant planification
+[CVE-2011-4113]
+- Statut : À valider manuellement
+- Description : Vulnérabilité d'injection SQL dans le module Views avant la version 6.x-2.13 pour Drupal, permettant à un attaquant distant d'exécuter des commandes SQL arbitraires via des vecteurs liés aux filtres/arguments sur certains types de vues avec des configurations spécifiques d'arguments. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
+- Référence : https://nvd.nist.gov/vuln/detail/CVE-2011-4113
+- Catégorie OWASP : A03:2021 - Injection
+- Sévérité : HIGH
+- Délai : À valider manuellement avant planification
 
-- CVE-2024-13254
-  - Statut : À valider manuellement
-  - Description : Vulnérabilité d'insertion d'informations sensibles dans les données envoyées dans le module REST Views pour Drupal, permettant la navigation forcée. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
-  - Référence : https://nvd.nist.gov/vuln/detail/CVE-2024-13254
-  - Catégorie OWASP : A01:2021 - Broken Access Control
-  - Sévérité : HIGH
-  - Délai : À valider manuellement avant planification
+[CVE-2024-13254]
+- Statut : À valider manuellement
+- Description : Vulnérabilité d'insertion d'informations sensibles dans les données envoyées dans Drupal REST Views, permettant la navigation forcée. Contexte : module détecté : views. Version non vérifiable — présence du module confirmée mais version exacte inconnue. Cette vulnérabilité peut ou non s'appliquer.
+- Référence : https://nvd.nist.gov/vuln/detail/CVE-2024-13254
+- Catégorie OWASP : A01:2021 - Broken Access Control
+- Sévérité : HIGH
+- Délai : À valider manuellement avant planification
 
 D - Plan de remédiation
-1. CSP: Failure to Define Directive with No Fallback : Identifier les directives CSP sans fallback et les ajouter avec des valeurs restrictives — Délai : 30 jours
-2. CSP: script-src unsafe-inline : Migrer les scripts inline vers des fichiers JS statiques et utiliser des nonces dynamiques pour les scripts inline légitimes — Délai : 30 jours
-3. CSP: style-src unsafe-inline : Déplacer les styles inline vers des feuilles CSS servies depuis des sources approuvées — Délai : 30 jours
-4. Sub Resource Integrity Attribute Missing : Ajouter l'attribut d'intégrité pour les ressources chargées depuis des serveurs externes — Délai : 30 jours
-5. CSP: Wildcard Directive : Remplacer la directive générique par une liste précise d'hôtes de confiance — Délai : 30 jours
+1. [CSP: Failure to Define Directive with No Fallback] : Identifier les directives CSP sans fallback qui sont absentes de la politique actuelle parmi : form-action, frame-ancestors, base-uri, object-src — Délai : 30 jours
+2. [CSP: script-src unsafe-inline] : Identifier tous les scripts inline présents dans les templates HTML — Délai : 30 jours
+3. [CSP: style-src unsafe-inline] : Identifier les styles inline dans les templates et composants front-end — Délai : 30 jours
+4. [Sub Resource Integrity Attribute Missing] : Identifier les scripts et feuilles CSS chargés depuis des domaines externes — Délai : 30 jours
+5. [CSP: Wildcard Directive] : Remplacer * par une liste précise d’hôtes de confiance — Délai : 30 jours
 
 E - Conclusion
 Le niveau de risque global est MODÉRÉ.
-L'action prioritaire principale est de remédier à la vulnérabilité "CSP: Failure to Define Directive with No Fallback" dans les 30 jours, en raison de son impact sur la sécurité de la politique de sécurité du contenu.
-Il est essentiel de traiter ces vulnérabilités pour réduire la surface d'attaque et améliorer la sécurité globale du site web.
+L'action prioritaire principale est de remédier à la vulnérabilité [CSP: Failure to Define Directive with No Fallback] dans un délai de 30 jours.
+Il est essentiel de traiter les vulnérabilités identifiées pour réduire la surface d'attaque et améliorer la sécurité globale du site.
 
 
     ## Tableau de synthèse des vulnérabilités

@@ -72,7 +72,15 @@ def split_lines_preserve_blocks(text: str) -> List[str]:
 
 
 def find_urls(text: str) -> List[str]:
-    return re.findall(r"https?://[^\s<>)]+", text or "")
+    # Capturer toutes les URLs y compris celles avec #, ?, & dans les lignes indentées
+    raw = re.findall(r"https?://[^\s<>)\"']+", text or "")
+    # Nettoyer les trailing punctuation
+    cleaned = []
+    for u in raw:
+        u = re.sub(r"[.,;]+$", "", u)
+        if u not in cleaned:
+            cleaned.append(u)
+    return cleaned
 
 
 # =========================================================
@@ -197,8 +205,13 @@ ENTRY_START_RE = re.compile(
 def is_field_line(line: str) -> bool:
     s = line.strip()
     s = re.sub(r"^\*\s*", "", s)
-    return any(re.match(rf"^-?\s*{re.escape(lbl)}\s*:", s, re.IGNORECASE) for lbl in FIELD_LABELS) or \
-           bool(re.match(r"^\*+\s*Param[èe]tre/Ressource affect", s, re.IGNORECASE))
+    # champ standard
+    if any(re.match(rf"^-?\s*{re.escape(lbl)}\s*:", s, re.IGNORECASE) for lbl in FIELD_LABELS):
+        return True
+    # Paramètre/Ressource (avec ou sans tiret, avec ou sans indent)
+    if re.match(r"^-?\s*Param[èe]tre/Ressource affect", s, re.IGNORECASE):
+        return True
+    return False
 
 
 def is_real_entry_title(title: str) -> bool:
@@ -254,8 +267,15 @@ def split_entries(section_text: str) -> list[str]:
         is_new_entry = False
         title_candidate = ""
 
+        # cas 0 : Titre entre crochets [Titre...] — format agent LLM
+        bracket_match = re.match(r"^\[(.+)\]\s*$", stripped)
+        if indent == 0 and bracket_match:
+            title_candidate = bracket_match.group(1).strip()
+            if is_real_entry_title(title_candidate):
+                is_new_entry = True
+
         # cas 1 : - Titre ou 1. Titre
-        if indent == 0 and start_match:
+        elif indent == 0 and start_match:
             title_candidate = start_match.group(1).strip()
 
             if (
@@ -286,30 +306,50 @@ def split_entries(section_text: str) -> list[str]:
     return [e for e in entries if e.strip()]
 
 def extract_field(block: str, label: str) -> str:
+    # Pattern principal : capture tout jusqu'au prochain champ connu
+    field_alts = '|'.join(re.escape(x) for x in FIELD_LABELS)
     pattern = re.compile(
-        rf"(?:^|\n)\s*(?:-\s+|\*\s*)?{re.escape(label)}\s*:\s*(.*?)(?=(?:\n\s*(?:-\s+|\*\s*)?(?:{'|'.join(re.escape(x) for x in FIELD_LABELS)}|Param[èe]tre/Ressource affect)[^:\n]*\s*:)|\Z)",
+        rf"(?:^|\n)\s*(?:-\s+|\*\s*)?{re.escape(label)}\s*:\s*(.*?)"
+        rf"(?=(?:\n\s*(?:-\s+|\*\s*)?(?:{field_alts}|Param[èe]tre/Ressource affect)[^:\n]*\s*:)|\Z)",
         re.IGNORECASE | re.DOTALL,
     )
     m = pattern.search(block)
     if not m:
         return ""
-    return clean_text(m.group(1))
+    raw = m.group(1)
+
+    # Pour les champs multi-lignes (Référence, Vérification) :
+    # conserver les lignes indentées qui font partie du champ
+    lines_out = []
+    for ln in raw.splitlines():
+        stripped = ln.strip()
+        if not stripped:
+            continue
+        # exclure les URLs isolées qui sont déjà dans refs
+        lines_out.append(stripped)
+
+    return clean_text("\n".join(lines_out))
 
 
 def extract_param(block: str) -> str:
-    patterns = [
-        r"(?:^|\n)\s*\*\s*Param[èe]tre/Ressource affect[ée]\(e\)\s*:\s*(.+)",
-        r"(?:^|\n)\s*-\s*Param[èe]tre/Ressource affect[ée]\(e\)\s*:\s*(.+)",
-    ]
-    for p in patterns:
-        m = re.search(p, block, re.IGNORECASE)
-        if m:
-            return clean_text(m.group(1))
+    # Cherche "Paramètre/Ressource affecté(e) :" sous toutes ses formes
+    # (avec *, avec -, avec indent, avec ou sans parenthèses)
+    pattern = re.compile(
+        r"(?:^|\n)\s*(?:[*-]\s*)?Param[èe]tre/Ressource\s+affect[ée].*?:\s*(.+)",
+        re.IGNORECASE,
+    )
+    m = pattern.search(block)
+    if m:
+        return clean_text(m.group(1))
     return ""
 
 
 def extract_entry_title(block: str) -> str:
     first = block.splitlines()[0].strip()
+    # Titre entre crochets [Titre] — format agent LLM
+    bracket = re.match(r"^\[(.+)\]\s*$", first)
+    if bracket:
+        return normalize_title(bracket.group(1))
     first = re.sub(r"^\d+\.\s+", "", first)
     first = re.sub(r"^-\s+", "", first)
     return normalize_title(first)
@@ -336,7 +376,22 @@ def parse_section_b(md_text: str) -> List[Dict[str, str]]:
     for block in entries:
         title = extract_entry_title(block)
         refs_raw = extract_field(block, "Référence")
-        refs = find_urls(refs_raw)
+        # Chercher aussi les URLs dans les lignes indentées après "Référence :"
+        ref_section = ""
+        in_ref = False
+        for ln in block.splitlines():
+            stripped = ln.strip()
+            if re.match(r"^-?\s*Référence\s*:", stripped, re.IGNORECASE):
+                in_ref = True
+                ref_section += ln + "\n"
+                continue
+            if in_ref:
+                # Continuer tant que c'est une ligne indentée ou une URL
+                if ln.startswith("  ") or stripped.startswith("http"):
+                    ref_section += ln + "\n"
+                else:
+                    break
+        refs = find_urls(ref_section if ref_section else refs_raw)
 
         finding = {
             "title": title,
