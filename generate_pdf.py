@@ -102,9 +102,30 @@ def risk_to_class(label: str) -> str:
 
 
 def extract_target(md_text: str) -> str:
-    m = re.search(r"Cible\s*:\s*(https?://[^\s()]+)", md_text, re.IGNORECASE)
-    return m.group(1).strip() if m else "Cible non spécifiée"
+    patterns = [
+        r"(?:Cible|Target|URL)\s*:\s*(.+)"
+    ]
 
+    for pattern in patterns:
+        m = re.search(pattern, md_text, re.IGNORECASE)
+
+        if m:
+            target = m.group(1)
+
+            # nettoyage
+            target = target.strip()
+            target = re.sub(r"\s+", "", target)
+            target = target.rstrip(".,;:)]}>/")
+            target = target.strip("'\"")
+
+            # ajoute https si absent
+            if re.match(r"^[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}", target):
+                if not target.startswith(("http://", "https://")):
+                    target = "https://" + target
+
+            return target
+
+    return "Cible non spécifiée"
 
 def extract_scan_date(md_text: str) -> str:
     m = re.search(r"Scan du\s*:\s*([0-9]{4}-[0-9]{2}-[0-9]{2})", md_text, re.IGNORECASE)
