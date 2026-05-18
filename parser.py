@@ -355,7 +355,13 @@ def extract_metadata(data: Dict[str, Any]) -> Dict[str, Any]:
 
     meta = {
         "scan_id": data.get("scan_id") or scan.get("scan_id"),
-        "target_url": scan.get("target_url") or data.get("target_url") or data.get("domain"),
+        "target_url": (
+    scan.get("target_url")
+    or data.get("target_url")
+    or data.get("domain")
+    or safe_get(scan, "network_scan", "domain")
+    or safe_get(data, "network_scan", "domain")
+),
         "cms": scan.get("cms_type") or data.get("cms") or safe_get(scan, "cms_scan", "cms") or "inconnu",
         "cms_version": cms_version or "Non fourni",
         "mode": scan.get("mode") or data.get("mode") or "Non fourni",
