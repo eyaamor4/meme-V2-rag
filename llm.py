@@ -1265,6 +1265,10 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
         f["finding_type"] = classify_finding_type(f)
         f["priority"] = compute_priority(f)
         f["kind"] = classify_finding_kind(f.get("severity"), f)
+    info_count = sum(
+        1 for f in findings
+        if normalize_severity(f.get("severity")) == "info"
+    )    
     findings = sort_findings(findings)
 
     # --------------------------------------------------------
@@ -1308,7 +1312,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     # --------------------------------------------------------
     all_stats = build_summary_stats(findings)
     vuln_counts = count_severity(reportable_vulns, vulnerabilities_only=False)
-    info_count = len(reportable_info)
+    
 
     risk_data = compute_risk_score(
         reportable_vulns,
@@ -1616,7 +1620,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
 
     **Vulnérabilités confirmées retenues dans le rapport :** {len(reportable_vulns)}  
     **Vulnérabilités potentielles à valider :** {len(potential_llm_rows)}  
-    **Éléments informationnels :** {len(reportable_info)}  
+    **Éléments informationnels :** {info_count}  
     **Prioritaires confirmées (section B) :** {len(top_findings)} 
 
     > ℹ️ *Les chiffres ci-dessus sont calculés après déduplication globale.*
