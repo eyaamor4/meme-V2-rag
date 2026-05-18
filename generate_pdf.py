@@ -1221,7 +1221,12 @@ HTML_TEMPLATE = r"""
     .sev-info-text{ color:var(--info); font-weight:bold; }
 
     .page-break{ page-break-before:always; }
+    
 
+    .conclusion-block{
+        page-break-inside: avoid;
+        break-inside: avoid;
+    }
     .footer{
       margin-top:18px;
       padding-top:8px;
@@ -1262,8 +1267,10 @@ HTML_TEMPLATE = r"""
     <h2>D - Plan de remédiation</h2>
     {{ remediation_html | safe }}
 
-    <h2>E - Conclusion</h2>
-    <div class="box">{{ conclusion_html | safe }}</div>
+    <div class="conclusion-block">
+        <h2>E - Conclusion</h2>
+        <div class="box">{{ conclusion_html | safe }}</div>
+    </div>
 
     {{ annexe_html | safe }}
 
