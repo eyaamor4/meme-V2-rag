@@ -103,25 +103,23 @@ def risk_to_class(label: str) -> str:
 
 def extract_target(md_text: str) -> str:
     patterns = [
-        r"(?:Cible|Target|URL)\s*:\s*(.+)"
+        r"(?:Cible|Target|URL)\s*:\s*(https?://[^\s<>)]+)",
+        r"(?:Cible|Target|URL)\s*:\s*([a-zA-Z0-9._-]+\.[a-zA-Z]{2,})"
     ]
 
     for pattern in patterns:
         m = re.search(pattern, md_text, re.IGNORECASE)
 
         if m:
-            target = m.group(1)
+            target = m.group(1).strip()
 
             # nettoyage
-            target = target.strip()
-            target = re.sub(r"\s+", "", target)
             target = target.rstrip(".,;:)]}>/")
             target = target.strip("'\"")
 
             # ajoute https si absent
-            if re.match(r"^[a-zA-Z0-9._-]+\.[a-zA-Z]{2,}", target):
-                if not target.startswith(("http://", "https://")):
-                    target = "https://" + target
+            if not target.startswith(("http://", "https://")):
+                target = "https://" + target
 
             return target
 
