@@ -707,9 +707,7 @@ def render_synthesis(counts: Dict[str, str], stats: Dict[str, str], risk_label: 
 
       </div>
 
-      <div class="note-box" style="margin-top:12px;">
-       <strong>Note méthodologique :</strong> Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
-      </div>
+    
 
       <div class="stat-row">
         <div class="pill confirmed">
@@ -1256,8 +1254,10 @@ HTML_TEMPLATE = r"""
     <h2>B - Vulnérabilités Prioritaires</h2>
     {{ findings_html | safe }}
 
+    {% if potential["items"]|length > 0 %}
     <h2>C - Vulnérabilités Potentielles à Valider</h2>
     {{ potential_html | safe }}
+    {% endif %}
 
     <h2>D - Plan de remédiation</h2>
     {{ remediation_html | safe }}
@@ -1327,23 +1327,24 @@ def generate_pdf_from_markdown(report_path: str | Path) -> tuple[Path, Path]:
 
     template = Template(HTML_TEMPLATE)
     final_html = template.render(
-        risk_label=risk_label,
-        risk_class=risk_class,
-        target_url=target_url,
-        scan_date=scan_date,
-        critique=counts["critique"],
-        eleve=counts["eleve"],
-        moyen=counts["moyen"],
-        faible=counts["faible"],
-        info=counts["info"],
-        executive_summary=executive_summary,
-        findings_html=findings_html,
-        potential_html=potential_html,
-        remediation_html=remediation_html,
-        conclusion_html=conclusion_html,
-        synthesis_html=synthesis_html,
-        annexe_html=annexe_html,
-    )
+    risk_label=risk_label,
+    risk_class=risk_class,
+    target_url=target_url,
+    scan_date=scan_date,
+    potential=potential,
+    critique=counts["critique"],
+    eleve=counts["eleve"],
+    moyen=counts["moyen"],
+    faible=counts["faible"],
+    info=counts["info"],
+    executive_summary=executive_summary,
+    findings_html=findings_html,
+    potential_html=potential_html,
+    remediation_html=remediation_html,
+    conclusion_html=conclusion_html,
+    synthesis_html=synthesis_html,
+    annexe_html=annexe_html,
+)
 
     output_html = report_path.with_name(report_path.stem + "_rendered.html")
     output_pdf = report_path.with_name(report_path.stem + "_rapport.pdf")

@@ -1597,7 +1597,7 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     narrative = inject_param_in_section_b(narrative, top_findings)
     narrative = dedupe_section_b(narrative)
     narrative = cleanup_manual_validation_text(narrative)
-    
+    narrative = remove_empty_section_c(narrative, len(clean_potential_llm_rows))
     # --------------------------------------------------------
     # 12) Tableau de synthèse cohérent
     # --------------------------------------------------------
@@ -1607,7 +1607,6 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     summary_table = f"""
     ## Tableau de synthèse des vulnérabilités
 
-    > **Note méthodologique :** Les vulnérabilités potentielles à valider et les éléments informationnels sont comptabilisés séparément.
 
     | 🔴 Critique | 🟠 Élevé | 🟡 Moyen | 🟢 Faible | ℹ️ Info |
     |:---:|:---:|:---:|:---:|:---:|
