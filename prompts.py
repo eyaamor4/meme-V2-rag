@@ -5,7 +5,7 @@ La sortie doit commencer DIRECTEMENT par "A - Résumé Exécutif". Ne jamais éc
 --- MÉTADONNÉES ---
 - Scan ID : {scan_id}
 - Cible : {target_url}
-- CMS : {cms} version {cms_version}
+- CMS : {cms_display}
 - Date du scan : {created_at}
 - Durée : {scan_time_sec} secondes
 - Mode : {mode}
@@ -45,7 +45,7 @@ SECTION A — RÉSUMÉ EXÉCUTIF :
 1. "Après analyse, déduplication et consolidation des résultats, {total_vulnerabilities} vulnérabilités ont été retenues dans ce rapport, dont {nb_prioritaires} sont prioritaires."
 
 
-2. "Niveau de risque global : {risk_level_computed}. Cible : {target_url} ({cms} {cms_version}). Scan du : {created_at}."
+2. "Niveau de risque global : {risk_level_computed}. Cible : {target_url}{cms_display}. Scan du : {created_at}."
 
 Si plusieurs vulnérabilités liées à la sécurité côté client sont présentes (ex : absence de CSP, SRI manquant, headers de protection absents) :
 Mentionner que la surface d’attaque côté navigateur est élargie.
@@ -205,7 +205,7 @@ La sortie doit commencer DIRECTEMENT par "A - Résumé Exécutif". Ne jamais éc
 --- MÉTADONNÉES ---
 - Scan ID : {scan_id}
 - Cible : {target_url}
-- CMS : {cms} version {cms_version}
+- CMS : {cms_display}
 - Date du scan : {created_at}
 - Durée : {scan_time_sec} secondes
 - Mode : {mode}
@@ -249,7 +249,7 @@ SECTION A — RÉSUMÉ EXÉCUTIF :
 1. "Après analyse, déduplication et consolidation des résultats, {total_vulnerabilities} vulnérabilités ont été retenues dans ce rapport, dont {nb_prioritaires} sont prioritaires."
 
 
-2. "Niveau de risque global : {risk_level_computed}. Cible : {target_url} ({cms} {cms_version}). Scan du : {created_at}."
+2. "Niveau de risque global : {risk_level_computed}. Cible : {target_url}{cms_display}. Scan du : {created_at}."
 
 3. Si ssl_grade est renseigné ET différent de "" et "Non fourni" :
 "Le grade SSL/TLS obtenu est {ssl_grade}."

@@ -1,3 +1,4 @@
+from importlib import metadata
 import json
 import os
 import re
@@ -1547,12 +1548,28 @@ def analyze_full(findings: List[Dict[str, Any]], metadata: Dict[str, Any], top_n
     # --------------------------------------------------------
     is_complete = str(metadata.get("mode") or "").lower() == "complete"
 
+    def clean_meta_value(value):
+        value = str(value or "").strip()
+        if value.lower() in {"", "inconnu", "unknown", "non fourni", "none", "null", "n/a"}:
+            return ""
+        return value
+
+    cms = clean_meta_value(metadata.get("cms"))
+    cms_version = clean_meta_value(metadata.get("cms_version"))
+
+    cms_display = ""
+    if cms:
+        cms_display = f" ({cms}"
+        if cms_version:
+            cms_display += f" {cms_version}"
+        cms_display += ")"
 
     prompt_kwargs = dict(
     scan_id=metadata.get("scan_id") or "Non fourni",
     target_url=metadata.get("target_url") or "Non fourni",
-    cms=metadata.get("cms") or "Non fourni",
-    cms_version=metadata.get("cms_version") or "Non fourni",
+    cms=cms,
+    cms_version=cms_version,
+    cms_display=cms_display,
     mode=metadata.get("mode") or "Non fourni",
     total_vulnerabilities=len(reportable_vulns),
     created_at=metadata.get("created_at") or "Non fourni",
